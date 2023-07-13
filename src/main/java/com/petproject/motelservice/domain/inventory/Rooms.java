@@ -48,4 +48,8 @@ public class Rooms {
 	
 	@OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
 	private List<Tenants> tenants;
+	
+	@OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+	private List<Bills> bills;
+
 }

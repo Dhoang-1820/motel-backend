@@ -47,4 +47,7 @@ public class Accomodations {
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
 	private List<Rooms> rooms;
 	
+	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
+	private List<OtherFees> fees;
+	
 }

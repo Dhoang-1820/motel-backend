@@ -1,6 +1,7 @@
 package com.petproject.motelservice.domain.inventory;
 
 import java.util.Date;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,5 +43,8 @@ public class Tenants {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "room_id")
 	private Rooms room;
+	
+	@OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY)
+	List<Images> images;
 	
 }

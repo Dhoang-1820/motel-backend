@@ -36,6 +36,15 @@ public class Images {
 	private Date createdAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(referencedColumnName = "user_id")
+	@JoinColumn(name = "user_id")
 	private Users user;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "tenant_id")
+	private Tenants tenant;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_id")
+	private Post post;
+	
 }

@@ -1,0 +1,29 @@
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        cache: DEBUG
+        stat: DEBUG
+server:
+  port: 8080
+  servlet:
+    context-path: /motel-service/api
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 1234
+    url: jdbc:mysql://localhost:3306/motel_service
+    username: root
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: update
+  security:
+    user:
+      name: user
+      password: 9946c60a
+app:
+  jwtSecret: U2FsdGVkX1/kte8JaLu6UFRqfWsVKZvGxF5CApjphfq/3kjCn2TTqF+woNk89VuX9CNwE8xh/F4W7bBU+bS0QQ== 
+  jwtExpirationMs: 3600000
+  jwtRefreshExpirationMs: 86400000
