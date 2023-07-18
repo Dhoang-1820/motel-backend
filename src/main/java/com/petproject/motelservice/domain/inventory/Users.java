@@ -35,7 +35,7 @@ public class Users {
 	private String address;
 	
 	@Column(name = "phone")
-	private Integer phone;
+	private String phone;
 	
 	@Column(name = "email")
 	private String email;
@@ -46,8 +46,8 @@ public class Users {
 	@Column(name = "created_at")
 	private Date createdAt;
 	
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	List<Images> images;
+	@Column(name = "image")
+	private String imageUrl;
 	
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	List<Accomodations> accomodations;

@@ -17,7 +17,7 @@ public class AccomodationController {
 	AccomodationsRepository accomodationsRepository;
 
 	@GetMapping()
-	@PreAuthorize("hasRole('MODERATOR')")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> registerUser() {
 		return ResponseEntity.ok(accomodationsRepository.findAll());
 	}

@@ -1,7 +1,5 @@
 package com.petproject.motelservice.domain.inventory;
 
-import java.time.Instant;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,13 +18,10 @@ public class RefreshToken {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Integer id;
 
 	@Column(nullable = false, unique = true)
 	private String token;
-
-	@Column(nullable = false)
-	private Instant expiryDate;
 	
 	@OneToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")

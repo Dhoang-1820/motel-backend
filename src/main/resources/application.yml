@@ -18,12 +18,12 @@ spring:
   jpa:
     generate-ddl: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   security:
     user:
       name: user
       password: 9946c60a
 app:
   jwtSecret: U2FsdGVkX1/kte8JaLu6UFRqfWsVKZvGxF5CApjphfq/3kjCn2TTqF+woNk89VuX9CNwE8xh/F4W7bBU+bS0QQ== 
-  jwtExpirationMs: 3600000
-  jwtRefreshExpirationMs: 86400000
+  jwtExpirationMs: 60000
+  jwtRefreshExpirationMs: 120000
