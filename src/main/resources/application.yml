@@ -16,7 +16,7 @@ spring:
     url: jdbc:mysql://localhost:3306/motel_service
     username: root
   jpa:
-    generate-ddl: false
+    generate-ddl: true
     hibernate:
       ddl-auto: validate
   security:
@@ -25,5 +25,16 @@ spring:
       password: 9946c60a
 app:
   jwtSecret: U2FsdGVkX1/kte8JaLu6UFRqfWsVKZvGxF5CApjphfq/3kjCn2TTqF+woNk89VuX9CNwE8xh/F4W7bBU+bS0QQ== 
-  jwtExpirationMs: 60000
-  jwtRefreshExpirationMs: 120000
+  jwtExpirationMs: 86400000
+  jwtRefreshExpirationMs: 604800000
+ 
+azure:
+  storage:
+    account-key: JlsWQe84ylbZW/Jfli78YWQit5tXhl/acQ2K3t4wqdpB3U2bmAO5jYcpSt/w4Bx8Inakuvlqb8E3+AStkc/URw==
+    connection-string: DefaultEndpointsProtocol=https;AccountName=imgfile;AccountKey=JlsWQe84ylbZW/Jfli78YWQit5tXhl/acQ2K3t4wqdpB3U2bmAO5jYcpSt/w4Bx8Inakuvlqb8E3+AStkc/URw==;EndpointSuffix=core.windows.net
+    account-name: imgfile
+    container: test
+    blob-enpoint: https://imgfile.blob.core.windows.net
+
+  
+# 86400000

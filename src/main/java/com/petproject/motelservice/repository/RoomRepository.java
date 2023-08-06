@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.petproject.motelservice.domain.inventory.Accomodations;
-import com.petproject.motelservice.domain.inventory.Users;
+import com.petproject.motelservice.domain.inventory.Rooms;
 
-public interface AccomodationsRepository extends JpaRepository<Accomodations, Integer> {
+public interface RoomRepository extends JpaRepository<Rooms, Integer> {
 	
-	List<Accomodations> findByUser(Users user);
+	List<Rooms> findByAccomodations(Accomodations accomodations);
 }

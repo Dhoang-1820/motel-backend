@@ -2,13 +2,23 @@ package com.petproject.motelservice.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.petproject.motelservice.security.services.UserDetailsImpl;
+import com.petproject.motelservice.security.services.UserDetailsServiceImpl;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,12 +38,27 @@ public class JwtUtils {
 	private int jwtExpirationMs;
 
 	@Value("${app.jwtRefreshExpirationMs}")
-	private Integer refreshTokenDurationMs;
+	private int refreshTokenDurationMs;
+	
+	@Autowired
+	UserDetailsServiceImpl userDetailsServiceImpl;
 
-	public String generateJwtToken(String userName) {
-		return Jwts.builder().setSubject(userName).setIssuedAt(new Date())
+	public String generateJwtToken(Authentication authentication) {
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+
+		return Jwts.builder().setSubject(authentication.getName()).claim("roles", roles).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(key(), SignatureAlgorithm.HS256).compact();
+	}
+	
+	public String generateTokenFromUsername(String username) {
+		UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+	    return Jwts.builder().setSubject(username).claim("roles", roles).setIssuedAt(new Date())
+	        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)).signWith(key(), SignatureAlgorithm.HS512).compact();
 	}
 
 	public String doGenerateRefreshToken(String userName) {
@@ -47,7 +72,20 @@ public class JwtUtils {
 	}
 
 	public String getUserNameFromJwtToken(String token) {
-		return Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token).getBody().getSubject();
+		Claims claims = getClaimsFromToken(token);
+		return claims.getSubject();
+	}
+	
+	public Claims getClaimsFromToken(String token) {
+		Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token); 
+		return claimsJws.getBody();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> getRolresFromJwtToken(String token) {
+		Claims claims = getClaimsFromToken(token);
+		List<String> roles = (List<String>) claims.get("roles");
+		return roles;	
 	}
 
 	public boolean validateJwtToken(String authToken) {

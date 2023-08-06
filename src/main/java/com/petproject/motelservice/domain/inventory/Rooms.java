@@ -27,6 +27,9 @@ public class Rooms {
 	@Column(name = "max_capacity")
 	private Integer capacity;
 	
+	@Column(name = "name")
+	private String name;
+	
 	@Column(name = "acreage")
 	private Double acreage;
 	

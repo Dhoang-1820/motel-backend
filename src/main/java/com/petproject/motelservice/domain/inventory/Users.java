@@ -34,6 +34,12 @@ public class Users {
 	@Column(name = "address")
 	private String address;
 	
+	@Column(name = "firstname")
+	private String firstname;
+	
+	@Column(name = "lasname")
+	private String lastname;
+	
 	@Column(name = "phone")
 	private String phone;
 	

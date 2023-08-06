@@ -3,7 +3,6 @@ package com.petproject.motelservice.security.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.inventory.RefreshToken;
@@ -17,9 +16,6 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class RefreshTokenService {
-
-	@Value("${app.jwtRefreshExpirationMs}")
-	private Integer refreshTokenDurationMs;
 
 	@Autowired
 	RefreshTokenRepository refreshTokenRepository;
@@ -44,7 +40,6 @@ public class RefreshTokenService {
 		refreshToken.setUser(user);
 		refreshToken.setToken(jwtUtils.doGenerateRefreshToken(user.getUsername()));
 		refreshToken = refreshTokenRepository.save(refreshToken);
-//		
 		return refreshToken;
 	}
 

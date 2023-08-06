@@ -34,6 +34,9 @@ public class Accomodations {
 	@Column(name = "address")
 	private String address;
 	
+	@Column(name = "name")
+	private String name;
+	
 	@Column(name = "created_at")
 	private Date createAt;
 	
