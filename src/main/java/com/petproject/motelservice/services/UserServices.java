@@ -12,7 +12,7 @@ import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
 
-public interface UserService {
+public interface UserServices {
 	
 	public JwtResponse signIn(LoginRequest loginRequest);
 	

@@ -52,5 +52,12 @@ public class Accomodations {
 	
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
 	private List<OtherFees> fees;
+
+	public Accomodations(Integer id) {
+		this.id = id;
+	}
+
+	public Accomodations() {
+	}
 	
 }

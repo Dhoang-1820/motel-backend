@@ -29,14 +29,11 @@ public class Images {
 	@Column(name = "image_url")
 	private String imageUrl;
 	
-	@Column(name = "file_type")
-	private String fileType;
-	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@JoinColumn(name = "room_id")
+	private Rooms room;
 	
 }

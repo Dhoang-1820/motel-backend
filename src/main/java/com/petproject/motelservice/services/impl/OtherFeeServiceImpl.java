@@ -36,8 +36,10 @@ public class OtherFeeServiceImpl implements OtherFeeService {
 		otherFees.setAccomodations(accomodations);
 		otherFees.setName(request.getName());
 		otherFees.setPrice(request.getPrice());
+		otherFees.setUnit(request.getUnit());
 		otherFees = otherFeeRepository.save(otherFees);
 		result = mapper.map(otherFees, OtherFeesDto.class);
+		result.setAccomodationId(accomodations.getId());
 		return result;
 	}
 

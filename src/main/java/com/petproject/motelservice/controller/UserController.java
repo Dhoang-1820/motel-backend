@@ -26,14 +26,14 @@ import com.petproject.motelservice.domain.payload.request.TokenRefreshRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
-import com.petproject.motelservice.services.UserService;
+import com.petproject.motelservice.services.UserServices;
 
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
 
 	@Autowired
-	UserService userService;
+	UserServices userService;
 
 	@PostMapping("/auth/signin")
 	public ResponseEntity<JwtResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {

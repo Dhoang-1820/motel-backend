@@ -11,16 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
+import com.petproject.motelservice.domain.dto.AllRoomDto;
+import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.OtherFeesDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.OtherFees;
+import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
+import com.petproject.motelservice.domain.query.response.RoomFeeResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.OtherFeeRepository;
+import com.petproject.motelservice.repository.RoomFeeRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.services.AccomodationService;
-import com.petproject.motelservice.services.UserService;
+import com.petproject.motelservice.services.UserServices;
 
 @Service
 public class AccomodationServiceImpl implements AccomodationService {
@@ -32,10 +38,13 @@ public class AccomodationServiceImpl implements AccomodationService {
 	OtherFeeRepository otherFeeRepository;
 	
 	@Autowired
-	UserService userService;
+	UserServices userService;
 	
 	@Autowired
 	UsersRepository usersRepository;
+	
+	@Autowired
+	RoomFeeRepository roomFeeRepository;
 	
 	@Autowired
 	ModelMapper mapper;
@@ -70,6 +79,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 				fee.setAccomodations(accomodations);
 				fee.setName(item.getName());
 				fee.setPrice(item.getPrice());
+				fee.setUnit(item.getUnit());
 				feesList.add(fee);
 			}
 		}
@@ -81,22 +91,42 @@ public class AccomodationServiceImpl implements AccomodationService {
 	}
 
 	@Override
-	public List<AccomodationsDto> getAll() {
+	public List<AllRoomDto> getAll() {
 		List<Accomodations> accomodations = accomodationsRepository.findAll();
-		List<OtherFees> otherFees = null;
+		List<Rooms> rooms = null;
+		List<Images> images = null;
+		AllRoomDto dto = null;
+		List<AllRoomDto> result = new ArrayList<>();
+		List<RoomFeeResponse> fees = null;
+		ImageDto imageDto;
+		List<ImageDto> imageResult = new ArrayList<>();
 		for (Accomodations item : accomodations) {
-			otherFees = item.getFees();
-			item.setFees(otherFees);
+			rooms = item.getRooms();
+			for (Rooms room : rooms) {
+				dto = new AllRoomDto();
+				dto.setAccomodationId(item.getId());
+				dto.setPrice(room.getPrice());
+				dto.setId(room.getId());
+				dto.setElectricPrice(item.getElectricPrice());
+				dto.setWaterPrice(item.getWaterPrice());
+				dto.setAddress(item.getAddress());
+				dto.setAccomodationName(item.getName());
+				
+				fees = roomFeeRepository.findByRoom(room.getId());
+				dto.setFees(fees);
+				
+				images = room.getImages();
+				for (Images img : images) {
+					imageDto = new ImageDto();
+					imageDto.setImageId(img.getId());
+					imageDto.setImgName(img.getImageName());
+					imageDto.setImgUrl(img.getImageUrl());
+					imageResult.add(imageDto);
+				}
+				dto.setImages(imageResult);
+				result.add(dto);
+			}
 		}
-		TypeMap<Accomodations, AccomodationsDto> typeMap = mapper.getTypeMap(Accomodations.class, AccomodationsDto.class);
-		if (typeMap == null) {
-			typeMap = mapper.createTypeMap(Accomodations.class, AccomodationsDto.class);
-			typeMap.addMapping(Accomodations::getFees, AccomodationsDto::setOtherFees);
-		}
-		
-		List<AccomodationsDto> result = accomodations.stream()
-                .map(source -> mapper.map(source, AccomodationsDto.class))
-                .collect(Collectors.toList());
 		return result;
 	}
 

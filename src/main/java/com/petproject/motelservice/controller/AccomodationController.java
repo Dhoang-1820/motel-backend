@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
+import com.petproject.motelservice.domain.dto.AllRoomDto;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.services.AccomodationService;
@@ -27,8 +28,8 @@ public class AccomodationController {
 	AccomodationService accomodationService;
 
 	@GetMapping()
-	public ResponseEntity<ApiResponse> registerUser() {
-		final List<AccomodationsDto> result = accomodationService.getAll();
+	public ResponseEntity<ApiResponse> getAll() {
+		final List<AllRoomDto> result = accomodationService.getAll();
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

@@ -8,4 +8,8 @@ public class DropDownAccomodation {
 	private Integer id;
 	
 	private String name;
+	
+	private Double waterPrice;
+	
+	private Integer electricPrice;
 }

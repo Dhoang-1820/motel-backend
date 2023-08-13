@@ -58,9 +58,6 @@ public class Users {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	List<Accomodations> accomodations;
 	
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	List<Post> post;
-	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role_id")
 	private List<Roles> role;

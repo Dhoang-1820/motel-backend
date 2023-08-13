@@ -35,10 +35,10 @@ import com.petproject.motelservice.security.jwt.JwtUtils;
 import com.petproject.motelservice.security.services.RefreshTokenService;
 import com.petproject.motelservice.security.services.UserDetailsImpl;
 import com.petproject.motelservice.services.FileService;
-import com.petproject.motelservice.services.UserService;
+import com.petproject.motelservice.services.UserServices;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServicesImpl implements UserServices {
 
 	@Autowired
 	UsersRepository usersRepository;
@@ -213,7 +213,7 @@ public class UserServiceImpl implements UserService {
 			user = usersRepository.save(user);
 		} else {
 			response.setSuccess(false);
-			response.setMessage("Old password incorrect");
+			response.setMessage("Mật khẩu cũ không chính xác");
 		}
 		
 		return response;

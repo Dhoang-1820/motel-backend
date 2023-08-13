@@ -23,6 +23,17 @@ spring:
     user:
       name: user
       password: 9946c60a
+  mail:
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    username: dongboprovjp@gmail.com
+    password: uguzekivuglxocyn
+    port: '587'
 app:
   jwtSecret: U2FsdGVkX1/kte8JaLu6UFRqfWsVKZvGxF5CApjphfq/3kjCn2TTqF+woNk89VuX9CNwE8xh/F4W7bBU+bS0QQ== 
   jwtExpirationMs: 86400000
@@ -35,6 +46,5 @@ azure:
     account-name: imgfile
     container: test
     blob-enpoint: https://imgfile.blob.core.windows.net
-
   
 # 86400000

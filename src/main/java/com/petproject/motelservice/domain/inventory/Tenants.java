@@ -35,6 +35,12 @@ public class Tenants {
 	@Column(name = "start_date")
 	private Date startDate;
 	
+	@Column(name = "phone")
+	private String phone;
+	
+	@Column(name = "email")
+	private String email;
+	
 	@Column(name = "is_stayed", columnDefinition = "BOOLEAN")
 	private Boolean isStayed;
 	

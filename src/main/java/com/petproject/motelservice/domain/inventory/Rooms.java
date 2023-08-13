@@ -54,5 +54,18 @@ public class Rooms {
 	
 	@OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
 	private List<Bills> bills;
+	
+	@OneToMany(mappedBy = "id.room", fetch = FetchType.LAZY)
+	private List<RoomFees> fees;
+	
+	@OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+	List<Images> images;
 
+	public Rooms(Integer id) {
+		this.id = id;
+	}
+
+	public Rooms() {
+	}
 }
+	
