@@ -10,6 +10,7 @@ import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
+import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.RoomRepository;
@@ -79,8 +80,27 @@ public class TenantsServicesImpl implements TenantsServices {
 		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
 		tenant.setRoom(room);
 		tenant = tenantRepository.save(tenant);
+		if (!room.getIsRent()) {
+			room.setIsRent(true);
+			roomRepository.save(room);
+		}
 		return convertToDto(tenant, room);
 	}
 
+	@Override
+	public void returnRoom(ReturnRoomRequest request) {
+		Tenants tenant = tenantRepository.findById(request.getId()).orElse(null);
+		tenant.setIsStayed(false);
+		tenant.setEndDate(request.getReturnDate());
+		tenant = tenantRepository.save(tenant);
+		Rooms room = tenant.getRoom();
+		List<Tenants> tenants = tenantRepository.findByRoomAndIsStayed(room, true);
+		if (tenants.isEmpty()) {
+			room.setIsRent(false);
+			roomRepository.save(room);
+		}
+	}
+
+	
 	
 }

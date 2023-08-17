@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.inventory;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,9 @@ public class Booking {
 	
 	@Column(name = "customer_email")
 	private String email;
+	
+	@Column(name = "booking_date")
+	private Date bookingDate;
 	
 	@Column(name = "room_id")
 	private String roomId;

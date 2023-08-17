@@ -116,6 +116,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 				dto.setFees(fees);
 				
 				images = room.getImages();
+				imageResult = new ArrayList<>();
 				for (Images img : images) {
 					imageDto = new ImageDto();
 					imageDto.setImageId(img.getId());

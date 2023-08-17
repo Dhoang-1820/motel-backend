@@ -1,16 +1,12 @@
 package com.petproject.motelservice.services.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.RoomServiceDto;
-import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.OtherFees;
 import com.petproject.motelservice.domain.inventory.RoomFeeId;
 import com.petproject.motelservice.domain.inventory.RoomFees;
@@ -23,7 +19,6 @@ import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.OtherFeeRepository;
 import com.petproject.motelservice.repository.RoomFeeRepository;
 import com.petproject.motelservice.repository.RoomRepository;
-import com.petproject.motelservice.services.FileService;
 import com.petproject.motelservice.services.RoomFeeService;
 
 @Service
@@ -76,5 +71,12 @@ public class RoomFeeServiceImpl implements RoomFeeService {
 		roomFeeRepository.save(fee);
 	}
 
-	
+	@Override
+	public void removeRoomFee(Integer roomId, Integer feeId) {
+		RoomFees fees = roomFeeRepository.findById(roomId, feeId);
+		if (fees != null) {
+			roomFeeRepository.delete(fees);
+		}
+	}
+
 }

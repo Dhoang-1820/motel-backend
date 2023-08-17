@@ -35,6 +35,9 @@ public class Tenants {
 	@Column(name = "start_date")
 	private Date startDate;
 	
+	@Column(name = "end_date")
+	private Date endDate;
+	
 	@Column(name = "phone")
 	private String phone;
 	

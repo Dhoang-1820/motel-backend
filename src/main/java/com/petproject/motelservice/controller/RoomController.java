@@ -72,6 +72,14 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
 	
+	
+	@DeleteMapping("/fee/{roomId}/{feeId}")
+	public ResponseEntity<ApiResponse> removeRoomFee(@PathVariable("roomId") Integer roomId, @PathVariable("feeId") Integer feeId) {
+		roomFeeService.removeRoomFee(roomId, feeId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
+	}
+	
+	
 	@PostMapping("/image/{roomId}")
 	public ResponseEntity<ApiResponse> saveRoomImage(@RequestParam("file") MultipartFile[] files, @PathVariable("roomId") Integer roomId) {
 		roomService.saveRoomImage(files, roomId);

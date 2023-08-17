@@ -1,6 +1,7 @@
 package com.petproject.motelservice.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +24,11 @@ import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
 import com.petproject.motelservice.domain.payload.request.SignupRequest;
 import com.petproject.motelservice.domain.payload.request.TokenRefreshRequest;
+import com.petproject.motelservice.domain.payload.request.UpdateUserRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
+import com.petproject.motelservice.domain.query.response.UserResponse;
 import com.petproject.motelservice.services.UserServices;
 
 @RestController
@@ -56,6 +59,18 @@ public class UserController {
 	@GetMapping("/info/{userId}")
 	public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer userId) {
 		final UserDto result = userService.getUserByUserId(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping()
+	public ResponseEntity<ApiResponse> getAllUser() {
+		final List<UserResponse> result = userService.getAllUser();
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PutMapping()
+	public ResponseEntity<ApiResponse> saveUser(@RequestBody UpdateUserRequest request) {
+		final UpdateUserRequest result = userService.createOrUpdate(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

@@ -1,5 +1,7 @@
 package com.petproject.motelservice.services.impl;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,8 +9,10 @@ import org.springframework.stereotype.Service;
 import com.petproject.motelservice.domain.dto.OtherFeesDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.OtherFees;
+import com.petproject.motelservice.domain.inventory.RoomFees;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.OtherFeeRepository;
+import com.petproject.motelservice.repository.RoomFeeRepository;
 import com.petproject.motelservice.services.OtherFeeService;
 
 @Service
@@ -19,6 +23,9 @@ public class OtherFeeServiceImpl implements OtherFeeService {
 	
 	@Autowired
 	AccomodationsRepository accomodationsRepository;
+	
+	@Autowired
+	RoomFeeRepository roomFeeRepository;
 	
 	@Autowired
 	ModelMapper mapper;
@@ -47,6 +54,10 @@ public class OtherFeeServiceImpl implements OtherFeeService {
 	public void removeFee(Integer id) {
 		OtherFees otherFees = otherFeeRepository.findById(id).orElse(null);
 		if (otherFees != null) {
+			List<RoomFees> roomfees = otherFees.getFees();
+			if (!roomfees.isEmpty()) {
+				roomFeeRepository.deleteAll(roomfees);
+			}
 			otherFeeRepository.delete(otherFees);
 		}
 	}

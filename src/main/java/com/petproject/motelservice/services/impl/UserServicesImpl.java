@@ -26,9 +26,11 @@ import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
 import com.petproject.motelservice.domain.payload.request.SignupRequest;
 import com.petproject.motelservice.domain.payload.request.TokenRefreshRequest;
+import com.petproject.motelservice.domain.payload.request.UpdateUserRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
+import com.petproject.motelservice.domain.query.response.UserResponse;
 import com.petproject.motelservice.repository.RolesRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.security.jwt.JwtUtils;
@@ -115,40 +117,40 @@ public class UserServicesImpl implements UserServices {
 		user.setAddress(signUpRequest.getAddress());
 		user.setUsername(signUpRequest.getUserName());
 		user.setPhone(signUpRequest.getPhone());
+		user.setFirstname(signUpRequest.getFirstName());
+		user.setLastname(signUpRequest.getLastName());
 		user.setActive(Boolean.TRUE);
 		user.setPassword(encoder.encode(signUpRequest.getPassword()));
 
-		List<String> strRoles = signUpRequest.getRoles();
+		String strRoles = signUpRequest.getRoles();
 		List<Roles> roles = new ArrayList<>();
 		
-		strRoles.forEach(role -> {
-			switch (role) {
-				case "admin":
-					Roles adminRole = rolesRepository.findByName(ERoles.ROLE_ADMIN)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(adminRole);
-					break;
-				case "mod":
-					Roles modRole = rolesRepository.findByName(ERoles.ROLE_MODERATOR)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(modRole);
-					break;
-				case "tenant":
-					Roles tenantRole = rolesRepository.findByName(ERoles.ROLE_TENANT)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(tenantRole);
-					break;
-				case "landlord":
-					Roles landlordRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(landlordRole);
-					break;
-				default:
-					Roles userRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
-							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-					roles.add(userRole);
-			}
-		});
+		switch (strRoles) {
+			case "admin":
+				Roles adminRole = rolesRepository.findByName(ERoles.ROLE_ADMIN)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(adminRole);
+				break;
+			case "mod":
+				Roles modRole = rolesRepository.findByName(ERoles.ROLE_MODERATOR)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(modRole);
+				break;
+			case "tenant":
+				Roles tenantRole = rolesRepository.findByName(ERoles.ROLE_TENANT)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(tenantRole);
+				break;
+			case "landlord":
+				Roles landlordRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(landlordRole);
+				break;
+			default:
+				Roles userRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(userRole);
+		}
 
 		user.setRole(roles);
 		user.setCreatedAt(new Date());
@@ -175,28 +177,21 @@ public class UserServicesImpl implements UserServices {
 	@Override
 	public UserDto createOrUpdate(UserDto request, MultipartFile[] image) {
 		Users user = null;
-		Date createAt = null;
-		String username = "";
-		String password = "";
 		if (request.getId() == null) {
 			user = new Users();
-			username = request.getUsername();
-			password = request.getPassword();
-			createAt = new Date();
 		} else {
 			user = usersRepository.findById(request.getId()).orElse(null);
-			username = user.getUsername();
-			password = user.getPassword();
-			createAt = user.getCreatedAt();
 		}
-		user = mapper.map(request, Users.class);
+		user.setFirstname(request.getFirstname());
+		user.setLastname(request.getLastname());
+		user.setEmail(request.getEmail());
+		user.setAddress(request.getAddress());
+		user.setPhone(request.getPhone());
+		
 		if (image != null) {
 			List<FileUploadDto> imgResult = storageService.uploadFiles(image);
 			user.setImageUrl(imgResult.get(0).getFileUrl());			
 		}
-		user.setUsername(username);
-		user.setPassword(password);
-		user.setCreatedAt(createAt);
 		usersRepository.save(user);
 		UserDto result = mapper.map(user, UserDto.class);
 		return result;
@@ -218,5 +213,42 @@ public class UserServicesImpl implements UserServices {
 		
 		return response;
 	}
+
+	@Override
+	public List<UserResponse> getAllUser() {
+		return usersRepository.findAllUsers();
+	}
+
+	@Override
+	public UpdateUserRequest createOrUpdate(UpdateUserRequest request) {
+		Users user = null;
+		UpdateUserRequest result = null;
+		if (request.getUserId() != null ) {
+			user = usersRepository.findByUserId(request.getUserId());
+			user.setFirstname(request.getFirstName());
+			user.setLastname(request.getLastName());
+			user.setActive(request.getActive());
+			user.setEmail(request.getEmail());
+			user.setAddress(request.getAddress());
+			user.setPhone(request.getPhone());
+			
+			user = usersRepository.save(user);
+			result = mapper.map(user, UpdateUserRequest.class);
+		} else {
+			SignupRequest sigupRequest = new SignupRequest();
+			sigupRequest.setAddress(request.getEmail());
+			sigupRequest.setEmail(request.getEmail());
+			sigupRequest.setPassword(request.getPassword());
+			sigupRequest.setPhone(request.getPhone());
+			sigupRequest.setUserName(request.getUserName());
+			sigupRequest.setFirstName(request.getFirstName());
+			sigupRequest.setLastName(request.getLastName());
+			sigupRequest.setRoles(request.getRole());
+			signUp(sigupRequest);
+		}
+		
+		return result;
+	}
+	
 	
 }

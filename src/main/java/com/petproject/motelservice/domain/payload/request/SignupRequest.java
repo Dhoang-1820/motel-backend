@@ -1,7 +1,5 @@
 package com.petproject.motelservice.domain.payload.request;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +12,10 @@ public class SignupRequest {
 	
 	private String userName;
 	
+	private String firstName;
+	
+	private String lastName;
+	
 	private String email;
 	
 	private String password;
@@ -22,5 +24,5 @@ public class SignupRequest {
 	
 	private String address;
 	
-	private List<String> roles;
+	private String roles;
 }

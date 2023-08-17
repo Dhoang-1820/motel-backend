@@ -219,7 +219,7 @@ public class BillServiceImpl implements BillServices {
 	        properties.put("totalPrice", price);
 	        
 	        email.setFrom("fromemail@gmail.com");
-	        email.setTemplate("email.html");
+	        email.setTemplate("notification.html");
 	        email.setProperties(properties);
 	        
 	        String regex = "^(.+)@(.+)$";
