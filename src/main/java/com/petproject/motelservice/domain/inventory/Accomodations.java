@@ -3,15 +3,16 @@ package com.petproject.motelservice.domain.inventory;
 import java.util.Date;
 import java.util.List;
 
+import com.petproject.motelservice.framework.BaseEntity;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,20 +20,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "accomodations")
 @Getter @Setter
-public class Accomodations {
+public class Accomodations extends BaseEntity{
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
-	
-	@Column(name = "electric_price")
-	private Double electricPrice;
-	
-	@Column(name = "water_price")
-	private Double waterPrice;
-	
-	@Column(name = "address")
-	private String address;
+	@Column(name = "name")
+	private String name;
 	
 	@Column(name = "created_at")
 	private Date createAt;
@@ -48,6 +39,13 @@ public class Accomodations {
 	private List<Rooms> rooms;
 	
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
-	private List<OtherFees> fees;
+	private List<Equipments> equipments;
 	
+	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
+	private List<Tenants> tenants;
+	
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "address_id")
+	private Address address;
+
 }

@@ -21,10 +21,10 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthTokenFilter extends OncePerRequestFilter {
 
 	@Autowired
-	private JwtUtils jwtUtils;
+	JwtUtils jwtUtils;
 
 	@Autowired
-	private UserDetailsServiceImpl userDetailsService;
+	UserDetailsServiceImpl userDetailsService;
 
 	private static final Log logger = LogFactory.getLog(AuthTokenFilter.class);
 
@@ -35,7 +35,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 				String userName = jwtUtils.getUserNameFromJwtToken(jwt);
-				
 				UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
