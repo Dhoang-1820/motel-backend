@@ -1,7 +1,5 @@
 package com.petproject.motelservice.domain.dto;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
@@ -9,11 +7,19 @@ public class AccomodationsDto {
 	
 	private Integer id;
 
-	private Double electricPrice;
+	private String addressLine;
+	
+	private String ward;
 
-	private Double waterPrice;
-
-	private String address;
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
 
 	private String name;
 
@@ -21,5 +27,4 @@ public class AccomodationsDto {
 	
 	private Integer userId;
 
-	private List<OtherFeesDto> otherFees;
 }

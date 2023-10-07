@@ -3,14 +3,13 @@ package com.petproject.motelservice.domain.inventory;
 import java.util.Date;
 import java.util.List;
 
+import com.petproject.motelservice.framework.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -19,11 +18,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 @Getter @Setter
-public class Users {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+public class Users extends BaseEntity {
 	
 	@Column(name = "username")
 	private String username;
@@ -58,7 +53,7 @@ public class Users {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	List<Accomodations> accomodations;
 	
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "role_id")
-	private List<Roles> role;
+	private Role role;
 }

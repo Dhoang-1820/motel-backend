@@ -1,6 +1,5 @@
 package com.petproject.motelservice.services.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +19,7 @@ import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.UserDto;
 import com.petproject.motelservice.domain.inventory.ERoles;
 import com.petproject.motelservice.domain.inventory.RefreshToken;
-import com.petproject.motelservice.domain.inventory.Roles;
+import com.petproject.motelservice.domain.inventory.Role;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
@@ -75,8 +74,8 @@ public class UserServicesImpl implements UserServices {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
+		String roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList()).get(0);
 		String jwt = jwtUtils.generateJwtToken(authentication);
 		
 		RefreshToken refreshToken = refreshTokenService.getByUserId(userDetails.getId());
@@ -123,36 +122,31 @@ public class UserServicesImpl implements UserServices {
 		user.setPassword(encoder.encode(signUpRequest.getPassword()));
 
 		String strRoles = signUpRequest.getRoles();
-		List<Roles> roles = new ArrayList<>();
+		Role role = null;
 		
 		switch (strRoles) {
 			case "admin":
-				Roles adminRole = rolesRepository.findByName(ERoles.ROLE_ADMIN)
+				role = rolesRepository.findByName(ERoles.ROLE_ADMIN)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(adminRole);
 				break;
 			case "mod":
-				Roles modRole = rolesRepository.findByName(ERoles.ROLE_MODERATOR)
+				role = rolesRepository.findByName(ERoles.ROLE_MODERATOR)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(modRole);
 				break;
 			case "tenant":
-				Roles tenantRole = rolesRepository.findByName(ERoles.ROLE_TENANT)
+				role = rolesRepository.findByName(ERoles.ROLE_TENANT)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(tenantRole);
 				break;
 			case "landlord":
-				Roles landlordRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
+				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(landlordRole);
 				break;
 			default:
-				Roles userRole = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
+				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(userRole);
 		}
 
-		user.setRole(roles);
+		user.setRole(role);
 		user.setCreatedAt(new Date());
 		usersRepository.save(user);
 		response.setData(user);

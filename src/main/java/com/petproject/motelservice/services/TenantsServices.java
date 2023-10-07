@@ -6,10 +6,13 @@ import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 
 public interface TenantsServices {
+
+	List<TenantDto> getTenantByAccomodation(Integer id);
+
+	TenantDto createOrUpdate(TenantDto request);
+
+	void returnRoom(ReturnRoomRequest request);
 	
-	public List<TenantDto> getTenantByAccomodation(Integer id); 
+	List<TenantDto> getTenantNotDeposit(Integer id);
 	
-	public TenantDto createOrUpdate(TenantDto request);
-	
-	public void returnRoom(ReturnRoomRequest request);
 }

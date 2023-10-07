@@ -13,10 +13,6 @@ public class RoomDto {
 	
 	private Double acreage;
 	
-	private Boolean airConditionor;
-	
-	private Boolean internet;
-	
 	private Double price;
 	
 	private Boolean isRent = false;

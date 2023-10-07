@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ public class RoomServiceImpl implements RoomService {
 	
 	@Autowired
 	ModelMapper mapper;
+	
+	private static Log logger = LogFactory.getLog(RoomServiceImpl.class);
 
 	@Override
 	public List<RoomDto> getRoomsByAccomodation(Integer id) {
@@ -54,20 +58,23 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public RoomDto saveRoom(RoomDto request) {
+	public List<RoomDto> saveRoom(RoomDto request) {
 		Rooms room = mapper.map(request, Rooms.class);
 		Accomodations accomodations = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
 		room.setAccomodations(accomodations);
 		room = roomRepository.save(room);
-		RoomDto result = mapper.map(room, RoomDto.class);
-		return result;
+		return getRoomsByAccomodation(request.getAccomodationId());
 	}
 
 	@Override
 	public void removeRoom(Integer roomId) {
-		Rooms room = roomRepository.findById(roomId).orElse(null);
-		if (room != null) {
-			roomRepository.delete(room);			
+		try {
+			Rooms room = roomRepository.findById(roomId).orElse(null);
+			if (room != null) {
+				roomRepository.delete(room);			
+			}
+		} catch (Exception e) {
+			logger.error(e);
 		}
 	}
 
@@ -88,20 +95,29 @@ public class RoomServiceImpl implements RoomService {
 	}
 	
 	@Override
+	public List<RoomResponse> getRoomNoDeposit(Integer accomodationId) {
+		List<Rooms> rooms = roomRepository.findRoomNoDepostit(accomodationId);
+		List<RoomResponse> result = rooms.stream()
+                .map(source -> mapper.map(source, RoomResponse.class))
+                .collect(Collectors.toList());
+		return result;
+	}
+	
+	@Override
 	public RoomImageDto getRoomImages(Integer roomId) {
 		Rooms room = roomRepository.findById(roomId).orElse(null);
-		List<Images> images = room.getImages();
+//		List<Images> images = room.getImages();
 		RoomImageDto result = new RoomImageDto();
 		result.setRoomId(roomId);
 		List<ImageDto> dto = new ArrayList<>();
 		ImageDto imgDto = null;
-		for (Images img : images) {
-			imgDto = new ImageDto();
-			imgDto.setImageId(img.getId());
-			imgDto.setImgName(img.getImageName());
-			imgDto.setImgUrl(img.getImageUrl());
-			dto.add(imgDto);
-		}
+//		for (Images img : images) {
+//			imgDto = new ImageDto();
+//			imgDto.setImageId(img.getId());
+//			imgDto.setImgName(img.getImageName());
+//			imgDto.setImgUrl(img.getImageUrl());
+//			dto.add(imgDto);
+//		}
 		result.setImages(dto);
 		return result;
 	}
@@ -124,7 +140,7 @@ public class RoomServiceImpl implements RoomService {
 				img.setCreatedAt(new Date());
 				img.setImageName(item.getFileName());
 				img.setImageUrl(item.getFileUrl());
-				img.setRoom(room);
+//				img.setRoom(room);
 				roomImg.add(img);
 			}
 		}

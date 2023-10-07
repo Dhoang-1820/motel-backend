@@ -2,14 +2,16 @@ package com.petproject.motelservice.domain.inventory;
 
 import java.util.Date;
 
+import com.petproject.motelservice.framework.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,14 +19,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "tenants")
 @Getter @Setter
-public class Tenants {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+public class Tenants extends BaseEntity{
 	
 	@Column(name = "identify_num")
-	private Integer identifyNum;
+	private String identifyNum;
 	
 	@Column(name = "first_name")
 	private String firstName;
@@ -50,8 +48,18 @@ public class Tenants {
 	@Column(name = "image")
 	private String imageUrl;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "room_id")
-	private Rooms room;
+	@Column(name = "gender")
+	@Enumerated(EnumType.STRING)
+	private EGender gender;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "contract_id")
+	private Contract contract;
+	
+	@OneToOne(mappedBy = "tenant")
+	private Deposits deposit;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "accomodation_id")
+	private Accomodations accomodations;
 }

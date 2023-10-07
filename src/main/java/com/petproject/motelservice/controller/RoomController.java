@@ -54,14 +54,20 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/utility/no-deposit/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoDeposit(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoDeposit(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PostMapping()
 	public ResponseEntity<ApiResponse> saveRoom(@RequestBody RoomDto room) {
-		final RoomDto result = roomService.saveRoom(room);
+		final List<RoomDto> result = roomService.saveRoom(room);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
 	@DeleteMapping("/{roomId}")
-	public ResponseEntity<ApiResponse> saveRoom(@PathVariable Integer roomId) {
+	public ResponseEntity<ApiResponse> removeRoom(@PathVariable Integer roomId) {
 		roomService.removeRoom(roomId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
@@ -72,13 +78,11 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
 	
-	
 	@DeleteMapping("/fee/{roomId}/{feeId}")
 	public ResponseEntity<ApiResponse> removeRoomFee(@PathVariable("roomId") Integer roomId, @PathVariable("feeId") Integer feeId) {
 		roomFeeService.removeRoomFee(roomId, feeId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
-	
 	
 	@PostMapping("/image/{roomId}")
 	public ResponseEntity<ApiResponse> saveRoomImage(@RequestParam("file") MultipartFile[] files, @PathVariable("roomId") Integer roomId) {

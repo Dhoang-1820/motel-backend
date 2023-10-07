@@ -31,6 +31,12 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/deposit/{id}")
+	public ResponseEntity<ApiResponse> getTenantWithoutDeposit(@PathVariable Integer id) {
+		final List<TenantDto> result = tenantsServices.getTenantNotDeposit(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PostMapping()
 	public ResponseEntity<ApiResponse> saveTenant(@RequestBody TenantDto tenant) {
 		final TenantDto result = tenantsServices.createOrUpdate(tenant);

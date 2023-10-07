@@ -1,7 +1,5 @@
 package com.petproject.motelservice.domain.payload.response;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +20,6 @@ public class JwtResponse {
 	
 	private String email;
 	
-	private List<String> roles;
+	private String roles;
 	
 }

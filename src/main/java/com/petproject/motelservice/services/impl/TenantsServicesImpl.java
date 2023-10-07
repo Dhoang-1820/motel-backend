@@ -7,12 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.TenantDto;
-import com.petproject.motelservice.domain.inventory.Accomodations;
-import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
+import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.services.TenantsServices;
@@ -28,38 +26,21 @@ public class TenantsServicesImpl implements TenantsServices {
 	
 	@Autowired
 	TenantRepository tenantRepository;
+	
+	@Autowired
+	DepositRepository depositRepository;
 
 	@Override
 	public List<TenantDto> getTenantByAccomodation(Integer id) {
-		Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
-		List<Rooms> rooms = roomRepository.findByAccomodations(accomodations);
+		List<Tenants> tenants = tenantRepository.findByAccomodationsId(id);
 		List<TenantDto> result = new ArrayList<>();
-		TenantDto tenantDto = null;
-		List<Tenants> tenants = null;
-		for (Rooms room : rooms) {
-			tenants = room.getTenants();
-			for (Tenants tenant : tenants) {
-				tenantDto = convertToDto(tenant, room);
-				result.add(tenantDto);
-			}
-			
+		for (Tenants tenant : tenants) {
+			result.add(convert2Dto(tenant));
 		}
 		return result;
 	}
 	
-	private TenantDto convertToDto(Tenants tenant, Rooms room) {
-		TenantDto tenantDto = new TenantDto();
-		tenantDto.setId(tenant.getId());
-		tenantDto.setFirstName(tenant.getFirstName());
-		tenantDto.setLastName(tenant.getLastName());
-		tenantDto.setIdentifyNum(tenant.getIdentifyNum());
-		tenantDto.setIsStayed(tenant.getIsStayed());
-		tenantDto.setStartDate(tenant.getStartDate());
-		tenantDto.setPhone(tenant.getPhone());
-		tenantDto.setEmail(tenant.getEmail());
-		tenantDto.setRoom(new RoomResponse(room.getId(), room.getName()));
-		return tenantDto;
-	}
+
 
 	@Override
 	public TenantDto createOrUpdate(TenantDto request) {
@@ -77,14 +58,14 @@ public class TenantsServicesImpl implements TenantsServices {
 		tenant.setStartDate(request.getStartDate());
 		tenant.setPhone(request.getPhone());
 		tenant.setEmail(request.getEmail());
-		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
-		tenant.setRoom(room);
+//		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
+//		tenant.setRoom(room);
 		tenant = tenantRepository.save(tenant);
-		if (!room.getIsRent()) {
-			room.setIsRent(true);
-			roomRepository.save(room);
-		}
-		return convertToDto(tenant, room);
+//		if (!room.getIsRent()) {
+//			room.setIsRent(true);
+//			roomRepository.save(room);
+//		}
+		return null;
 	}
 
 	@Override
@@ -93,14 +74,35 @@ public class TenantsServicesImpl implements TenantsServices {
 		tenant.setIsStayed(false);
 		tenant.setEndDate(request.getReturnDate());
 		tenant = tenantRepository.save(tenant);
-		Rooms room = tenant.getRoom();
-		List<Tenants> tenants = tenantRepository.findByRoomAndIsStayed(room, true);
-		if (tenants.isEmpty()) {
-			room.setIsRent(false);
-			roomRepository.save(room);
-		}
+//		Rooms room = tenant.getRoom();
+//		List<Tenants> tenants = tenantRepository.findByRoomAndIsStayed(room, true);
+//		if (tenants.isEmpty()) {
+//			room.setIsRent(false);
+//			roomRepository.save(room);
+//		}
 	}
 
-	
-	
+	private TenantDto convert2Dto(Tenants tenant) {
+		TenantDto tenantDto = new TenantDto();
+		tenantDto.setId(tenant.getId());
+		tenantDto.setEmail(tenant.getEmail());
+		tenantDto.setFirstName(tenant.getFirstName());
+		tenantDto.setLastName(tenant.getLastName());
+		tenantDto.setIdentifyNum(tenant.getIdentifyNum());
+		tenantDto.setPhone(tenant.getPhone());
+		tenantDto.setStartDate(tenant.getStartDate());
+		tenantDto.setIsStayed(tenant.getIsStayed());
+		return tenantDto;
+	}
+
+	@Override
+	public List<TenantDto> getTenantNotDeposit(Integer id) {
+		List<Tenants> tenants = tenantRepository.findTenantWithoutDeposit(id);
+		List<TenantDto> result = new ArrayList<>();
+		for (Tenants tenant : tenants) {
+			result.add(convert2Dto(tenant));
+		}
+		return result;
+	}
+
 }

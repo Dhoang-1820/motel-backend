@@ -9,5 +9,5 @@ import com.petproject.motelservice.domain.inventory.Users;
 
 public interface AccomodationsRepository extends JpaRepository<Accomodations, Integer> {
 	
-	List<Accomodations> findByUser(Users user);
+	List<Accomodations> findByUserId(Integer userId);
 }

@@ -13,7 +13,7 @@ public interface RoomService {
 	
 	public List<RoomDto> getRoomsByAccomodation(Integer id);
 	
-	public RoomDto saveRoom(RoomDto room);
+	public List<RoomDto> saveRoom(RoomDto room);
 	
 	public void removeRoom(Integer roomId);
 	
@@ -28,4 +28,6 @@ public interface RoomService {
 	void saveRoomImage(MultipartFile[] images, Integer roomId);
 
 	void changeRoomImage(MultipartFile[] images, Integer imageId);
+
+	List<RoomResponse> getRoomNoDeposit(Integer accomodationId);
 }

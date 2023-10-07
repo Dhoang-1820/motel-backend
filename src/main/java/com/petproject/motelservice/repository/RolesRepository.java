@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.petproject.motelservice.domain.inventory.ERoles;
-import com.petproject.motelservice.domain.inventory.Roles;
+import com.petproject.motelservice.domain.inventory.Role;
 
-public interface RolesRepository extends JpaRepository<Roles, Integer> {
+public interface RolesRepository extends JpaRepository<Role, Integer> {
 	
-	Optional<Roles> findByName (ERoles name);
+	Optional<Role> findByName (ERoles name);
 }

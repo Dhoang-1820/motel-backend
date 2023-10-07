@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.petproject.motelservice.common.Constants;
-import com.petproject.motelservice.domain.dto.OtherFeesDto;
+import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.RoomServiceDto;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.query.response.OtherFeesResponse;
@@ -33,8 +33,8 @@ public class OtherFeeController {
 	RoomFeeService feeService;
 	
 	@PostMapping()
-	public ResponseEntity<ApiResponse> saveOtherFee(@RequestBody OtherFeesDto feesDto) {
-		final OtherFeesDto result = otherFeeService.createOrUpdate(feesDto);
+	public ResponseEntity<ApiResponse> saveOtherFee(@RequestBody AccomodationUtilitiesDto feesDto) {
+		final AccomodationUtilitiesDto result = otherFeeService.createOrUpdate(feesDto);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	

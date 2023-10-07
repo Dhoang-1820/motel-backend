@@ -2,12 +2,11 @@ package com.petproject.motelservice.domain.inventory;
 
 import java.util.List;
 
+import com.petproject.motelservice.framework.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -16,13 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "other_fees")
+@Table(name = "accomodation_services")
 @Getter @Setter
-public class OtherFees {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+public class AccomodationUtilities extends BaseEntity {
 	
 	@Column(name = "name")
 	private String name;
@@ -33,18 +28,13 @@ public class OtherFees {
 	@Column(name = "unit")
 	private String unit;
 	
+	@Column(name = "description")
+	private String description;
+	
+	@OneToMany(mappedBy = "id.accomodationService", fetch = FetchType.LAZY)
+	private List<ContractService> contractServices;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "accomodation_id")
-	private Accomodations accomodations;
-	
-	@OneToMany(mappedBy = "id.fee", fetch = FetchType.LAZY)
-	private List<RoomFees> fees;
-
-	public OtherFees(Integer id) {
-		this.id = id;
-	}
-
-	public OtherFees() {
-	}
-	
+    @JoinColumn(name = "accomodation_id", nullable = false)
+	private Accomodations accomodation;
 }

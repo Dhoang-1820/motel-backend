@@ -1,9 +1,9 @@
 package com.petproject.motelservice.security.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,23 +25,22 @@ public class UserDetailsImpl implements UserDetails {
 	@JsonIgnore
 	private String password;
 
-	private Collection<? extends GrantedAuthority> authorities;
+	private GrantedAuthority authority;
 
 	public static UserDetailsImpl build(Users user) {
-		List<GrantedAuthority> authorities = user.getRole().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
+		GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRole().getName().name());
 
 		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
 	}
 
 	public UserDetailsImpl(Integer id, String username, String email, String password,
-			Collection<? extends GrantedAuthority> authorities) {
+			GrantedAuthority authority) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.authorities = authorities;
+		this.authority = authority;
 	}
 
 	public Integer getId() {
@@ -54,6 +53,8 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		authorities.add(authority);
 		return authorities;
 	}
 

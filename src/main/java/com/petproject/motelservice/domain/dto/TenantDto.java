@@ -2,8 +2,6 @@ package com.petproject.motelservice.domain.dto;
 
 import java.util.Date;
 
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
-
 import lombok.Data;
 
 @Data
@@ -11,7 +9,7 @@ public class TenantDto {
 
 	private Integer id;
 	
-	private Integer identifyNum;
+	private String identifyNum;
 	
 	private String firstName;
 	
@@ -27,5 +25,6 @@ public class TenantDto {
 	
 	private String email;
 	
-	private RoomResponse room;
+	
+	
 }

@@ -6,24 +6,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
 import com.petproject.motelservice.domain.dto.AllRoomDto;
 import com.petproject.motelservice.domain.dto.ImageDto;
-import com.petproject.motelservice.domain.dto.OtherFeesDto;
+import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Address;
 import com.petproject.motelservice.domain.inventory.Images;
-import com.petproject.motelservice.domain.inventory.OtherFees;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.domain.query.response.RoomFeeResponse;
+import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
-import com.petproject.motelservice.repository.OtherFeeRepository;
-import com.petproject.motelservice.repository.RoomFeeRepository;
+import com.petproject.motelservice.repository.AddressRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.services.AccomodationService;
 import com.petproject.motelservice.services.UserServices;
@@ -35,8 +35,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 	AccomodationsRepository accomodationsRepository;
 	
 	@Autowired
-	OtherFeeRepository otherFeeRepository;
-	
+	AccomodationServiceRepository serviceRepository;	
 	@Autowired
 	UserServices userService;
 	
@@ -44,49 +43,41 @@ public class AccomodationServiceImpl implements AccomodationService {
 	UsersRepository usersRepository;
 	
 	@Autowired
-	RoomFeeRepository roomFeeRepository;
+	AddressRepository addressRepository;
 	
 	@Autowired
 	ModelMapper mapper;
 
 	@Override
-	public AccomodationsDto createOrUpdate(AccomodationsDto request) {
+	public List<AccomodationsDto> createOrUpdate(AccomodationsDto request) {
 		Accomodations accomodations = null;
-		Date createAt = null;
-		AccomodationsDto result = new AccomodationsDto();
+		Address address = null;
+		List<AccomodationsDto> result = new ArrayList<>();
 		Users user = new Users();
 		user.setId(request.getUserId());
-		List<OtherFees> feesList = new ArrayList<>();
 		if (request.getId() == null) {
 			accomodations = new Accomodations();
-			createAt = new Date();
+			address = new Address();
+			accomodations.setCreateAt(new Date());
 		} else {
 			accomodations = accomodationsRepository.findById(request.getId()).orElse(null);
-			createAt = accomodations.getCreateAt();
+			address = accomodations.getAddress();
 		}
 		
-		accomodations = mapper.map(request, Accomodations.class);
-		if (createAt != null) {
-			accomodations.setCreateAt(createAt);
-		}
 		accomodations.setUser(user);
+		accomodations.setName(request.getName());
+		address.setAddressLine(request.getAddressLine());
+		address.setWard(request.getWard());
+		address.setWardCode(request.getWardCode());
+		address.setDistrict(request.getDistrict());
+		address.setDistrictCode(request.getDistrictCode());
+		address.setProvince(request.getProvince());
+		address.setProvinceCode(request.getProvinceCode());
+		accomodations.setAddress(address);
 		accomodations = accomodationsRepository.save(accomodations);
-		if (!request.getOtherFees().isEmpty() && request.getId() == null) {
-			List<OtherFeesDto> fees = request.getOtherFees();
-			OtherFees fee = null;
-			for (OtherFeesDto item : fees) {
-				fee = new OtherFees();
-				fee.setAccomodations(accomodations);
-				fee.setName(item.getName());
-				fee.setPrice(item.getPrice());
-				fee.setUnit(item.getUnit());
-				feesList.add(fee);
-			}
-		}
-		if (!feesList.isEmpty()) {
-			otherFeeRepository.saveAll(feesList);
-		}
-		result = mapper.map(accomodations, AccomodationsDto.class);
+		address.setAccomodations(accomodations);
+		address = addressRepository.save(address);
+		result = getAccomodationByUserId(request.getUserId());
 		return result;
 	}
 
@@ -107,15 +98,14 @@ public class AccomodationServiceImpl implements AccomodationService {
 				dto.setAccomodationId(item.getId());
 				dto.setPrice(room.getPrice());
 				dto.setId(room.getId());
-				dto.setElectricPrice(item.getElectricPrice());
-				dto.setWaterPrice(item.getWaterPrice());
-				dto.setAddress(item.getAddress());
+//				dto.setElectricPrice(item.getElectricPrice());
+//				dto.setWaterPrice(item.getWaterPrice());
+//				dto.setAddress(item.getAddress());
 				dto.setAccomodationName(item.getName());
 				
-				fees = roomFeeRepository.findByRoom(room.getId());
 				dto.setFees(fees);
 				
-				images = room.getImages();
+//				images = room.getImages();
 				imageResult = new ArrayList<>();
 				for (Images img : images) {
 					imageDto = new ImageDto();
@@ -135,36 +125,87 @@ public class AccomodationServiceImpl implements AccomodationService {
 	public void removeAccomodation(Integer id) {
 		Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
 		if (accomodations != null) {
-			List<OtherFees> fees = accomodations.getFees();
-			otherFeeRepository.deleteAll(fees);
 			accomodationsRepository.delete(accomodations);
 		}
+	}
+	
+	private AccomodationsDto convert2Dto(Accomodations accomodation) {
+		AccomodationsDto dto = new AccomodationsDto();
+		Address address = accomodation.getAddress();
+		dto.setId(accomodation.getId());
+		dto.setName(accomodation.getName());
+		dto.setDistrict(address.getDistrict());
+		dto.setDistrictCode(address.getDistrictCode());
+		dto.setProvince(address.getProvince());
+		dto.setProvinceCode(address.getProvinceCode());
+		dto.setWard(address.getWard());
+		dto.setWardCode(address.getWardCode());
+		dto.setAddressLine(address.getAddressLine());
+		return dto;
 	}
 
 	@Override
 	public List<AccomodationsDto> getAccomodationByUserId(Integer userId) {
-		Users users = usersRepository.findByUserId(userId);
-		List<Accomodations> accomodations = accomodationsRepository.findByUser(users);
-		TypeMap<Accomodations, AccomodationsDto> typeMap = mapper.getTypeMap(Accomodations.class, AccomodationsDto.class);
-		if (typeMap == null) {
-			typeMap = mapper.createTypeMap(Accomodations.class, AccomodationsDto.class);
-			typeMap.addMapping(Accomodations::getFees, AccomodationsDto::setOtherFees);
+		List<Accomodations> accomodations = accomodationsRepository.findByUserId(userId);
+		List<AccomodationsDto> result = new ArrayList<>();
+		for (Accomodations accomodation : accomodations) {
+			result.add(convert2Dto(accomodation));
 		}
-		
-		List<AccomodationsDto> result = accomodations.stream()
-                .map(source -> mapper.map(source, AccomodationsDto.class))
-                .collect(Collectors.toList());
 		return result;
 	}
 
 	@Override
 	public List<DropDownAccomodation> getDropdownAccomodationByUserId(Integer userId) {
-		Users users = usersRepository.findByUserId(userId);
-		List<Accomodations> accomodations = accomodationsRepository.findByUser(users);
+		List<Accomodations> accomodations = accomodationsRepository.findByUserId(userId);
 		List<DropDownAccomodation> result = accomodations.stream()
                 .map(source -> mapper.map(source, DropDownAccomodation.class))
                 .collect(Collectors.toList());
 		return result;
 	}
+
+	@Override
+	public List<AccomodationUtilitiesDto> getServiceByAccomodation(Integer accomodationId) {
+		List<AccomodationUtilitiesDto> result = new ArrayList<>();
+		AccomodationUtilitiesDto dto = null;
+		List<AccomodationUtilities> services = serviceRepository.findByAccomodationId(accomodationId);
+		for (AccomodationUtilities item : services) {
+			dto = new AccomodationUtilitiesDto();
+			dto.setAccomodationId(accomodationId);
+			dto.setId(item.getId());
+			dto.setName(item.getName());
+			dto.setUnit(item.getUnit());
+			dto.setPrice(item.getPrice());
+			dto.setDescription(item.getDescription());
+			result.add(dto);
+		}
+		return result;
+	}
 	
+	@Override
+	public List<AccomodationUtilitiesDto> saveService(AccomodationUtilitiesDto request) {
+		List<AccomodationUtilitiesDto> result = new ArrayList<>();
+		AccomodationUtilities service = null;
+		Accomodations accomodations = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
+		if (request.getId() == null) {
+			service = new AccomodationUtilities();
+		} else {
+			service = serviceRepository.findById(request.getId()).orElse(null);
+		}
+		service.setAccomodation(accomodations);
+		service.setDescription(request.getDescription());
+		service.setName(request.getName());
+		service.setPrice(request.getPrice());
+		service.setUnit(request.getUnit());
+		serviceRepository.save(service);
+		result = getServiceByAccomodation(request.getAccomodationId());
+		return result;
+	}
 }
+
+
+
+
+
+
+
+

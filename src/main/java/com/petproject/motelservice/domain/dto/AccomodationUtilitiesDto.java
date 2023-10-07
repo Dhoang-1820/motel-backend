@@ -3,7 +3,7 @@ package com.petproject.motelservice.domain.dto;
 import lombok.Data;
 
 @Data
-public class OtherFeesDto {
+public class AccomodationUtilitiesDto {
 	
 	private Integer accomodationId;
 	
@@ -14,4 +14,6 @@ public class OtherFeesDto {
 	private String unit;
 
 	private Double price;
+	
+	private String description;
 }
