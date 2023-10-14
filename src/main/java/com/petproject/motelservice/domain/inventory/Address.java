@@ -12,7 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "address")
 @Getter @Setter
-public class Address extends BaseEntity {
+public class Address extends BaseEntity{
 	
 	@Column(name = "adress_line")
 	private String addressLine;
@@ -35,7 +35,7 @@ public class Address extends BaseEntity {
 	@Column(name = "province_code")
 	private Integer provinceCode;
 	
-	@OneToOne(mappedBy = "address")
-    private Accomodations accomodations;
+	 @OneToOne(mappedBy = "address")
+	private Accomodations accomodation;
 	
 }

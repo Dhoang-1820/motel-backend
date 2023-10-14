@@ -30,6 +30,9 @@ public interface RoomRepository extends JpaRepository<Rooms, Integer> {
 	@Query(nativeQuery = true, value = "select accomodations.electric_price as electricPrice, accomodations.water_price as waterPrice, room.*, (accomodations.electric_price * room.electricNum) as totalElectric,  (accomodations.water_price * room.waterNum) as totalWater from accomodations join ( select rooms.id, rooms.accomodation_id, rooms.name as name, bills.is_sent as isSent, bills.electric_num as electricNum, bills.water_num as waterNum, bills.date as month, bills.total_price as totalPrice, bills.is_pay as isPay, bills.created_at as createAt from rooms join bills on rooms.id = bills.room_id where rooms.id = :roomId and month(bills.date) = month(:month) and year(bills.date) = year(:month) group by rooms.id order by rooms.id) room on accomodations.id = room.accomodation_id")
 	RoomBillEmail findRoomBillByMonth(@Param("roomId") Integer roomId, @Param("month") Date month);
 	
-	@Query("SELECT rooms FROM Rooms rooms LEFT JOIN Deposits deposits ON rooms.id = deposits.room.id WHERE rooms.accomodations.id = :accomodationId AND deposits.id IS NULL")
+	@Query("SELECT rooms FROM Rooms rooms LEFT JOIN Deposits deposits ON rooms.id = deposits.room.id LEFT JOIN Contract contract ON rooms.id = contract.room.id WHERE rooms.accomodations.id = :accomodationId AND deposits IS NULL AND contract IS NULL")
 	List<Rooms> findRoomNoDepostit(@Param("accomodationId") Integer accomodationId); 
+	
+	@Query("FROM Rooms room WHERE room.isRent = false AND room.accomodations.id = :accomodationId")
+	List<Rooms> findRoomNoRented(@Param("accomodationId") Integer accomodationId); 
 }

@@ -16,4 +16,8 @@ public class AccomodationUtilitiesDto {
 	private Double price;
 	
 	private String description;
+	
+	private Boolean isDefault;
+	
+	private Integer quantity = 1;
 }

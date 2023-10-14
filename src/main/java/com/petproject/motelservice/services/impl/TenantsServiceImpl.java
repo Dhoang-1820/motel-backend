@@ -13,10 +13,10 @@ import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
-import com.petproject.motelservice.services.TenantsServices;
+import com.petproject.motelservice.services.TenantsService;
 
 @Service
-public class TenantsServicesImpl implements TenantsServices {
+public class TenantsServiceImpl implements TenantsService {
 	
 	@Autowired
 	RoomRepository roomRepository;
@@ -98,6 +98,18 @@ public class TenantsServicesImpl implements TenantsServices {
 	@Override
 	public List<TenantDto> getTenantNotDeposit(Integer id) {
 		List<Tenants> tenants = tenantRepository.findTenantWithoutDeposit(id);
+		List<TenantDto> result = new ArrayList<>();
+		for (Tenants tenant : tenants) {
+			result.add(convert2Dto(tenant));
+		}
+		return result;
+	}
+
+
+
+	@Override
+	public List<TenantDto> getTenantNotContract(Integer id) {
+		List<Tenants> tenants = tenantRepository.findTenantNotContracted(id);
 		List<TenantDto> result = new ArrayList<>();
 		for (Tenants tenant : tenants) {
 			result.add(convert2Dto(tenant));

@@ -39,8 +39,8 @@ spring:
     port: '587'
 app:
   jwtSecret: U2FsdGVkX1/kte8JaLu6UFRqfWsVKZvGxF5CApjphfq/3kjCn2TTqF+woNk89VuX9CNwE8xh/F4W7bBU+bS0QQ== 
-  jwtExpirationMs: 86400000
-  jwtRefreshExpirationMs: 604800000
+  jwtExpirationMs: 31536000000
+  jwtRefreshExpirationMs: 31536000000
  
 azure:
   storage:

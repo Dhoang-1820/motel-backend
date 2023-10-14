@@ -16,7 +16,7 @@ import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
 import com.petproject.motelservice.domain.query.response.UserResponse;
 
-public interface UserServices {
+public interface UserService {
 	
 	public JwtResponse signIn(LoginRequest loginRequest);
 	

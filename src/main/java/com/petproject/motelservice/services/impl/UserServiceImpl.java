@@ -36,10 +36,10 @@ import com.petproject.motelservice.security.jwt.JwtUtils;
 import com.petproject.motelservice.security.services.RefreshTokenService;
 import com.petproject.motelservice.security.services.UserDetailsImpl;
 import com.petproject.motelservice.services.FileService;
-import com.petproject.motelservice.services.UserServices;
+import com.petproject.motelservice.services.UserService;
 
 @Service
-public class UserServicesImpl implements UserServices {
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UsersRepository usersRepository;

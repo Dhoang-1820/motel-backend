@@ -13,4 +13,6 @@ public class RoomResponse {
 	private Integer id;
 	
 	private String name;
+	
+	private Double price;
 }

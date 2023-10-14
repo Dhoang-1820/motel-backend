@@ -35,10 +35,10 @@ public class JwtUtils {
 	private String jwtSecret;
 
 	@Value("${app.jwtExpirationMs}")
-	private int jwtExpirationMs;
+	private long jwtExpirationMs;
 
 	@Value("${app.jwtRefreshExpirationMs}")
-	private int refreshTokenDurationMs;
+	private long refreshTokenDurationMs;
 	
 	@Autowired
 	UserDetailsServiceImpl userDetailsServiceImpl;

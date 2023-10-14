@@ -2,7 +2,9 @@ package com.petproject.motelservice.services.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -16,12 +18,16 @@ import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.RoomDto;
 import com.petproject.motelservice.domain.dto.RoomImageDto;
+import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Deposits;
 import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.Rooms;
+import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.domain.query.response.RoomServiceResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
+import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.services.FileService;
@@ -32,6 +38,9 @@ public class RoomServiceImpl implements RoomService {
 	
 	@Autowired
 	RoomRepository roomRepository;
+	
+	@Autowired
+	DepositRepository depositRepository;
 	
 	@Autowired
 	AccomodationsRepository accomodationsRepository;
@@ -64,6 +73,24 @@ public class RoomServiceImpl implements RoomService {
 		room.setAccomodations(accomodations);
 		room = roomRepository.save(room);
 		return getRoomsByAccomodation(request.getAccomodationId());
+	}
+	
+	@Override
+	public Map<String, Object> checkIsRoomHasDeposit(Integer roomId) {
+		Map<String, Object> result = new HashMap<>();
+		Deposits deposit = depositRepository.findByRoomId(roomId);
+		if (deposit != null) {
+			result.put("isBooked", Boolean.TRUE);
+			Tenants tenant = deposit.getTenant();
+			TenantDto dto = new TenantDto();
+			dto.setFirstName(tenant.getFirstName());
+			dto.setLastName(tenant.getLastName());
+			dto.setId(tenant.getId());
+			result.put("depositor", dto);
+		} else {
+			result.put("isBooked", Boolean.FALSE);
+		}
+		return result;
 	}
 
 	@Override
@@ -154,6 +181,14 @@ public class RoomServiceImpl implements RoomService {
 		img.setImageUrl(imgResult.get(0).getFileUrl());
 		imageRepository.save(img);
 	}
-	
+
+	@Override
+	public List<RoomResponse> getRoomNoRented(Integer accomodationId) {
+		List<Rooms> rooms = roomRepository.findRoomNoRented(accomodationId);
+		List<RoomResponse> result = rooms.stream()
+                .map(source -> mapper.map(source, RoomResponse.class))
+                .collect(Collectors.toList());
+		return result;
+	}
 	
 }

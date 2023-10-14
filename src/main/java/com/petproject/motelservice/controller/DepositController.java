@@ -18,7 +18,7 @@ import com.petproject.motelservice.domain.dto.DepositDto;
 import com.petproject.motelservice.domain.payload.request.CancelDepositRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.services.DepositService;
-import com.petproject.motelservice.services.TenantsServices;
+import com.petproject.motelservice.services.TenantsService;
 
 @RestController
 @RequestMapping(value = "/deposit")
@@ -28,7 +28,7 @@ public class DepositController {
 	DepositService depositService;
 	
 	@Autowired 
-	TenantsServices tenantsServices;
+	TenantsService tenantsServices;
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse> getDepositByAccombodation(@PathVariable("id") Integer accomodationId) {

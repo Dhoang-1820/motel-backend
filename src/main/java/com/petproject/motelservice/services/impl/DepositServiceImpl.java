@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.DepositDto;
+import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Deposits;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.domain.query.response.DepositResponse;
+import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
@@ -30,6 +32,9 @@ public class DepositServiceImpl implements DepositService {
 	
 	@Autowired
 	TenantRepository tenantRepository;
+	
+	@Autowired
+	AccomodationsRepository accomodationsRepository;
 
 	@Override
 	public List<DepositDto> getDepositByAccomodation(Integer accomodationId) {
@@ -44,7 +49,7 @@ public class DepositServiceImpl implements DepositService {
 			dto.setIsActive(item.getIsActive());
 			dto.setIsRepaid(item.getIsRepaid());
 			dto.setNote(item.getNote());
-			dto.setRoom(new RoomResponse(item.getRoomId(), item.getRoomName()));
+			dto.setRoom(new RoomResponse(item.getRoomId(), item.getRoomName(), item.getRoomPrice()));
 			dto.setStartDate(item.getStartDate());
 			dto.setTenantId(item.getTenantId());
 			dto.setEmail(item.getEmail());
@@ -78,6 +83,8 @@ public class DepositServiceImpl implements DepositService {
 		} else {
 			tenant = new Tenants();
 		}
+		Accomodations accomodation = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
+		tenant.setAccomodations(accomodation);
 		tenant.setFirstName(request.getFirstName());
 		tenant.setLastName(request.getLastName());
 		tenant.setPhone(request.getPhone());

@@ -19,10 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.BillDto;
+import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
 import com.petproject.motelservice.domain.dto.RoomFeeEmail;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Bills;
+import com.petproject.motelservice.domain.inventory.ElectricWaterNum;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.payload.Email;
 import com.petproject.motelservice.domain.payload.request.SendInvoiceRequest;
@@ -32,6 +34,7 @@ import com.petproject.motelservice.domain.query.response.RoomBillResponse;
 import com.petproject.motelservice.domain.query.response.RoomFeeResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.BillRepository;
+import com.petproject.motelservice.repository.ElectricWaterNumRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.services.BillServices;
 import com.petproject.motelservice.services.MailService;
@@ -48,6 +51,8 @@ public class BillServiceImpl implements BillServices {
 	@Autowired
 	AccomodationsRepository accomodationsRepository;
 
+	@Autowired
+	ElectricWaterNumRepository electricWaterNumRepository;
 
 	@Autowired
 	MailService mailService;
@@ -78,7 +83,7 @@ public class BillServiceImpl implements BillServices {
 
 	private BillDto convertToDto(Bills bill, Rooms room) {
 		BillDto billDto = mapper.map(bill, BillDto.class);
-		RoomResponse roomResponse = new RoomResponse(room.getId(), room.getName());
+		RoomResponse roomResponse = new RoomResponse(room.getId(), room.getName(), room.getPrice());
 		billDto.setRoom(roomResponse);
 		return billDto;
 	}
@@ -242,7 +247,50 @@ public class BillServiceImpl implements BillServices {
 		bill.setIsSent(true);
 		billRepository.save(bill);
 	}
-
 	
+	@Override
+	public List<ElectricityWaterDto> getElectricWaterNumByAccomodation(Integer accomodationId, Date month) {
+		List<ElectricityWaterDto> result = new ArrayList<>();
+		List<ElectricWaterNum> num = electricWaterNumRepository.findByAccomodationAndMonth(accomodationId, month);
+		for (ElectricWaterNum item : num) {
+			result.add(convert2ElectricityWaterDto(item));
+		}
+		
+		return result;
+	}
+
+	@Override
+	public ElectricityWaterDto saveElectricWaterNum(ElectricityWaterDto request) {
+		ElectricWaterNum num = new ElectricWaterNum();
+		if (request.getId() != null) {
+			num = electricWaterNumRepository.findById(request.getId()).orElse(null);
+		}
+		num.setFirstElectric(request.getFirstElectric());
+		num.setLastElectric(request.getLastElectric());
+		num.setElectricNum(request.getWaterNum());
+		num.setFirstWater(request.getFirstWater());
+		num.setLastWater(request.getLastWater());
+		num.setWaterNum(request.getWaterNum());
+		num.setMonth(request.getMonth());
+		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
+		num.setRoom(room);
+		num = electricWaterNumRepository.save(num);
+		return convert2ElectricityWaterDto(num);
+	}
+	
+	private ElectricityWaterDto convert2ElectricityWaterDto(ElectricWaterNum num) {
+		ElectricityWaterDto result = new ElectricityWaterDto();
+		result.setId(num.getId());
+		result.setFirstElectric(num.getFirstElectric());
+		result.setLastElectric(num.getLastElectric());
+		result.setElectricNum(num.getWaterNum());
+		result.setFirstWater(num.getFirstWater());
+		result.setLastWater(num.getLastWater());
+		result.setWaterNum(num.getWaterNum());
+		result.setMonth(num.getMonth());
+		Rooms room = num.getRoom();
+		result.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice()));
+		return result;
+	}
 
 }

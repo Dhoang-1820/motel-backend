@@ -1,7 +1,5 @@
 package com.petproject.motelservice.domain.dto;
 
-import java.util.List;
-
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 
 import lombok.Data;

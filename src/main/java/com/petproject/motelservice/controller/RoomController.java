@@ -1,6 +1,7 @@
 package com.petproject.motelservice.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,18 @@ public class RoomController {
 	@GetMapping("/utility/no-deposit/{id}")
 	public ResponseEntity<ApiResponse> getRoomNoDeposit(@PathVariable Integer id) {
 		final List<RoomResponse> result = roomService.getRoomNoDeposit(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/utility/no-rent/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoRented(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoRented(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping()
+	public ResponseEntity<ApiResponse> checkIsRoomHasDeposit(@RequestParam("roomId") Integer id) {
+		final Map<String, Object> result = roomService.checkIsRoomHasDeposit(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
