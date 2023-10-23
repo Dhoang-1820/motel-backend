@@ -8,10 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.petproject.motelservice.domain.inventory.Bills;
+import com.petproject.motelservice.domain.query.response.InvoiceResponse;
 
 public interface BillRepository extends JpaRepository<Bills, Integer> {
 	
-	@Query("FROM Bills bill WHERE month(bill.billDate) = month(:month) and year(bill.billDate) = year(:month) and bill.room.id = :roomId")
-	List<Bills> findBillMonthByRomm(@Param("month") Date month, @Param("roomId") Integer roomId);
+	@Query("FROM Bills bill WHERE month(bill.billDate) = month(:month) AND year(bill.billDate) = year(:month) AND bill.room.id = :roomId AND bill.invoiceType.id = 1")
+	Bills findByMonthAndRoom(@Param("month") Date month, @Param("roomId") Integer roomId);
+
+	@Query(nativeQuery = true, value = "select rooms.id as roomId, rooms.name as roomName, bill.total_payment as totalPayment, bill.paid_money as paidMoney, bill.debt as debt, bill.payment_date as paymentDate, bill.discount as discount, bill.quantity_sent as quantitySent, bill.is_pay as isPay, if(bill.id is not null, (select concat(tenants.first_name, ' ',tenants.last_name ) from tenants where id = contract.representative), null) as representative, bill.id as billId from rooms left join (select * from bills where month(date) = month(:month) AND year(date) = year(:month) and invoice_type_id = 1) bill on rooms.id = bill.room_id left join contract on rooms.id = contract.room_id where rooms.accomodation_id = :accomodationId and rooms.is_rent = 1")
+	List<InvoiceResponse> findCurrentInvoiceByMonth(@Param("accomodationId") Integer accomodationId, Date month);
 	
+	@Query(nativeQuery = true, value = "select rooms.id as roomId, rooms.name as roomName, bill.total_payment as totalPayment, bill.paid_money as paidMoney, bill.debt as debt, bill.payment_date as paymentDate, bill.discount as discount, bill.quantity_sent as quantitySent, bill.is_pay as isPay, if(bill.id is not null, (select concat(tenants.first_name, ' ',tenants.last_name ) from tenants where id = contract.representative), null) as representative, bill.id as billId from (select * from bills where month(date) = month(:month) AND year(date) = year(:month) and invoice_type_id = 1) bill join rooms  on rooms.id = bill.room_id left join contract on rooms.id = contract.room_id where rooms.accomodation_id = :accomodationId")
+	List<InvoiceResponse> findInvoiceByMonth(@Param("accomodationId") Integer accomodationId, Date month);
+	
+	@Query("SELECT bill.debt FROM Bills bill where bill.room.id = :roomId AND month(bill.billDate) = month(:month) AND year(bill.billDate) = year(:month) AND bill.invoiceType.id = 1")
+	Double findDebtByRoom(Integer roomId, Date month);
 }

@@ -147,7 +147,7 @@ public class UserContractServiceImpl implements UserContractService {
 			roomRepository.save(room);
 			contract.setRoom(room);
 			contract = contractRepository.save(contract);
-			if (request.getPreRoom() != request.getRoom().getId()) {
+			if (request.getPreRoom() != null && request.getPreRoom() != request.getRoom().getId()) {
 				room = roomRepository.findById(request.getPreRoom()).orElse(null);
 				room.setIsRent(Boolean.FALSE);
 				roomRepository.save(room);
@@ -167,6 +167,7 @@ public class UserContractServiceImpl implements UserContractService {
 		logger.info("updatedRows: " + updatedRows);
 		for (TenantDto tenantDto : tenants) {
 			tenant = tenantRepository.findById(tenantDto.getId()).orElse(null);
+			tenant.setStartDate(contract.getStartDate());
 			tenant.setContract(contract);
 			tenantRepository.save(tenant);
 		}

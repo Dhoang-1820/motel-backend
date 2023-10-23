@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
-import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.services.AccomodationService;

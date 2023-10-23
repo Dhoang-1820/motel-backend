@@ -38,7 +38,7 @@ public class DepositController {
 	
 	@PostMapping()
 	public ResponseEntity<ApiResponse> saveDeposit(@RequestBody DepositDto request) {
-		final List<DepositDto> result = depositService.saveDeposit(request);
+		final Boolean result = depositService.saveDeposit(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

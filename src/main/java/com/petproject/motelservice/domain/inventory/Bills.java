@@ -36,14 +36,20 @@ public class Bills extends BaseEntity{
 	@Column(name = "paid_money")
 	private Double paidMoney;
 	
-	@Column(name = "old_debt")
-	private Double oldDebt;
+	@Column(name = "debt")
+	private Double debt;
 	
-	@Column(name = "new_debt")
-	private Double newDebt;
+	@Column(name = "total_service")
+	private Double totalService;
+	
+	@Column(name = "discount")
+	private Double discount = 0D;
 	
 	@Column(name = "total_payment")
 	private Double totalPayment;
+	
+	@Column(name = "payment_date")
+	private Date paymentDate;
 	
 	@Column(name = "quantity_sent")
 	private Integer quantitySent;
@@ -54,4 +60,8 @@ public class Bills extends BaseEntity{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "room_id")
 	private Rooms room;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "invoice_type_id")
+	private InvoiceType invoiceType;
 }

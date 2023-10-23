@@ -6,21 +6,29 @@ import java.util.List;
 import com.petproject.motelservice.domain.dto.BillDto;
 import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
-import com.petproject.motelservice.domain.payload.request.SendInvoiceRequest;
 
 public interface BillServices {
 	
 	List<BillDto> getMonthBillByAccomodation(Integer accomodationId, Date month);
 	
-	BillDto createOrUpdate(BillDto request);
+	InvoiceDto updateInvoice(InvoiceDto request);
 	
-	List<InvoiceDto> getMonthInvoiceByAccomodation(Integer accomodationId, Date month);
+	List<InvoiceDto> getInvoiceByMonth(Integer accomodationId, Date month);
 	
-	void changePaymentStatus(Integer id);
+	Boolean changePaymentStatus(Integer id);
 	
-	void  sendInvoice( SendInvoiceRequest request);
+	Boolean removeInvoice(Integer invoiceId);
+	
+	Boolean sendInvoice(Integer invoiceId);
 	
 	ElectricityWaterDto saveElectricWaterNum(ElectricityWaterDto request);
 
 	List<ElectricityWaterDto> getElectricWaterNumByAccomodation(Integer accomodationId, Date month);
+
+	List<InvoiceDto> issueInvoice(InvoiceDto request);
+
+	InvoiceDto getInvoiceDetail(Integer invoiceId);
+
+	InvoiceDto getIssueInvoicePreview(Integer roomId, Date month);
+	
 }

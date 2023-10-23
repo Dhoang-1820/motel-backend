@@ -45,9 +45,6 @@ public class Tenants extends BaseEntity{
 	@Column(name = "is_stayed", columnDefinition = "BOOLEAN")
 	private Boolean isStayed;
 	
-	@Column(name = "image")
-	private String imageUrl;
-	
 	@Column(name = "gender")
 	@Enumerated(EnumType.STRING)
 	private EGender gender;

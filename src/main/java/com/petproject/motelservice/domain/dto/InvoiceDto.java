@@ -3,7 +3,7 @@ package com.petproject.motelservice.domain.dto;
 import java.util.Date;
 import java.util.List;
 
-import com.petproject.motelservice.domain.query.response.RoomFeeResponse;
+import com.petproject.motelservice.domain.payload.response.RoomResponse;
 
 import lombok.Data;
 
@@ -12,17 +12,13 @@ public class InvoiceDto {
 
 	private Integer id;
 	
-	private String name;
+	private RoomResponse room;
 	
 	private Boolean isSent;
 	
-	private Integer billId;
+	private Double totalPayment;
 
 	private Date billDate;
-
-	private Integer electricNum;
-
-	private Integer waterNum;
 
 	private Double totalPrice;
 
@@ -30,5 +26,24 @@ public class InvoiceDto {
 
 	private Date createdAt;
 	
-	private List<RoomFeeResponse> fees;
+	private String representative;
+	
+	private Integer quantitySent;
+	
+	private Double paidMoney;
+	
+	private Double debt;
+	
+	private Double newDebt;
+	
+	private Double totalService;
+	
+	private Double discount;
+	
+	private Date paymentDate;
+	
+	private String description;
+	
+	List<BillServiceDto> service;
+	
 }

@@ -190,5 +190,14 @@ public class RoomServiceImpl implements RoomService {
                 .collect(Collectors.toList());
 		return result;
 	}
+
+	@Override
+	public List<RoomResponse> getRoomNoElectricWaterIndex(Integer accomodationId, Date month) {
+		List<Rooms> rooms = roomRepository.findRoomNoElectricWater(accomodationId, month);
+		List<RoomResponse> result = rooms.stream()
+                .map(source -> mapper.map(source, RoomResponse.class))
+                .collect(Collectors.toList());
+		return result;
+	}
 	
 }

@@ -1,5 +1,6 @@
 package com.petproject.motelservice.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ public interface RoomService {
 	List<RoomResponse> getRoomNoDeposit(Integer accomodationId);
 	
 	List<RoomResponse> getRoomNoRented(Integer accomodationId);
+	
+	List<RoomResponse> getRoomNoElectricWaterIndex(Integer accomodationId, Date month);
 
 	Map<String, Object> checkIsRoomHasDeposit(Integer roomId);
 }

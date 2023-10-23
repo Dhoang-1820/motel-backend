@@ -40,60 +40,69 @@ public class DepositServiceImpl implements DepositService {
 	public List<DepositDto> getDepositByAccomodation(Integer accomodationId) {
 		List<DepositDto> result = new ArrayList<>();
 		List<DepositResponse> deposits = depositRepository.findByAccomodation(accomodationId);
-		DepositDto dto = null;
 		for (DepositResponse item : deposits) {
-			dto = new DepositDto();
-			dto.setId(item.getId());
-			dto.setDeposit(item.getDeposit());
-			dto.setDueDate(item.getDueDate());
-			dto.setIsActive(item.getIsActive());
-			dto.setIsRepaid(item.getIsRepaid());
-			dto.setNote(item.getNote());
-			dto.setRoom(new RoomResponse(item.getRoomId(), item.getRoomName(), item.getRoomPrice()));
-			dto.setStartDate(item.getStartDate());
-			dto.setTenantId(item.getTenantId());
-			dto.setEmail(item.getEmail());
-			dto.setFirstName(item.getFirstName());
-			dto.setLastName(item.getLastName());
-			dto.setPhone(item.getPhone());
-			dto.setIdentifyNum(item.getIdentifyNum());
-			result.add(dto);
+			result.add(convert2Dto(item));
 		}
 		return result;
 	}
+	
+	private DepositDto convert2Dto(DepositResponse deposit) {
+		DepositDto dto = new DepositDto();
+		dto.setId(deposit.getId());
+		dto.setDeposit(deposit.getDeposit());
+		dto.setDueDate(deposit.getDueDate());
+		dto.setIsActive(deposit.getIsActive());
+		dto.setIsRepaid(deposit.getIsRepaid());
+		dto.setNote(deposit.getNote());
+		dto.setRoom(new RoomResponse(deposit.getRoomId(), deposit.getRoomName(), deposit.getRoomPrice()));
+		dto.setStartDate(deposit.getStartDate());
+		dto.setTenantId(deposit.getTenantId());
+		dto.setEmail(deposit.getEmail());
+		dto.setFirstName(deposit.getFirstName());
+		dto.setLastName(deposit.getLastName());
+		dto.setPhone(deposit.getPhone());
+		dto.setIdentifyNum(deposit.getIdentifyNum());
+		return dto;
+	}
 
 	@Override
-	public List<DepositDto> saveDeposit(DepositDto request) {
+	public Boolean saveDeposit(DepositDto request) {
+		Boolean result = false;
 		Deposits deposit = null;
-		if (request.getId() != null) {
-			deposit = depositRepository.findById(request.getId()).orElse(null);
-		} else {
-			deposit = new Deposits();
-			deposit.setCreatedAt(new Date());
+		try {
+			if (request.getId() != null) {
+				deposit = depositRepository.findById(request.getId()).orElse(null);
+			} else {
+				deposit = new Deposits();
+				deposit.setCreatedAt(new Date());
+			}
+			deposit.setDeposit(request.getDeposit());
+			deposit.setDueDate(request.getDueDate());
+			deposit.setNote(request.getNote());
+			deposit.setStartDate(request.getStartDate());
+			Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
+			deposit.setRoom(room);
+			Tenants tenant = null;
+			if (request.getTenantId() != null) {
+				tenant = tenantRepository.findById(request.getTenantId()).orElse(null);
+			} else {
+				tenant = new Tenants();
+			}
+			Accomodations accomodation = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
+			tenant.setAccomodations(accomodation);
+			tenant.setFirstName(request.getFirstName());
+			tenant.setLastName(request.getLastName());
+			tenant.setPhone(request.getPhone());
+			tenant.setEmail(request.getEmail());
+			tenant.setIdentifyNum(request.getIdentifyNum());
+			tenant = tenantRepository.save(tenant);
+			deposit.setTenant(tenant);
+			depositRepository.save(deposit);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		deposit.setDeposit(request.getDeposit());
-		deposit.setDueDate(request.getDueDate());
-		deposit.setNote(request.getNote());
-		deposit.setStartDate(request.getStartDate());
-		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
-		deposit.setRoom(room);
-		Tenants tenant = null;
-		if (request.getTenantId() != null) {
-			tenant = tenantRepository.findById(request.getTenantId()).orElse(null);
-		} else {
-			tenant = new Tenants();
-		}
-		Accomodations accomodation = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
-		tenant.setAccomodations(accomodation);
-		tenant.setFirstName(request.getFirstName());
-		tenant.setLastName(request.getLastName());
-		tenant.setPhone(request.getPhone());
-		tenant.setEmail(request.getEmail());
-		tenant.setIdentifyNum(request.getIdentifyNum());
-		tenant = tenantRepository.save(tenant);
-		deposit.setTenant(tenant);
-		depositRepository.save(deposit);
-		return getDepositByAccomodation(request.getAccomodationId());
+		return result;
 	}
 	
 	

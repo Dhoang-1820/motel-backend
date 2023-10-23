@@ -40,8 +40,6 @@ public class TenantsServiceImpl implements TenantsService {
 		return result;
 	}
 	
-
-
 	@Override
 	public TenantDto createOrUpdate(TenantDto request) {
 		Tenants tenant = null;
@@ -53,18 +51,12 @@ public class TenantsServiceImpl implements TenantsService {
 		tenant.setFirstName(request.getFirstName());
 		tenant.setLastName(request.getLastName());
 		tenant.setIdentifyNum(request.getIdentifyNum());
-		tenant.setImageUrl(request.getImageUrl());
 		tenant.setIsStayed(request.getIsStayed());
 		tenant.setStartDate(request.getStartDate());
 		tenant.setPhone(request.getPhone());
 		tenant.setEmail(request.getEmail());
-//		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
-//		tenant.setRoom(room);
+		tenant.setGender(request.getGender());
 		tenant = tenantRepository.save(tenant);
-//		if (!room.getIsRent()) {
-//			room.setIsRent(true);
-//			roomRepository.save(room);
-//		}
 		return null;
 	}
 
@@ -74,12 +66,6 @@ public class TenantsServiceImpl implements TenantsService {
 		tenant.setIsStayed(false);
 		tenant.setEndDate(request.getReturnDate());
 		tenant = tenantRepository.save(tenant);
-//		Rooms room = tenant.getRoom();
-//		List<Tenants> tenants = tenantRepository.findByRoomAndIsStayed(room, true);
-//		if (tenants.isEmpty()) {
-//			room.setIsRent(false);
-//			roomRepository.save(room);
-//		}
 	}
 
 	private TenantDto convert2Dto(Tenants tenant) {
@@ -91,7 +77,9 @@ public class TenantsServiceImpl implements TenantsService {
 		tenantDto.setIdentifyNum(tenant.getIdentifyNum());
 		tenantDto.setPhone(tenant.getPhone());
 		tenantDto.setStartDate(tenant.getStartDate());
+		tenantDto.setEndDate(tenant.getEndDate());
 		tenantDto.setIsStayed(tenant.getIsStayed());
+		tenantDto.setGender(tenant.getGender());
 		return tenantDto;
 	}
 
@@ -104,8 +92,6 @@ public class TenantsServiceImpl implements TenantsService {
 		}
 		return result;
 	}
-
-
 
 	@Override
 	public List<TenantDto> getTenantNotContract(Integer id) {

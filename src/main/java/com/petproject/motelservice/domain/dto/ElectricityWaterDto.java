@@ -25,8 +25,6 @@ public class ElectricityWaterDto {
 
 	private Integer waterNum;
 
-	private Date createdAt;
-
 	private RoomResponse room;
 	
 	private Integer accomodationId;
