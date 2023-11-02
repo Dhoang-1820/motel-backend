@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.UserDto;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
@@ -18,21 +19,25 @@ import com.petproject.motelservice.domain.query.response.UserResponse;
 
 public interface UserService {
 	
-	public JwtResponse signIn(LoginRequest loginRequest);
+	JwtResponse signIn(LoginRequest loginRequest);
 	
-	public ApiResponse signUp(SignupRequest signUpRequest);
+	ApiResponse signUp(SignupRequest signUpRequest);
 	
-	public TokenRefreshResponse getRefreshtoken(TokenRefreshRequest request);
+	TokenRefreshResponse getRefreshtoken(TokenRefreshRequest request);
 	
-	public Users getUserById(Integer userId);
+	Users getUserById(Integer userId);
 	
-	public UserDto getUserByUserId(Integer userId);
+	UserDto getUserByUserId(Integer userId);
 	
-	public UserDto createOrUpdate(UserDto user, MultipartFile[] image);
+	BankAccountDto saveBankAccount(BankAccountDto request);
 	
-	public ApiResponse changePassword(ChangePasswordRequest changePasswordRequest);
+	void removeBankAccount(Integer bankId);
 	
-	public List<UserResponse> getAllUser();
+	UserDto createOrUpdate(UserDto user, MultipartFile[] image);
 	
-	public UpdateUserRequest createOrUpdate(UpdateUserRequest request);
+	ApiResponse changePassword(ChangePasswordRequest changePasswordRequest);
+	
+	List<UserResponse> getAllUser();
+	
+	UpdateUserRequest createOrUpdate(UpdateUserRequest request);
 }

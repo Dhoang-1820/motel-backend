@@ -68,9 +68,21 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/utility/no-post/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoPost(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoPost(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/utility/rented/{id}")
+	public ResponseEntity<ApiResponse> getRoomRented(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomRented(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PostMapping("/utility/no-electric-water")
 	public ResponseEntity<ApiResponse> getRoomNoElectricWater(@RequestBody BillRequest request) {
-		final List<RoomResponse> result = roomService.getRoomNoElectricWaterIndex(request.getAccomodationId(), request.getMonth());
+		final List<RoomResponse> result = roomService.getRoomNoElectricWaterIndex(request.getId(), request.getMonth());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

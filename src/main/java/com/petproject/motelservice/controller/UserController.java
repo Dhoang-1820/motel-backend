@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petproject.motelservice.common.Constants;
+import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.UserDto;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
@@ -72,6 +74,18 @@ public class UserController {
 	public ResponseEntity<ApiResponse> saveUser(@RequestBody UpdateUserRequest request) {
 		final UpdateUserRequest result = userService.createOrUpdate(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/bank")
+	public ResponseEntity<ApiResponse> saveBankAccount(@RequestBody BankAccountDto request) {
+		final BankAccountDto result = userService.saveBankAccount(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@DeleteMapping("/bank/{id}")
+	public ResponseEntity<ApiResponse> deleteBankAccount(@PathVariable Integer id) {
+		userService.removeBankAccount(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
 	
 	@PutMapping("/changePassword")

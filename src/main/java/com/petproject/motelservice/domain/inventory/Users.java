@@ -52,14 +52,14 @@ public class Users extends BaseEntity {
 	@Column(name = "image")
 	private String imageUrl;
 	
-	@Column(name = "bank_number_1")
-	private String bankNumber1;
-	
-	@Column(name = "bank_number_2")
-	private String bandNumber2;
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	List<Post> posts;
 	
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	List<Accomodations> accomodations;
+	
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	List<BankAccountInfo> bankAccountInfos;
 	
 	@ManyToOne
 	@JoinColumn(name = "role_id")

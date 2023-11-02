@@ -33,7 +33,11 @@ public interface RoomService {
 
 	List<RoomResponse> getRoomNoDeposit(Integer accomodationId);
 	
+	List<RoomResponse> getRoomRented(Integer accomodationId);
+
 	List<RoomResponse> getRoomNoRented(Integer accomodationId);
+
+	List<RoomResponse> getRoomNoPost(Integer accomodationId);
 	
 	List<RoomResponse> getRoomNoElectricWaterIndex(Integer accomodationId, Date month);
 

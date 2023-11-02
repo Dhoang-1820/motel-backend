@@ -44,6 +44,10 @@ public class InvoiceDto {
 	
 	private String description;
 	
+	private Date returnDate;
+	
+	private Boolean isReturnBill;
+	
 	List<BillServiceDto> service;
 	
 }

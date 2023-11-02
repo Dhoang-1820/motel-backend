@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -22,4 +24,7 @@ public class UserDto {
 	private String username;
 	
 	private String password;
+	
+	private List<BankAccountDto> bankAccounts;
+	
 }

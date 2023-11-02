@@ -313,9 +313,11 @@
                 <div style="padding: 10px 25px;">
                   <div style="padding: 10px 5px">Vui lòng chuyển khoản vào một trong số tài khoản sau đây, nội dung:
                     Phòng_Tháng</div>
-                  <div>
-                    <div style="padding: 10px 5px"><span th:text="${bankNumber1}">bankNumber1</span></div>
-                    <div style="padding: 10px 5px"><span th:text="${bankNumber2}">bankNumber2</span></div>
+                  <div th:each="bank : ${banks}">
+                    <div style="padding: 10px 5px"><span>Chủ tài khoản: </span><span th:text="${bank.accountOwner}">accountOwner</span></div>
+                    <div style="padding: 10px 5px"><span>Tên ngân hàng: </span><span th:text="${bank.bankName}">bankName</span></div>
+                    <div style="padding: 10px 5px"><span></span>Số tài khoản: <span th:text="${bank.bankNumber}">bankNumber</span></div>
+                    <div>================================</div>
                   </div>
                 </div>
 

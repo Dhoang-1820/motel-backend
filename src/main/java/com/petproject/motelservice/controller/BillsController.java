@@ -1,6 +1,7 @@
 package com.petproject.motelservice.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
 import com.petproject.motelservice.domain.payload.request.BillRequest;
 import com.petproject.motelservice.domain.payload.request.IssueInvoiceRequest;
+import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.services.BillServices;
 
@@ -31,7 +33,7 @@ public class BillsController {
 
 	@PostMapping("/electric-water")
 	public ResponseEntity<ApiResponse> getElectricWaterNumByAccomodation(@RequestBody BillRequest request) {
-		final List<ElectricityWaterDto> result = billServices.getElectricWaterNumByAccomodation(request.getAccomodationId(), request.getMonth());
+		final List<ElectricityWaterDto> result = billServices.getElectricWaterNumByAccomodation(request.getId(), request.getMonth());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 		
@@ -49,19 +51,25 @@ public class BillsController {
 	
 	@PostMapping()
 	public ResponseEntity<ApiResponse> getMonthInvoiceByAccomodation(@RequestBody BillRequest request) {
-		final List<InvoiceDto> result = billServices.getInvoiceByMonth(request.getAccomodationId(), request.getMonth());
+		final List<InvoiceDto> result = billServices.getInvoiceByMonth(request.getId(), request.getMonth(), request.getIsReturn());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse> getInvoiceDetail(@PathVariable("id") Integer billId) {
-		final InvoiceDto result = billServices.getInvoiceDetail(billId);
+		final InvoiceDto result = billServices.getInvoiceDetail(billId, false);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/return/{id}")
+	public ResponseEntity<ApiResponse> getReturnInvoiceDetail(@PathVariable("id") Integer billId) {
+		final InvoiceDto result = billServices.getInvoiceDetail(billId, true);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
 	@PostMapping("/issue")
 	public ResponseEntity<ApiResponse> issueInvoice(@RequestBody InvoiceDto request) {
-		final List<InvoiceDto> result = billServices.issueInvoice(request);
+		final List<InvoiceDto> result = billServices.issueInvoice(request, false);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
@@ -77,9 +85,27 @@ public class BillsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@PostMapping("/room")
+	public ResponseEntity<ApiResponse> checkReturnValid(@RequestBody BillRequest request) {
+		Map<String, Boolean> result = billServices.checkIsReturnValid(request.getId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PutMapping("/confirm/{id}")
 	public ResponseEntity<ApiResponse> confirmInvoicePayment(@PathVariable("id") Integer invoiceId) {
 		final Boolean result = billServices.changePaymentStatus(invoiceId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/return")
+	public ResponseEntity<ApiResponse> returnRoom(@RequestBody ReturnRoomRequest request) {
+		final InvoiceDto result = billServices.getReturnRoomPreview(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/return/issue")
+	public ResponseEntity<ApiResponse> issueInvoiceReturn(@RequestBody InvoiceDto request) {
+		final List<InvoiceDto> result = billServices.returnRoom(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

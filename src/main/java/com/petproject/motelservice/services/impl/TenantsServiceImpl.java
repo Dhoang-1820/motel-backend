@@ -60,14 +60,6 @@ public class TenantsServiceImpl implements TenantsService {
 		return null;
 	}
 
-	@Override
-	public void returnRoom(ReturnRoomRequest request) {
-		Tenants tenant = tenantRepository.findById(request.getId()).orElse(null);
-		tenant.setIsStayed(false);
-		tenant.setEndDate(request.getReturnDate());
-		tenant = tenantRepository.save(tenant);
-	}
-
 	private TenantDto convert2Dto(Tenants tenant) {
 		TenantDto tenantDto = new TenantDto();
 		tenantDto.setId(tenant.getId());

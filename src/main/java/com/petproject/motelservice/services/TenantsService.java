@@ -11,7 +11,7 @@ public interface TenantsService {
 
 	TenantDto createOrUpdate(TenantDto request);
 
-	void returnRoom(ReturnRoomRequest request);
+//	void returnRoom(ReturnRoomRequest request);
 	
 	List<TenantDto> getTenantNotDeposit(Integer id);
 

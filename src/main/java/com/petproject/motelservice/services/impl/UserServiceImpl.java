@@ -1,5 +1,6 @@
 package com.petproject.motelservice.services.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
+import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.UserDto;
+import com.petproject.motelservice.domain.inventory.BankAccountInfo;
 import com.petproject.motelservice.domain.inventory.ERoles;
 import com.petproject.motelservice.domain.inventory.RefreshToken;
 import com.petproject.motelservice.domain.inventory.Role;
@@ -30,6 +33,7 @@ import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
 import com.petproject.motelservice.domain.query.response.UserResponse;
+import com.petproject.motelservice.repository.BankAccountRepository;
 import com.petproject.motelservice.repository.RolesRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.security.jwt.JwtUtils;
@@ -64,6 +68,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	FileService storageService;
+	
+	@Autowired
+	BankAccountRepository bankAccountRepository;
 
 	@Override
 	public JwtResponse signIn(LoginRequest loginRequest) {
@@ -156,15 +163,22 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Users getUserById(Integer userId) {
-		return usersRepository.findById(userId).orElse(null);
-	}
-
-	@Override
 	public UserDto getUserByUserId(Integer userId) {
 		UserDto result = new UserDto();
 		Users user = usersRepository.findByUserId(userId);
 		result = mapper.map(user, UserDto.class);
+		List<BankAccountInfo> accountInfos = user.getBankAccountInfos();
+		BankAccountDto accountDto = null;
+		List<BankAccountDto> banks = new ArrayList<>();
+		for (BankAccountInfo bank : accountInfos) {
+			accountDto = new BankAccountDto();
+			accountDto.setAccountOwner(bank.getAccountOwner());
+			accountDto.setBankName(bank.getBankName());
+			accountDto.setBankNumber(bank.getBankNumber());
+			accountDto.setId(bank.getId());
+			banks.add(accountDto);
+		}
+		result.setBankAccounts(banks);
 		return result;
 	}
 
@@ -189,6 +203,42 @@ public class UserServiceImpl implements UserService {
 		usersRepository.save(user);
 		UserDto result = mapper.map(user, UserDto.class);
 		return result;
+	}
+	
+
+	@Override
+	public Users getUserById(Integer userId) {
+		Users user = usersRepository.findById(userId).orElse(null);
+		return user;
+	}
+
+
+	@Override
+	public BankAccountDto saveBankAccount(BankAccountDto request) {
+		BankAccountDto result = null;
+		BankAccountInfo accountInfo = new BankAccountInfo();
+		if (request.getId() != null) {
+			accountInfo = bankAccountRepository.findById(request.getId()).orElse(null);
+		}
+		accountInfo.setAccountOwner(request.getAccountOwner());
+		accountInfo.setBankName(request.getBankName());
+		accountInfo.setBankNumber(request.getBankNumber());
+		Users user = getUserById(request.getUserId());
+		accountInfo.setUser(user);
+		bankAccountRepository.save(accountInfo);
+		result = mapper.map(accountInfo, BankAccountDto.class);
+		return result;
+	}
+	
+
+	@Override
+	public void removeBankAccount(Integer bankId) {
+		try {
+			BankAccountInfo accountInfo = bankAccountRepository.findById(bankId).orElse(null);
+			bankAccountRepository.delete(accountInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

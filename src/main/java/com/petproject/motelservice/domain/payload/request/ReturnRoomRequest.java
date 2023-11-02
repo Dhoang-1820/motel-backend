@@ -7,7 +7,8 @@ import lombok.Data;
 @Data
 public class ReturnRoomRequest {
 	
-	private Integer id;
+	private Integer roomId;
 	
 	private Date returnDate;
+	
 }

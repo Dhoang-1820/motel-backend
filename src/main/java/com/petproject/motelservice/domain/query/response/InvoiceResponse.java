@@ -27,5 +27,9 @@ public interface InvoiceResponse {
 	Integer getBillId();
 	
 	Integer getQuantitySent();
+	
+	Date getReturnDate();
+	
+	Double getTotalPrice();
 
 }

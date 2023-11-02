@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.TenantDto;
-import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.services.TenantsService;
 
@@ -49,9 +48,5 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	@PostMapping("/return")
-	public ResponseEntity<ApiResponse> returnRoom(@RequestBody ReturnRoomRequest request) {
-		tenantsServices.returnRoom(request);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.CREATE_SUCCESS_MSG));
-	}
+	
 }

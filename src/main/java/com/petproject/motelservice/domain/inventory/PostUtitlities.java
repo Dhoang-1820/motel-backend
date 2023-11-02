@@ -1,6 +1,5 @@
 package com.petproject.motelservice.domain.inventory;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -10,13 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "contract_service")
-public class ContractService {
-	
+@Table(name = "post_utilities")
+public class PostUtitlities {
+
 	@EmbeddedId
-	private ContractServiceId id;
-	
-	@Column(name = "quantity")
-	private Integer quantity;
+	private PostUtilitiesId id;
 	
 }

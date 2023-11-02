@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Rooms;
-import com.petproject.motelservice.domain.query.response.InvoiceResponse;
 import com.petproject.motelservice.domain.query.response.RoomBillEmail;
 import com.petproject.motelservice.domain.query.response.RoomBillResponse;
 import com.petproject.motelservice.domain.query.response.RoomServiceResponse;
@@ -36,6 +35,12 @@ public interface RoomRepository extends JpaRepository<Rooms, Integer> {
 	
 	@Query("FROM Rooms room WHERE room.isRent = false AND room.accomodations.id = :accomodationId")
 	List<Rooms> findRoomNoRented(@Param("accomodationId") Integer accomodationId); 
+	
+	@Query("FROM Rooms room WHERE room.isRent = true AND room.accomodations.id = :accomodationId")
+	List<Rooms> findRoomRented(@Param("accomodationId") Integer accomodationId); 
+	
+	@Query("SELECT rooms FROM Rooms rooms LEFT JOIN Post post ON rooms.id = post.room.id WHERE rooms.accomodations.id = :accomodationId AND post IS NULL")
+	List<Rooms> findRoomNoPost(@Param("accomodationId") Integer accomodationId); 
 	
 	@Query("FROM Rooms room WHERE room.accomodations.id = :accomodationId AND room.id NOT IN (SELECT num.room.id FROM ElectricWaterNum num WHERE month(num.month) = month(:month) AND year(num.month) = year(:month))")
 	List<Rooms> findRoomNoElectricWater(@Param("accomodationId") Integer accomodationId, Date month);

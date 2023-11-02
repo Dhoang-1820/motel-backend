@@ -93,6 +93,7 @@ public class RoomServiceImpl implements RoomService {
 		return result;
 	}
 
+
 	@Override
 	public void removeRoom(Integer roomId) {
 		try {
@@ -130,6 +131,15 @@ public class RoomServiceImpl implements RoomService {
 		return result;
 	}
 	
+	@Override
+	public List<RoomResponse> getRoomNoPost(Integer accomodationId) {
+		List<Rooms> rooms = roomRepository.findRoomNoPost(accomodationId);
+		List<RoomResponse> result = rooms.stream()
+                .map(source -> mapper.map(source, RoomResponse.class))
+                .collect(Collectors.toList());
+		return result;
+	}
+
 	@Override
 	public RoomImageDto getRoomImages(Integer roomId) {
 		Rooms room = roomRepository.findById(roomId).orElse(null);
@@ -185,6 +195,15 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public List<RoomResponse> getRoomNoRented(Integer accomodationId) {
 		List<Rooms> rooms = roomRepository.findRoomNoRented(accomodationId);
+		List<RoomResponse> result = rooms.stream()
+                .map(source -> mapper.map(source, RoomResponse.class))
+                .collect(Collectors.toList());
+		return result;
+	}
+	
+	@Override
+	public List<RoomResponse> getRoomRented(Integer accomodationId) {
+		List<Rooms> rooms = roomRepository.findRoomRented(accomodationId);
 		List<RoomResponse> result = rooms.stream()
                 .map(source -> mapper.map(source, RoomResponse.class))
                 .collect(Collectors.toList());
