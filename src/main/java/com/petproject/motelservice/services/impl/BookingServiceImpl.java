@@ -41,7 +41,9 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public BookingDto saveBooking(BookingDto request) {
 		Booking booking = mapper.map(request, Booking.class);
+		Rooms room = roomRepository.findById(request.getRoomId()).orElse(null);
 		booking.setBookingDate(new Date());
+		booking.setRoom(room);
 		booking = bookingRepository.save(booking);
 		BookingDto result = mapper.map(booking, BookingDto.class);
 		sendOutNotification(booking);
@@ -86,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public void sendOutNotification(Booking request) {
-		Rooms room = roomRepository.findById(Integer.valueOf(request.getRoomId())).orElse(null);	
+		Rooms room = roomRepository.findById(Integer.valueOf(request.getRoom().getId())).orElse(null);	
 		Accomodations accomodations = room.getAccomodations();
 		sendInvoice(room.getName(), accomodations, request);
 	}

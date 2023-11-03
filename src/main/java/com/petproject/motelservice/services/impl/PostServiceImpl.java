@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.domain.dto.ContractServiceDto;
+import com.petproject.motelservice.domain.dto.DistrictDto;
 import com.petproject.motelservice.domain.dto.EquipmentDto;
 import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.ImageDto;
+import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
+import com.petproject.motelservice.domain.dto.WardDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
@@ -27,6 +30,7 @@ import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
+import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.PostRepository;
 import com.petproject.motelservice.repository.PostUtilitiesRepository;
@@ -42,6 +46,9 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	PostRepository postRepository;
+	
+	@Autowired
+	AccomodationsRepository accomodationsRepository;
 
 	@Autowired
 	TenantRepository tenantRepository;
@@ -171,7 +178,7 @@ public class PostServiceImpl implements PostService {
 				+ address.getProvince();
 		dto.setAddress(addressLine);
 		dto.setPhone(user.getPhone());
-		equipments = equipmentService.getByRoomId(room.getId());
+		equipments = getEquipment(equipmentService.getByRoomId(room.getId()));
 		dto.setEquipments(equipments);
 		postUtitlities = post.getPostUtitlities();
 		services = getPostServices(postUtitlities);
@@ -182,6 +189,28 @@ public class PostServiceImpl implements PostService {
 		dto.setCreatedAt(post.getCreatedAt());
 		dto.setIsActive(post.getIsActive());
 		return dto;
+	}
+	
+	private List<EquipmentDto> getEquipment(List<EquipmentDto> equipmentDtos) {
+		List<EquipmentDto> result = new ArrayList<>();
+		for (EquipmentDto item : equipmentDtos) {
+			if (!isContain(result, item.getName())) {
+				result.add(item);				
+			}
+		}
+		return result;
+	}
+	
+	private Boolean isContain(List<EquipmentDto> equips, String name) {
+		Boolean result = false;
+		int i;
+		for (i = 0; i < equips.size(); i++) {
+			if (equips.get(i).getName().equalsIgnoreCase(name)) {
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -260,6 +289,43 @@ public class PostServiceImpl implements PostService {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	@Override
+	public void changeRoomImage(MultipartFile[] images, Integer imageId) {
+		List<FileUploadDto> imgResult = storageService.uploadFiles(images);
+		Images img = imageRepository.findById(imageId).orElse(null);
+		img.setImageUrl(imgResult.get(0).getFileUrl());
+		imageRepository.save(img);
+	}
+	
+	
+	@Override
+	public List<ImageDto> getImageByPost(Integer postId) {
+		Post post = postRepository.findById(postId).orElse(null);
+		return getPostImages(post);
+	}
+
+	@Override
+	public void removeImage(Integer imageId) {
+		Images image = imageRepository.findById(imageId).orElse(null);
+		imageRepository.delete(image);
+	}
+
+	@Override
+	public List<PostAddressDto> getAllAddress() {
+		List<PostAddressDto> result = new ArrayList<>();
+		DistrictDto district = null;
+		List<DistrictDto> districts = new ArrayList<>();
+		WardDto ward = null;
+		List<WardDto> wards = new ArrayList<>();
+		PostAddressDto dto = null;
+		List<Accomodations> accomodations = accomodationsRepository.findAllByPost();
+		for (Accomodations item : accomodations) {
+			dto = new PostAddressDto();
+			
+		}
+		return null;
 	}
 	
 }

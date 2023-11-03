@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
+import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
@@ -53,6 +54,24 @@ public class PostController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/image/{postId}")
+	public ResponseEntity<ApiResponse> getImageByPost(@PathVariable("postId") Integer postId) {
+		final List<ImageDto> result = postService.getImageByPost(postId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PutMapping("/image/{imgId}")
+	public ResponseEntity<ApiResponse> changeImageRoom(@RequestParam("file") MultipartFile[] files, @PathVariable("imgId") Integer imgId) {
+		postService.changeRoomImage(files, imgId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
+	}
+	
+	@DeleteMapping("/image/{imageId}")
+	public ResponseEntity<ApiResponse> removeImage(@PathVariable("imageId") Integer imageId) {
+		postService.removeImage(imageId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PutMapping()
 	public ResponseEntity<ApiResponse> changePostStatus(@RequestBody PostRequest request) {
 		final Boolean result = postService.changePostStatus(request);
@@ -64,4 +83,6 @@ public class PostController {
 		final Boolean result = postService.removePost(postId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
+	
+	
 }
