@@ -34,6 +34,8 @@ public interface DepositResponse {
 	
 	String getRoomName();
 	
+	Double getRoomPrice();
+	
 	String getNote();
 	
 	Integer getAccomodationId();

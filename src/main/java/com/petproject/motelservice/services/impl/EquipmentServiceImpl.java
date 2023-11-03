@@ -78,6 +78,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 		Rooms room = null;
 		Integer roomId;
 		String roomName;
+		Double price;
 		for (Equipments item : equipments) {
 			equipment = new EquipmentDto();
 			equipment.setId(item.getId());
@@ -87,14 +88,16 @@ public class EquipmentServiceImpl implements EquipmentService {
 			room = item.getRoom();
 			roomId = null;
 			roomName = null;
+			price = null;
 			if (room != null) {
 				roomId = room.getId();
 				roomName = room.getName();
+				price = room.getPrice();
 			} 
 			equipment.setRoomId(roomId);				
 			equipment.setUnit(item.getUnit());
 			equipment.setStatus(item.getStatus());
-			equipment.setRoom(new RoomResponse(roomId, roomName));
+			equipment.setRoom(new RoomResponse(roomId, roomName, price));
 			result.add(equipment);
 		}
 		return result;

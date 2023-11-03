@@ -7,8 +7,10 @@ import lombok.Data;
 @Data
 public class BillRequest {
 	
-	private Integer accomodationId;
+	private Integer id;
 	
 	private Date month;
+	
+	private Boolean isReturn = Boolean.FALSE;
 
 }

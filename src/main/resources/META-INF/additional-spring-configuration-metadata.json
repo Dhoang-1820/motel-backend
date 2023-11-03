@@ -1,19 +1,32 @@
-{
-	"properties": [
-		{
-			"name": "app.jwt-secret",
-			"type": "java.lang.String",
-			"description": "A description for 'app.jwt-secret'"
-		},
-		{
-			"name": "app.jwtExpirationMs",
-			"type": "java.lang.String",
-			"description": "A description for 'app.jwtExpirationMs'"
-		},
-		{
-			"name": "app.jwtRefreshExpirationMs",
-			"type": "java.lang.String",
-			"description": "A description for 'app.jwtRefreshExpirationMs'"
-		}
-	]
-}
+{"properties": [
+  {
+    "name": "app.jwt-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.jwt-secret'"
+  },
+  {
+    "name": "app.jwtExpirationMs",
+    "type": "java.lang.String",
+    "description": "A description for 'app.jwtExpirationMs'"
+  },
+  {
+    "name": "app.jwtRefreshExpirationMs",
+    "type": "java.lang.String",
+    "description": "A description for 'app.jwtRefreshExpirationMs'"
+  },
+  {
+    "name": "azure.storage.connection-string",
+    "type": "java.lang.String",
+    "description": "A description for 'azure.storage.connection-string'"
+  },
+  {
+    "name": "azure.storage.container",
+    "type": "java.lang.String",
+    "description": "A description for 'azure.storage.container'"
+  },
+  {
+    "name": "azure.storage.blob-enpoint",
+    "type": "java.lang.String",
+    "description": "A description for 'azure.storage.blob-enpoint'"
+  }
+]}

@@ -33,7 +33,7 @@ public class Equipments extends BaseEntity {
 	private Double price;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "room_id", nullable = false)
+	@JoinColumn(name = "room_id", nullable = true)
 	private Rooms room;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -11,22 +11,18 @@ import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
-import com.petproject.motelservice.domain.dto.AllRoomDto;
-import com.petproject.motelservice.domain.dto.ImageDto;
+import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
-import com.petproject.motelservice.domain.inventory.Images;
-import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
-import com.petproject.motelservice.domain.query.response.RoomFeeResponse;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.AddressRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.services.AccomodationService;
-import com.petproject.motelservice.services.UserServices;
+import com.petproject.motelservice.services.UserService;
 
 @Service
 public class AccomodationServiceImpl implements AccomodationService {
@@ -37,7 +33,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 	@Autowired
 	AccomodationServiceRepository serviceRepository;	
 	@Autowired
-	UserServices userService;
+	UserService userService;
 	
 	@Autowired
 	UsersRepository usersRepository;
@@ -46,26 +42,29 @@ public class AccomodationServiceImpl implements AccomodationService {
 	AddressRepository addressRepository;
 	
 	@Autowired
+	AccomodationServiceRepository accomodationServiceRepository;
+	
+	@Autowired
 	ModelMapper mapper;
 
 	@Override
 	public List<AccomodationsDto> createOrUpdate(AccomodationsDto request) {
-		Accomodations accomodations = null;
+		Accomodations accomodation = null;
 		Address address = null;
 		List<AccomodationsDto> result = new ArrayList<>();
-		Users user = new Users();
-		user.setId(request.getUserId());
+		Users user = usersRepository.findByUserId(request.getUserId());
 		if (request.getId() == null) {
-			accomodations = new Accomodations();
+			accomodation = new Accomodations();
 			address = new Address();
-			accomodations.setCreateAt(new Date());
+			accomodation.setCreateAt(new Date());
+			accomodation.setUser(user);
 		} else {
-			accomodations = accomodationsRepository.findById(request.getId()).orElse(null);
-			address = accomodations.getAddress();
+			accomodation = accomodationsRepository.findById(request.getId()).orElse(null);
+			address = accomodation.getAddress();
 		}
 		
-		accomodations.setUser(user);
-		accomodations.setName(request.getName());
+		accomodation.setName(request.getName());
+		
 		address.setAddressLine(request.getAddressLine());
 		address.setWard(request.getWard());
 		address.setWardCode(request.getWardCode());
@@ -73,51 +72,14 @@ public class AccomodationServiceImpl implements AccomodationService {
 		address.setDistrictCode(request.getDistrictCode());
 		address.setProvince(request.getProvince());
 		address.setProvinceCode(request.getProvinceCode());
-		accomodations.setAddress(address);
-		accomodations = accomodationsRepository.save(accomodations);
-		address.setAccomodations(accomodations);
-		address = addressRepository.save(address);
-		result = getAccomodationByUserId(request.getUserId());
-		return result;
-	}
-
-	@Override
-	public List<AllRoomDto> getAll() {
-		List<Accomodations> accomodations = accomodationsRepository.findAll();
-		List<Rooms> rooms = null;
-		List<Images> images = null;
-		AllRoomDto dto = null;
-		List<AllRoomDto> result = new ArrayList<>();
-		List<RoomFeeResponse> fees = null;
-		ImageDto imageDto;
-		List<ImageDto> imageResult = new ArrayList<>();
-		for (Accomodations item : accomodations) {
-			rooms = item.getRooms();
-			for (Rooms room : rooms) {
-				dto = new AllRoomDto();
-				dto.setAccomodationId(item.getId());
-				dto.setPrice(room.getPrice());
-				dto.setId(room.getId());
-//				dto.setElectricPrice(item.getElectricPrice());
-//				dto.setWaterPrice(item.getWaterPrice());
-//				dto.setAddress(item.getAddress());
-				dto.setAccomodationName(item.getName());
-				
-				dto.setFees(fees);
-				
-//				images = room.getImages();
-				imageResult = new ArrayList<>();
-				for (Images img : images) {
-					imageDto = new ImageDto();
-					imageDto.setImageId(img.getId());
-					imageDto.setImgName(img.getImageName());
-					imageDto.setImgUrl(img.getImageUrl());
-					imageResult.add(imageDto);
-				}
-				dto.setImages(imageResult);
-				result.add(dto);
-			}
+		accomodation.setAddress(address);
+		accomodation = accomodationsRepository.save(accomodation);
+		List<AccomodationUtilitiesDto> services = request.getServices();
+		for (AccomodationUtilitiesDto service : services) {
+			service.setAccomodationId(accomodation.getId());
+			saveService(service);			
 		}
+		result = getAccomodationByUserId(request.getUserId());
 		return result;
 	}
 
@@ -129,8 +91,10 @@ public class AccomodationServiceImpl implements AccomodationService {
 		}
 	}
 	
-	private AccomodationsDto convert2Dto(Accomodations accomodation) {
+	private AccomodationsDto convert2Dto(Accomodations accomodation, List<AccomodationUtilities> utilities) {
 		AccomodationsDto dto = new AccomodationsDto();
+		AccomodationUtilitiesDto utilitiesDto = null;
+		List<AccomodationUtilitiesDto> utilitiesResult = new ArrayList<>();
 		Address address = accomodation.getAddress();
 		dto.setId(accomodation.getId());
 		dto.setName(accomodation.getName());
@@ -141,6 +105,18 @@ public class AccomodationServiceImpl implements AccomodationService {
 		dto.setWard(address.getWard());
 		dto.setWardCode(address.getWardCode());
 		dto.setAddressLine(address.getAddressLine());
+		for (AccomodationUtilities utility : utilities) {
+			utilitiesDto = new AccomodationUtilitiesDto();
+			utilitiesDto.setAccomodationId(accomodation.getId());
+			utilitiesDto.setDescription(utility.getDescription());
+			utilitiesDto.setId(utility.getId());
+			utilitiesDto.setName(utility.getName());
+			utilitiesDto.setPrice(utility.getPrice());
+			utilitiesDto.setUnit(utility.getUnit());
+			utilitiesDto.setIsDefault(utility.getIsDefault());
+			utilitiesResult.add(utilitiesDto);
+		}
+		dto.setServices(utilitiesResult);
 		return dto;
 	}
 
@@ -148,8 +124,10 @@ public class AccomodationServiceImpl implements AccomodationService {
 	public List<AccomodationsDto> getAccomodationByUserId(Integer userId) {
 		List<Accomodations> accomodations = accomodationsRepository.findByUserId(userId);
 		List<AccomodationsDto> result = new ArrayList<>();
+		List<AccomodationUtilities> services = null;
 		for (Accomodations accomodation : accomodations) {
-			result.add(convert2Dto(accomodation));
+			services = accomodationServiceRepository.findByAccomodationIdAndIsDefault(accomodation.getId(), true);
+			result.add(convert2Dto(accomodation, services));
 		}
 		return result;
 	}
@@ -176,6 +154,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 			dto.setUnit(item.getUnit());
 			dto.setPrice(item.getPrice());
 			dto.setDescription(item.getDescription());
+			dto.setIsDefault(item.getIsDefault());
 			result.add(dto);
 		}
 		return result;
@@ -196,8 +175,19 @@ public class AccomodationServiceImpl implements AccomodationService {
 		service.setName(request.getName());
 		service.setPrice(request.getPrice());
 		service.setUnit(request.getUnit());
+		service.setIsDefault(request.getIsDefault());
 		serviceRepository.save(service);
 		result = getServiceByAccomodation(request.getAccomodationId());
+		return result;
+	}
+	
+	@Override
+	public Boolean checkServiceValid(AccomodationUtilitiesDto request) {
+		Boolean result = false;
+		List<AccomodationUtilities> services = serviceRepository.findByNameAndAccomodationId(request.getName(), request.getAccomodationId());
+		if (services.isEmpty()) {
+			result = true;
+		}
 		return result;
 	}
 }

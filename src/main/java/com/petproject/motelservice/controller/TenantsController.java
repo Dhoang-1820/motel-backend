@@ -14,17 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.TenantDto;
-import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
-import com.petproject.motelservice.services.TenantsServices;
+import com.petproject.motelservice.services.TenantsService;
 
 @RestController
 @RequestMapping(value = "/tenant")
 public class TenantsController {
 	
 	@Autowired
-	TenantsServices tenantsServices;
-
+	TenantsService tenantsServices;
+	
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse> getTenantByAccomodation(@PathVariable Integer id) {
 		final List<TenantDto> result = tenantsServices.getTenantByAccomodation(id);
@@ -37,15 +36,17 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/contract/{id}")
+	public ResponseEntity<ApiResponse> getTenantWithoutContract(@PathVariable Integer id) {
+		final List<TenantDto> result = tenantsServices.getTenantNotContract(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PostMapping()
 	public ResponseEntity<ApiResponse> saveTenant(@RequestBody TenantDto tenant) {
 		final TenantDto result = tenantsServices.createOrUpdate(tenant);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	@PostMapping("/return")
-	public ResponseEntity<ApiResponse> returnRoom(@RequestBody ReturnRoomRequest request) {
-		tenantsServices.returnRoom(request);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.CREATE_SUCCESS_MSG));
-	}
+	
 }

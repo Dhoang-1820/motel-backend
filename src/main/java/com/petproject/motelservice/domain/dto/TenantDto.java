@@ -2,6 +2,8 @@ package com.petproject.motelservice.domain.dto;
 
 import java.util.Date;
 
+import com.petproject.motelservice.domain.inventory.EGender;
+
 import lombok.Data;
 
 @Data
@@ -17,14 +19,23 @@ public class TenantDto {
 	
 	private Date startDate;
 	
+	private Date endDate;
+	
 	private Boolean isStayed;
 	
-	private String imageUrl;
+	private EGender gender;
 	
 	private String phone;
 	
 	private String email;
 	
-	
+	public TenantDto(Integer id, String firstName, String lastName) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+
+	public TenantDto() { }
 	
 }

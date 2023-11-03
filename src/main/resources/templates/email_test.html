@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title th:remove="all">Template for HTML email with inline image</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body style="
+      background-color: #e2e1e0;
+      font-family: Open Sans, sans-serif;
+      font-size: 100%;
+      font-weight: 400;
+      line-height: 1.4;
+      color: #000;
+    ">
+  <table style="
+        max-width: 970px;
+        margin: 50px auto 10px;
+        background-color: #fff;
+        padding: 50px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12),
+          0 1px 2px rgba(0, 0, 0, 0.24);
+        -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12),
+          0 1px 2px rgba(0, 0, 0, 0.24);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        border-top: solid 10px green;
+        border-spacing: 0px;
+        width: 100%;
+      ">
+    <thead>
+      <tr>
+        <td style="font-size: 22px; text-align: center; width: 30%;">
+          <div style="display: flex; font-size: 25px;">
+            <span>Hoá đơn tháng <span th:text="${invoiceMonth}">invoiceMonth</span><span> phòng</span> </span><span
+                th:text="${roomName}">roomName</span>
+          </div>
+          <div style="text-align: left; font-size: 16px; color: #777;margin-bottom: 20px;" th:text="${toDate}">toDate</div>
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div style="display: flex;">
+            <div style="
+                border-color: #ddd;
+                margin-bottom: 20px;
+                background-color: #fff;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+                border: 1px solid transparent;
+                border-radius: 4px;
+                border-color: #ddd;
+                width: 50%;
+              ">
+              <div style="
+                  color: #333;
+                  background-color: #f5f5f5;
+                  border-color: #ddd;
+                  padding: 10px 15px;
+                  border-bottom: 1px solid transparent;
+                  border-top-left-radius: 3px;
+                  border-top-right-radius: 3px;
+                ">
+                <h3 class="panel-title" style="
+                    margin-top: 0;
+                    margin-bottom: 0;
+                    font-size: 16px;
+                    color: inherit;
+                  ">
+                  Thông tin nhà trọ
+                </h3>
+              </div>
+              <div class="panel-body" >
+                <div style="display: flex;">
+                  <div style="margin-right: 20px;">
+                    <div style="padding: 10px 10px;">Tên</div>
+                    <div style="padding: 10px 10px;">Địa chỉ</div>
+                  </div>
+                  <div>
+                    <div style="padding: 10px 10px;"><strong><span th:text="${accomodationName}">accomodationName</span></strong></div>
+                    <div style="padding: 10px 10px;"><span th:text="${accomodationAddress}">accomodationAddress</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="
+                border-color: #ddd;
+                margin-bottom: 20px;
+                background-color: #fff;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+                border: 1px solid transparent;
+                border-radius: 4px;
+                border-color: #ddd;
+                margin-left: 20px;
+                width: 50%;
+              ">
+              <div style="
+                  color: #333;
+                  background-color: #f5f5f5;
+                  border-color: #ddd;
+                  padding: 10px 15px;
+                  border-bottom: 1px solid transparent;
+                  border-top-left-radius: 3px;
+                  border-top-right-radius: 3px;
+                ">
+                <h3 class="panel-title" style="
+                    margin-top: 0;
+                    margin-bottom: 0;
+                    font-size: 16px;
+                    color: inherit;
+                  ">
+                  Thông tin khách thuê
+                </h3>
+              </div>
+              <div class="panel-body" >
+                <div style="display: flex;">
+                  <div style="margin-right: 20px;">
+                    <div style="padding: 10px 5px;">Phòng</div>
+                    <div style="padding: 10px 5px;">Số người ở</div>
+                    <div style="padding: 10px 5px;">Ngày bắt đầu ở:</div>
+                    <div style="padding: 10px 5px;">Đại diện phòng</div>
+                    <div style="padding: 10px 5px;">Email</div>
+                  </div>
+                  <div>
+                    <div style="padding: 10px 10px;" th:text="${roomName}">roomName</div>
+                    <div style="padding: 10px 10px;" th:text="${personNum}">personNum</div>
+                    <div style="padding: 10px 10px;" th:text="${startDate}">startDate</div>
+                    <div style="padding: 10px 10px;" th:text="${representative}">representative</div>
+                    <div style="padding: 10px 10px;" th:text="${representativeEmail}">representativeEmail</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="font-size: 20px; padding: 30px 15px 0 15px">
+          Danh sách dịch vụ
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding: 15px">
+          <table style="width: 100%; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);border: 1px solid transparent;border-radius: 4px;border-color: #ddd;">
+            <thead>
+              <th style="
+                    text-align: left;
+                    padding: 1rem 1rem;
+                    border: 1px solid #dee2e6;
+                    border-width: 0 0 1px 0;
+                    font-weight: 700;
+                    color: #343a40;
+                    background: #f8f9fa;
+                    transition: box-shadow 0.2s;
+                  ">
+                Tên dịch vụ
+              </th>
+              <th style="
+                    text-align: left;
+                    padding: 1rem 1rem;
+                    border: 1px solid #dee2e6;
+                    border-width: 0 0 1px 0;
+                    font-weight: 700;
+                    color: #343a40;
+                    background: #f8f9fa;
+                    transition: box-shadow 0.2s;
+                  ">
+                Đơn vị
+              </th>
+              <th style="
+                    text-align: left;
+                    padding: 1rem 1rem;
+                    border: 1px solid #dee2e6;
+                    border-width: 0 0 1px 0;
+                    font-weight: 700;
+                    color: #343a40;
+                    background: #f8f9fa;
+                    transition: box-shadow 0.2s;
+                  ">
+                Đơn giá
+              </th>
+              <th style="
+                    text-align: left;
+                    padding: 1rem 1rem;
+                    border: 1px solid #dee2e6;
+                    border-width: 0 0 1px 0;
+                    font-weight: 700;
+                    color: #343a40;
+                    background: #f8f9fa;
+                    transition: box-shadow 0.2s;
+                  ">
+                Số lượng
+              </th>
+              <th style="
+                    text-align: left;
+                    padding: 1rem 1rem;
+                    border: 1px solid #dee2e6;
+                    border-width: 0 0 1px 0;
+                    font-weight: 700;
+                    color: #343a40;
+                    background: #f8f9fa;
+                    transition: box-shadow 0.2s;
+                  ">
+                Thành tiền
+              </th>
+            </thead>
+            <tbody>
+              	<tr th:each="service : ${services}" style="background: #ffffff;color: #495057;transition: box-shadow 0.2s;">
+					<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.serviceName}">serviceName</span></td>
+					<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.unit}">unit</span></td>
+					<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.price}">price</span></td>
+					<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;" th:switch="${service.serviceName}">
+						<span th:case="'Tiền điện'" th:text="${service.firstElectricNum + ' | ' + service.lastElectricNum + ' | ' + service.electricNum}"></span>
+						<span th:case="'Tiền nước'" th:text="${service.firstWaterNum + ' | ' + service.lastWaterNum + ' | ' + service.waterNum}"></span>
+						<span th:case="*" th:text="${service.quantity}">quantity</span>
+					</td>
+					<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.totalPrice}">totalPrice</span></td>
+				</tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div style="display: flex;">
+            <div style="
+              border-color: #ddd;
+              margin-bottom: 20px;
+              background-color: #fff;
+              border: 1px solid transparent;
+              border-radius: 4px;
+              box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+              border: 1px solid transparent;
+              border-radius: 4px;
+              border-color: #ddd;
+              width: 50%;
+              margin-right: 10px;
+            ">
+              <div style="
+                color: #333;
+                background-color: #f5f5f5;
+                border-color: #ddd;
+                padding: 10px 15px;
+                border-bottom: 1px solid transparent;
+                border-top-left-radius: 3px;
+                border-top-right-radius: 3px;
+              ">
+                <h3 class="panel-title" style="
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  font-size: 16px;
+                  color: inherit;
+                ">
+                  Thành tiền
+                </h3>
+              </div>
+              <div style="display: flex;">
+                <div style="padding: 10px 25px;">
+                  <div style="padding: 10px 5px">Tổng tiền dịch vụ: </div>
+                  <div style="padding: 10px 5px">Nợ cũ: </div>
+                  <div style="padding: 10px 5px">Tổng: </div>
+                  <div style="padding: 10px 5px">Giảm giá: </div>
+                  <div style="padding: 10px 5px">Thành tiền: </div>
+                </div>
+                <div style="padding: 10px 25px;">
+                  <div style="padding: 10px 5px" th:text="${totalService}">totalService</div>
+                  <div style="padding: 10px 5px" th:text="${debt}">debt</div>
+                  <div style="padding: 10px 5px" th:text="${totalPrice}">totalPrice</div>
+                  <div style="padding: 10px 5px" th:text="${discount}">discount</div>
+                  <div style="padding: 10px 5px" th:text="${totalPayment}">totalPayment</div>
+                </div>
+              </div>
+            </div>
+            <div style="
+              border-color: #ddd;
+              margin-bottom: 20px;
+              background-color: #fff;
+              border: 1px solid transparent;
+              border-radius: 4px;
+              box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+              border: 1px solid transparent;
+              border-radius: 4px;
+              border-color: #ddd;
+              width: 50%;
+            ">
+              <div style="
+                color: #333;
+                background-color: #f5f5f5;
+                border-color: #ddd;
+                padding: 10px 15px;
+                border-bottom: 1px solid transparent;
+                border-top-left-radius: 3px;
+                border-top-right-radius: 3px;
+              ">
+                <h3 class="panel-title" style="
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  font-size: 16px;
+                  color: inherit;
+                ">
+                  Thông tin thanh toán
+                </h3>
+              </div>
+              <div style="display: flex;">
+                <div style="padding: 10px 25px;">
+                  <div style="padding: 10px 5px">Vui lòng chuyển khoản vào một trong số tài khoản sau đây, nội dung:
+                    Phòng_Tháng</div>
+                  <div th:each="bank : ${banks}">
+                    <div style="padding: 10px 5px"><span>Chủ tài khoản: </span><span th:text="${bank.accountOwner}">accountOwner</span></div>
+                    <div style="padding: 10px 5px"><span>Tên ngân hàng: </span><span th:text="${bank.bankName}">bankName</span></div>
+                    <div style="padding: 10px 5px"><span></span>Số tài khoản: <span th:text="${bank.bankNumber}">bankNumber</span></div>
+                    <div>================================</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

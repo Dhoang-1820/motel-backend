@@ -21,7 +21,7 @@ import lombok.Setter;
 public class Contract extends BaseEntity {
 	
 	@Column(name = "representative")
-	private String representative;
+	private Integer representative;
 	
 	@Column(name = "duration")
 	private Integer duration;

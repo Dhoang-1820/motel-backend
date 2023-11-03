@@ -8,5 +8,5 @@ public interface DepositService {
 	
 	List<DepositDto> getDepositByAccomodation(Integer accomodationId);
 	
-	List<DepositDto> saveDeposit(DepositDto request);
+	Boolean saveDeposit(DepositDto request);
 }

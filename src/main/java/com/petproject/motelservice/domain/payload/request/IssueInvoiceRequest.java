@@ -4,13 +4,10 @@ import java.util.Date;
 
 import lombok.Data;
 
-
 @Data
-public class SendInvoiceRequest {
+public class IssueInvoiceRequest {
 	
 	private Integer roomId;
-	
-	private Integer billId;
 	
 	private Date month;
 }

@@ -19,32 +19,33 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "accomodations")
-@Getter @Setter
-public class Accomodations extends BaseEntity{
-	
+@Getter
+@Setter
+public class Accomodations extends BaseEntity {
+
 	@Column(name = "name")
 	private String name;
-	
+
 	@Column(name = "created_at")
 	private Date createAt;
-	
+
 	@Column(name = "active", columnDefinition = "BOOLEAN")
 	private Boolean isActive = Boolean.TRUE;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private Users user;
-	
+
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
 	private List<Rooms> rooms;
-	
+
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
 	private List<Equipments> equipments;
-	
+
 	@OneToMany(mappedBy = "accomodations", fetch = FetchType.LAZY)
 	private List<Tenants> tenants;
-	
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "address_id")
 	private Address address;
 

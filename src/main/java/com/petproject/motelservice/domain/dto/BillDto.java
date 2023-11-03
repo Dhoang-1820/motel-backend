@@ -13,23 +13,31 @@ public class BillDto {
 	
 	private Date billDate;
 	
-	private Integer firstElectric;
-	
-	private Integer lastElectric;
-	
-	private Integer electricNum;
-	
-	private Integer firstWater;
-	
-	private Integer lastWater;
-	
-	private Integer waterNum;
+	private String representative;
 	
 	private Double totalPrice;
+	
+	private Boolean isSent;
+	
+	private Double oldDebt;
+	
+	private Double paidMoney;
+	
+	private Double totalService;
+	
+	private Integer quantitySented;
+	
+	private Double discount;
+	
+	private Double newDebt;
+	
+	private Double totalPayment;
 	
 	private Boolean isPay;
 	
 	private Date createdAt;
 	
 	private RoomResponse room;
+	
+	private String note;
 }

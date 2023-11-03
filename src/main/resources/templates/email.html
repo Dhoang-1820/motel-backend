@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title th:remove="all">Template for HTML email with inline image</title>
@@ -66,26 +66,12 @@
 								tiền</th>
 						</thead>
 						<tbody>
-							<tr style="background: #ffffff;color: #495057;transition: box-shadow 0.2s;">
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span>Tiền điện</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span>Số</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${electricPrice}">electricPrice</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${electricNum}">electricNum</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${totalElectric}">totalElectric</span></td>
-							</tr>
-							<tr style="background: #ffffff;color: #495057;transition: box-shadow 0.2s;">
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span>Tiền nước</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span>Khối</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${waterPrice}">waterPrice</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${waterNum}">waterNum</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${totalWater}">totalWater</span></td>
-							</tr>
-							<tr th:each="fee : ${otherFees}" style="background: #ffffff;color: #495057;transition: box-shadow 0.2s;">
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${fee.feeName}">feeName</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${fee.unit}">unit</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${fee.price}">price</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${fee.quantity}">quantity</span></td>
-								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${fee.total}">total</span></td>
+							<tr th:each="service : ${services}" style="background: #ffffff;color: #495057;transition: box-shadow 0.2s;">
+								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.serviceName}">serviceName</span></td>
+								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.unit}">unit</span></td>
+								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.price}">price</span></td>
+								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.quantity}">quantity</span></td>
+								<td style="text-align: left;border: 1px solid #dee2e6;border-width: 0 0 1px 0;padding: 1rem 1rem;"><span th:text="${service.totalPrice}">totalPrice</span></td>
 							</tr>
 						</tbody>
 					</table>

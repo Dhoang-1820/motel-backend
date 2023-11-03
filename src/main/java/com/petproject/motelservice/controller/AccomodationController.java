@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
-import com.petproject.motelservice.domain.dto.AllRoomDto;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.services.AccomodationService;
@@ -28,11 +27,6 @@ public class AccomodationController {
 	@Autowired 
 	AccomodationService accomodationService;
 
-	@GetMapping()
-	public ResponseEntity<ApiResponse> getAll() {
-		final List<AllRoomDto> result = accomodationService.getAll();
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
-	}
 	
 	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse> getAccomodationByUserId(@PathVariable Integer userId) {
@@ -68,5 +62,11 @@ public class AccomodationController {
 	public ResponseEntity<ApiResponse> saveService(@RequestBody AccomodationUtilitiesDto request) {
 		final List<AccomodationUtilitiesDto> result = accomodationService.saveService(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
+	
+	@PostMapping("/services/validation")
+	public ResponseEntity<ApiResponse> getIsValidService(@RequestBody AccomodationUtilitiesDto request) {
+		final Boolean result = accomodationService.checkServiceValid(request);	
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 }

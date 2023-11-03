@@ -1,6 +1,7 @@
 package com.petproject.motelservice.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.RoomDto;
 import com.petproject.motelservice.domain.dto.RoomImageDto;
+import com.petproject.motelservice.domain.payload.request.BillRequest;
 import com.petproject.motelservice.domain.payload.request.RoomFeeRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -57,6 +59,36 @@ public class RoomController {
 	@GetMapping("/utility/no-deposit/{id}")
 	public ResponseEntity<ApiResponse> getRoomNoDeposit(@PathVariable Integer id) {
 		final List<RoomResponse> result = roomService.getRoomNoDeposit(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/utility/no-rent/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoRented(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoRented(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/utility/no-post/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoPost(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoPost(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/utility/rented/{id}")
+	public ResponseEntity<ApiResponse> getRoomRented(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomRented(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/utility/no-electric-water")
+	public ResponseEntity<ApiResponse> getRoomNoElectricWater(@RequestBody BillRequest request) {
+		final List<RoomResponse> result = roomService.getRoomNoElectricWaterIndex(request.getId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping()
+	public ResponseEntity<ApiResponse> checkIsRoomHasDeposit(@RequestParam("roomId") Integer id) {
+		final Map<String, Object> result = roomService.checkIsRoomHasDeposit(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
