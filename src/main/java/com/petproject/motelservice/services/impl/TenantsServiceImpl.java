@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.TenantDto;
+import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.repository.AccomodationsRepository;
@@ -56,6 +57,10 @@ public class TenantsServiceImpl implements TenantsService {
 		tenant.setPhone(request.getPhone());
 		tenant.setEmail(request.getEmail());
 		tenant.setGender(request.getGender());
+		if (request.getAccomodationId() != null) {
+			Accomodations accomodations = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
+			tenant.setAccomodations(accomodations);
+		}
 		tenant = tenantRepository.save(tenant);
 		return null;
 	}

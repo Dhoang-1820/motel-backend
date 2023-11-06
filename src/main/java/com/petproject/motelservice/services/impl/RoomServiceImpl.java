@@ -3,8 +3,10 @@ package com.petproject.motelservice.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -138,6 +140,16 @@ public class RoomServiceImpl implements RoomService {
                 .map(source -> mapper.map(source, RoomResponse.class))
                 .collect(Collectors.toList());
 		return result;
+	}
+	
+	@Override
+	public List<RoomResponse> getRoomNoPostAndDeposit(Integer accomodationId) {
+		Set<RoomResponse> noDeposit = new HashSet<>();
+		noDeposit.addAll(getRoomNoDeposit(accomodationId));
+		Set<RoomResponse> noPost = new HashSet<>();
+		noPost.addAll(getRoomNoPost(accomodationId));
+		noPost.retainAll(noDeposit);
+		return new ArrayList<>(noPost);
 	}
 
 	@Override

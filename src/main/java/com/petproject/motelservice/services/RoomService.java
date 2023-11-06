@@ -39,6 +39,8 @@ public interface RoomService {
 
 	List<RoomResponse> getRoomNoPost(Integer accomodationId);
 	
+	List<RoomResponse> getRoomNoPostAndDeposit(Integer accomodationId);
+	
 	List<RoomResponse> getRoomNoElectricWaterIndex(Integer accomodationId, Date month);
 
 	Map<String, Object> checkIsRoomHasDeposit(Integer roomId);

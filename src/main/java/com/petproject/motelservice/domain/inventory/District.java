@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.inventory;
 
+import java.util.List;
+
 import com.petproject.motelservice.framework.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -7,25 +9,27 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "address")
+@Table(name = "district")
 @Getter
 @Setter
-public class Address extends BaseEntity {
+public class District extends BaseEntity{
 
-	@Column(name = "adress_line")
-	private String addressLine;
+	@Column(name = "district")
+	private String district;
 
-	@OneToOne(mappedBy = "address")
-	private Accomodations accomodation;
+	@Column(name = "district_code")
+	private Integer districtCode;
+	
+	@OneToMany(mappedBy = "district", fetch = FetchType.LAZY)
+	private List<Ward> wards;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ward_id", nullable = false)
-	private Ward ward;
-
+	@JoinColumn(name = "province_id", nullable = false)
+	private Province province;
 }

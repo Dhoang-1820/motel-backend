@@ -8,6 +8,9 @@ import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.RangeRequest;
+import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
+import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
 
 
 public interface PostService {
@@ -31,5 +34,13 @@ public interface PostService {
 	void removeImage(Integer imageId);
 	
 	List<PostAddressDto> getAllAddress();
+	
+	List<PostDto> getPostByAddress(SearchByAddressRequest request);
+	
+	List<PostDto> getPostByPrice(RangeRequest request);
+	
+	List<PostDto> getPostByAreage(RangeRequest request);
+	
+	List<PostDto> searchPost(SearchPostRequest request);
 
 }

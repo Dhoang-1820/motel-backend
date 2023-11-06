@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import com.petproject.motelservice.domain.dto.DepositDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Deposits;
+import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.domain.query.response.DepositResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.DepositRepository;
+import com.petproject.motelservice.repository.PostRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.services.DepositService;
@@ -35,6 +37,9 @@ public class DepositServiceImpl implements DepositService {
 	
 	@Autowired
 	AccomodationsRepository accomodationsRepository;
+	
+	@Autowired
+	PostRepository postRepository;
 
 	@Override
 	public List<DepositDto> getDepositByAccomodation(Integer accomodationId) {
@@ -98,6 +103,11 @@ public class DepositServiceImpl implements DepositService {
 			tenant = tenantRepository.save(tenant);
 			deposit.setTenant(tenant);
 			depositRepository.save(deposit);
+			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
+			for (Post post : posts) {
+				post.setIsActive(false);
+				postRepository.save(post);
+			}
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();

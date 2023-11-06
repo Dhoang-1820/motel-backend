@@ -34,11 +34,14 @@ import com.petproject.motelservice.domain.inventory.BankAccountInfo;
 import com.petproject.motelservice.domain.inventory.Bills;
 import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.ContractService;
+import com.petproject.motelservice.domain.inventory.District;
 import com.petproject.motelservice.domain.inventory.ElectricWaterNum;
 import com.petproject.motelservice.domain.inventory.InvoiceType;
+import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.inventory.Users;
+import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.Email;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -506,7 +509,10 @@ public class BillServiceImpl implements BillServices {
 	        properties.put("banks", bankAccounts);
 	        properties.put("accomodationName", accomodation.getName());
 	        Address address = accomodation.getAddress();
-	        properties.put("accomodationAddress", address.getAddressLine() + " " + address.getWard() + " " + address.getDistrict() + " " + address.getProvince());
+	        Ward ward = address.getWard();
+			District district = ward.getDistrict();
+			Province province = district.getProvince();
+	        properties.put("accomodationAddress", address.getAddressLine() + " " + address.getWard() + " " + district.getDistrict() + " " + province.getProvince());
 	       
 	        email.setFrom("fromemail@gmail.com");
 	        email.setTemplate("email_test.html");

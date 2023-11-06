@@ -6,4 +6,5 @@ import com.petproject.motelservice.domain.inventory.Address;
 
 public interface AddressRepository extends JpaRepository<Address, Integer> {
 
+
 }

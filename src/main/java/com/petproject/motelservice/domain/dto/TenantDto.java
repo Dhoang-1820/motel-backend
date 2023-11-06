@@ -29,6 +29,8 @@ public class TenantDto {
 	
 	private String email;
 	
+	private Integer accomodationId;
+	
 	public TenantDto(Integer id, String firstName, String lastName) {
 		super();
 		this.id = id;

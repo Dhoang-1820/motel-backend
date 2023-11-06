@@ -9,6 +9,10 @@ public class BookingDto {
 	
 	private Integer id;
 	
+	private String accomodation;
+	
+	private Integer accomodationId;
+	
 	private String name;
 	
 	private String email;
@@ -17,5 +21,9 @@ public class BookingDto {
 	
 	private Date reviewDate;
 	
+	private Date createdDate;
+	
 	private Integer roomId;
+	
+	private String room;
 }

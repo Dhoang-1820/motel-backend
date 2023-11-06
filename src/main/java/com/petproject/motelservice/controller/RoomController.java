@@ -74,6 +74,12 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/utility/no-post/no-deposit/{id}")
+	public ResponseEntity<ApiResponse> getRoomNoPostAndDeposit(@PathVariable Integer id) {
+		final List<RoomResponse> result = roomService.getRoomNoPostAndDeposit(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@GetMapping("/utility/rented/{id}")
 	public ResponseEntity<ApiResponse> getRoomRented(@PathVariable Integer id) {
 		final List<RoomResponse> result = roomService.getRoomRented(id);

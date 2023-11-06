@@ -18,8 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.ImageDto;
+import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.RangeRequest;
+import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
+import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.services.PostService;
 
@@ -39,6 +43,36 @@ public class PostController {
 	@GetMapping()
 	public ResponseEntity<ApiResponse> getAll() {
 		final List<PostDto> result = postService.getAll();
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/address/all")
+	public ResponseEntity<ApiResponse> getAllPostAddress() {
+		final List<PostAddressDto> result = postService.getAllAddress();
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/address")
+	public ResponseEntity<ApiResponse> getPostByAddress(@RequestBody SearchByAddressRequest request) {
+		final List<PostDto> result = postService.getPostByAddress(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/price")
+	public ResponseEntity<ApiResponse> getPostByRangeRoomPrice(@RequestBody RangeRequest request) {
+		final List<PostDto> result = postService.getPostByPrice(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/areage")
+	public ResponseEntity<ApiResponse> getPostByRangeRoomAreage(@RequestBody RangeRequest request) {
+		final List<PostDto> result = postService.getPostByAreage(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/search")
+	public ResponseEntity<ApiResponse> searchPost(@RequestBody SearchPostRequest request) {
+		final List<PostDto> result = postService.searchPost(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

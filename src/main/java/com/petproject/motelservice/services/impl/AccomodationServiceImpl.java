@@ -11,16 +11,21 @@ import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.AccomodationUtilitiesDto;
 import com.petproject.motelservice.domain.dto.AccomodationsDto;
-import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
+import com.petproject.motelservice.domain.inventory.District;
+import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Users;
+import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.AddressRepository;
+import com.petproject.motelservice.repository.DistrictRepository;
+import com.petproject.motelservice.repository.ProvinceRepository;
 import com.petproject.motelservice.repository.UsersRepository;
+import com.petproject.motelservice.repository.WardRepository;
 import com.petproject.motelservice.services.AccomodationService;
 import com.petproject.motelservice.services.UserService;
 
@@ -45,6 +50,15 @@ public class AccomodationServiceImpl implements AccomodationService {
 	AccomodationServiceRepository accomodationServiceRepository;
 	
 	@Autowired
+	WardRepository wardRepository;
+	
+	@Autowired
+	DistrictRepository districtRepository;
+	
+	@Autowired
+	ProvinceRepository provinceRepository;
+	
+	@Autowired
 	ModelMapper mapper;
 
 	@Override
@@ -61,17 +75,38 @@ public class AccomodationServiceImpl implements AccomodationService {
 		} else {
 			accomodation = accomodationsRepository.findById(request.getId()).orElse(null);
 			address = accomodation.getAddress();
+			if (address == null) {
+				address = new Address();
+			}
 		}
 		
 		accomodation.setName(request.getName());
 		
+		Ward ward = wardRepository.findByWardCode(request.getWardCode());
+		if (ward == null) {
+			ward = new Ward();
+			ward.setWard(request.getWard());
+			ward.setWardCode(request.getWardCode());
+			District district = districtRepository.findByDistrictCode(request.getDistrictCode());
+			if (district == null) {
+				district = new District();
+				district.setDistrict(request.getDistrict());
+				district.setDistrictCode(request.getDistrictCode());
+				Province province = provinceRepository.findByProvinceCode(request.getProvinceCode());
+				if (province == null) {
+					province = new Province();
+					province.setProvince(request.getProvince());
+					province.setProvinceCode(request.getProvinceCode());
+					province = provinceRepository.save(province);
+				}
+				district.setProvince(province);
+				district = districtRepository.save(district);
+			}
+			ward.setDistrict(district);
+			ward = wardRepository.save(ward);
+		}
 		address.setAddressLine(request.getAddressLine());
-		address.setWard(request.getWard());
-		address.setWardCode(request.getWardCode());
-		address.setDistrict(request.getDistrict());
-		address.setDistrictCode(request.getDistrictCode());
-		address.setProvince(request.getProvince());
-		address.setProvinceCode(request.getProvinceCode());
+		address.setWard(ward);
 		accomodation.setAddress(address);
 		accomodation = accomodationsRepository.save(accomodation);
 		List<AccomodationUtilitiesDto> services = request.getServices();
@@ -82,7 +117,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 		result = getAccomodationByUserId(request.getUserId());
 		return result;
 	}
-
+	
 	@Override
 	public void removeAccomodation(Integer id) {
 		Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
@@ -96,15 +131,21 @@ public class AccomodationServiceImpl implements AccomodationService {
 		AccomodationUtilitiesDto utilitiesDto = null;
 		List<AccomodationUtilitiesDto> utilitiesResult = new ArrayList<>();
 		Address address = accomodation.getAddress();
+		if (address != null) {
+			Ward ward = address.getWard();
+			District district = ward.getDistrict();
+			Province province = district.getProvince();
+			dto.setAddressLine(address.getAddressLine());
+			dto.setDistrict(district.getDistrict());
+			dto.setDistrictCode(district.getDistrictCode());
+			dto.setProvince(province.getProvince());
+			dto.setProvinceCode(province.getProvinceCode());
+			dto.setWard(ward.getWard());
+			dto.setWardCode(ward.getWardCode());
+		}
 		dto.setId(accomodation.getId());
 		dto.setName(accomodation.getName());
-		dto.setDistrict(address.getDistrict());
-		dto.setDistrictCode(address.getDistrictCode());
-		dto.setProvince(address.getProvince());
-		dto.setProvinceCode(address.getProvinceCode());
-		dto.setWard(address.getWard());
-		dto.setWardCode(address.getWardCode());
-		dto.setAddressLine(address.getAddressLine());
+		
 		for (AccomodationUtilities utility : utilities) {
 			utilitiesDto = new AccomodationUtilitiesDto();
 			utilitiesDto.setAccomodationId(accomodation.getId());

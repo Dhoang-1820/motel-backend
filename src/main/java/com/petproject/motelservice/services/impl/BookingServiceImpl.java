@@ -2,8 +2,10 @@ package com.petproject.motelservice.services.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,12 +47,38 @@ public class BookingServiceImpl implements BookingService {
 		booking.setBookingDate(new Date());
 		booking.setRoom(room);
 		booking = bookingRepository.save(booking);
-		BookingDto result = mapper.map(booking, BookingDto.class);
+		BookingDto result = convert2Dto(booking);
 		sendOutNotification(booking);
 		return result;
 	}
 	
-	private void sendInvoice(String room, Accomodations accomodation, Booking booking) {
+	
+	@Override
+	public List<BookingDto> getAllBookingByUserId(Integer userId) {
+		List<BookingDto> result = new ArrayList<>();
+		List<Booking> booking = bookingRepository.findBookingByUserId(userId);
+		for (Booking item : booking) {
+			result.add(convert2Dto(item));
+		}
+		return result;
+	}
+	
+	private BookingDto convert2Dto(Booking booking) {
+		BookingDto dto = new BookingDto();
+		dto.setId(booking.getId());
+		dto.setAccomodation(booking.getRoom().getAccomodations().getName());
+		dto.setAccomodationId(booking.getRoom().getAccomodations().getId());
+		dto.setCreatedDate(booking.getBookingDate());
+		dto.setEmail(booking.getEmail());
+		dto.setName(booking.getName());
+		dto.setPhone(booking.getPhone());
+		dto.setReviewDate(booking.getBookingDate());
+		dto.setRoom(booking.getRoom().getName());
+		dto.setRoomId(booking.getRoom().getId());
+		return dto;
+	}
+
+	private void sendBookingNotification(String room, Accomodations accomodation, Booking booking) {
 		Email email = new Email();
 		 Users user = accomodation.getUser();
 		try {
@@ -90,7 +118,7 @@ public class BookingServiceImpl implements BookingService {
 	public void sendOutNotification(Booking request) {
 		Rooms room = roomRepository.findById(Integer.valueOf(request.getRoom().getId())).orElse(null);	
 		Accomodations accomodations = room.getAccomodations();
-		sendInvoice(room.getName(), accomodations, request);
+		sendBookingNotification(room.getName(), accomodations, request);
 	}
 	
 }	

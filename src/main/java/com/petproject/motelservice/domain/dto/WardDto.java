@@ -5,7 +5,12 @@ import lombok.Data;
 @Data
 public class WardDto {
 
-	private Integer wardCode;
+	private String name;
+
+	private Integer code;
 	
-	private String ward;
+	private Integer level = 3;
+	
+	private Integer parentCode;
+
 }

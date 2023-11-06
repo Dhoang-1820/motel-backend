@@ -2,7 +2,9 @@ package com.petproject.motelservice.services.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,22 +23,31 @@ import com.petproject.motelservice.domain.dto.WardDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
+import com.petproject.motelservice.domain.inventory.District;
 import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.PostUtilitiesId;
 import com.petproject.motelservice.domain.inventory.PostUtitlities;
+import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
+import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.RangeRequest;
+import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
+import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
+import com.petproject.motelservice.repository.DistrictRepository;
 import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.PostRepository;
 import com.petproject.motelservice.repository.PostUtilitiesRepository;
+import com.petproject.motelservice.repository.ProvinceRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.repository.UsersRepository;
+import com.petproject.motelservice.repository.WardRepository;
 import com.petproject.motelservice.services.EquipmentService;
 import com.petproject.motelservice.services.FileService;
 import com.petproject.motelservice.services.PostService;
@@ -73,6 +84,15 @@ public class PostServiceImpl implements PostService {
 	
 	@Autowired
 	FileService storageService;
+	
+	@Autowired
+	WardRepository wardRepository;
+	
+	@Autowired
+	DistrictRepository districtRepository;
+	
+	@Autowired
+	ProvinceRepository provinceRepository;
 	
 	private static final Log logger = LogFactory.getLog(PostServiceImpl.class);
 	
@@ -174,8 +194,11 @@ public class PostServiceImpl implements PostService {
 		dto.setPrice(room.getPrice());
 		accomodation = room.getAccomodations();
 		address = accomodation.getAddress();
-		addressLine = address.getAddressLine() + ", " + address.getWard() + ", " + address.getDistrict() + ", "
-				+ address.getProvince();
+		Ward ward = address.getWard();
+		District district = ward.getDistrict();
+		Province province = district.getProvince();
+		addressLine = address.getAddressLine() + ", " + ward.getWard() + ", " + district.getDistrict() + ", "
+				+ province.getProvince();
 		dto.setAddress(addressLine);
 		dto.setPhone(user.getPhone());
 		equipments = getEquipment(equipmentService.getByRoomId(room.getId()));
@@ -315,17 +338,169 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public List<PostAddressDto> getAllAddress() {
 		List<PostAddressDto> result = new ArrayList<>();
-		DistrictDto district = null;
-		List<DistrictDto> districts = new ArrayList<>();
-		WardDto ward = null;
-		List<WardDto> wards = new ArrayList<>();
-		PostAddressDto dto = null;
-		List<Accomodations> accomodations = accomodationsRepository.findAllByPost();
-		for (Accomodations item : accomodations) {
+		PostAddressDto dto = new PostAddressDto();
+		dto.setName("Toàn quốc");
+		dto.setCode(1001);
+		result.add(dto);
+		DistrictDto districtDto = null;
+		List<DistrictDto> districtDtos = null;
+		WardDto wardDto = null;
+		List<WardDto> wardDtos = null;
+		List<Province> provinces = provinceRepository.findByPost();
+		List<District> districts;
+		List<Ward> wards;
+		for (Province province : provinces) {
 			dto = new PostAddressDto();
+			dto.setName(province.getProvince());
+			dto.setCode(province.getProvinceCode());
+			districts = province.getDistricts();
+			districtDtos = new ArrayList<>();
+			districtDto = new DistrictDto();
+			districtDto.setName("Tất cả");
+			districtDto.setCode(1002);
+			districtDto.setParentCode(province.getProvinceCode());
+			districtDtos.add(districtDto);
+			for (District district : districts) {
+				districtDto = new DistrictDto();
+				districtDto.setName(district.getDistrict());
+				districtDto.setCode(district.getDistrictCode());
+				districtDtos.add(districtDto);
+				wards = district.getWards();
+				wardDtos = new ArrayList<>();
+				wardDto = new WardDto();
+				wardDto.setName("Tất cả");
+				wardDto.setCode(1003);
+				wardDto.setParentCode(district.getDistrictCode());
+				wardDtos.add(wardDto);
+				for (Ward ward : wards) {
+					wardDto = new WardDto();
+					wardDto.setName(ward.getWard());
+					wardDto.setCode(ward.getWardCode());
+					wardDtos.add(wardDto);
+				}
+				districtDto.setWards(wardDtos);
+			}
+			dto.setDistricts(districtDtos);
+			result.add(dto);
+		}
+		return result;
+	}
+
+	@Override
+	public List<PostDto> getPostByAddress(SearchByAddressRequest request) {
+		List<PostDto> result = new ArrayList<>();
+		
+		Province province = null;
+		District district = null;
+		Ward ward = null;
+		List<District> districts= null;
+		List<Ward> wards = null;
+		List<Address> addresses = new ArrayList<>();
+		
+		if (request.getLevel().equals(1)) {
+			if (!request.getCode().equals(1001)) {
+				province = provinceRepository.findByProvinceCode(request.getCode());
+				districts = province.getDistricts();
+				for (District districtItem : districts) {
+					wards = districtItem.getWards();
+					for (Ward wardItem : wards) {
+						addresses.addAll(wardItem.getAddresses());
+					}
+				}
+			} else {
+				result = getAll();
+			}
+			
+		} else if (request.getLevel().equals(2)) {
+			if (!request.getCode().equals(1002)) {
+				district = districtRepository.findByDistrictCode(request.getCode());
+				wards = district.getWards();
+				for (Ward wardItem : wards) {
+					addresses = wardItem.getAddresses();
+				}
+			} else {
+				province = provinceRepository.findByProvinceCode(request.getParentCode());
+				districts = province.getDistricts();
+				for (District districtItem : districts) {
+					wards = districtItem.getWards();
+					for (Ward wardItem : wards) {
+						addresses.addAll(wardItem.getAddresses());
+					}
+				}
+			}
+			
+		} else if (request.getLevel().equals(3)) {
+			if (!request.getCode().equals(1003)) {
+				ward = wardRepository.findByWardCode(request.getCode());
+				addresses = ward.getAddresses();
+			} else {
+				district = districtRepository.findByDistrictCode(request.getParentCode());
+				wards = district.getWards();
+				for (Ward wardItem : wards) {
+					addresses.addAll(wardItem.getAddresses());
+				}
+			}
 			
 		}
-		return null;
+		List<Post> posts = postRepository.findByAddressId(addresses);
+		for (Post post : posts) {
+			result.add(convert2Dto(post));
+		}
+		return result;
 	}
+
+	@Override
+	public List<PostDto> getPostByPrice(RangeRequest request) {
+		List<PostDto> result = new ArrayList<>();
+		List<Post> posts = postRepository.findByRangeRoomPrice(request.getFrom(), request.getTo());
+		for (Post post : posts) {
+			result.add(convert2Dto(post));
+		}
+		return result;
+	}
+
+	@Override
+	public List<PostDto> getPostByAreage(RangeRequest request) {
+		List<PostDto> result = new ArrayList<>();
+		List<Post> posts = postRepository.findByRangeRoomAreage(request.getFrom(), request.getTo());
+		for (Post post : posts) {
+			result.add(convert2Dto(post));
+		}
+		return result;
+	}
+
+	@Override
+	public List<PostDto> searchPost(SearchPostRequest request) {
+		List<PostDto> result = new ArrayList<>();
+		Set<PostDto> addressSet = new HashSet<>();
+		Set<PostDto> priceSet = new HashSet<>();
+		Set<PostDto> areageSet = new HashSet<>();
+		Set<PostDto> finalSet = new HashSet<>();
+		
+		if (request.getAddress() != null) {
+			addressSet.addAll(getPostByAddress(request.getAddress()));
+			finalSet.addAll(addressSet);
+		}
+		if (request.getPrice() != null) {
+			priceSet.addAll(getPostByPrice(request.getPrice()));
+			if (!finalSet.isEmpty()) {
+				finalSet.retainAll(priceSet);
+			} else {
+				finalSet.addAll(priceSet);
+			}
+		}
+		if (request.getAreage() != null) {
+			areageSet.addAll(getPostByAreage(request.getAreage()));
+			if (!finalSet.isEmpty()) {
+				finalSet.retainAll(areageSet);				
+			} else {
+				finalSet.addAll(areageSet);
+			}
+		}
+		
+		result = new ArrayList<>(finalSet);
+		return result;
+	}
+	
 	
 }

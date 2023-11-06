@@ -16,6 +16,7 @@ import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.ContractService;
 import com.petproject.motelservice.domain.inventory.ContractServiceId;
 import com.petproject.motelservice.domain.inventory.Deposits;
+import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -23,6 +24,7 @@ import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.ContractRepository;
 import com.petproject.motelservice.repository.ContractServiceRepository;
 import com.petproject.motelservice.repository.DepositRepository;
+import com.petproject.motelservice.repository.PostRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.services.UserContractService;
@@ -47,6 +49,9 @@ public class UserContractServiceImpl implements UserContractService {
 	
 	@Autowired
 	TenantRepository tenantRepository;
+	
+	@Autowired
+	PostRepository postRepository;
 	
 	private static final Log logger = LogFactory.getLog(UserContractServiceImpl.class);
 
@@ -155,6 +160,11 @@ public class UserContractServiceImpl implements UserContractService {
 			
 			saveContractService(request.getServices(), contract);
 			saveTenant(request.getTenants(), contract);
+			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
+			for (Post post : posts) {
+				post.setIsActive(false);
+				postRepository.save(post);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
