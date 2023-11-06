@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: Hh181101
+    url: jdbc:mysql://hulk003.mysql.database.azure.com:3306/motel_service
+    username: hoang
+  
