@@ -44,6 +44,12 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse> getRoomId(@PathVariable Integer id) {
+		final RoomResponse result = roomService.getRoomById(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@GetMapping("/utility/{id}")
 	public ResponseEntity<ApiResponse> getRoomDropdownByAccomodationId(@PathVariable Integer id) {
 		final List<RoomResponse> result = roomService.getRoomDropDown(id);

@@ -8,6 +8,7 @@ import com.petproject.motelservice.domain.dto.BillDto;
 import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
+import com.petproject.motelservice.domain.query.response.InvoiceResponse;
 
 public interface BillServices {
 	
@@ -40,5 +41,9 @@ public interface BillServices {
 	List<InvoiceDto> returnRoom(InvoiceDto request);
 
 	Map<String, Boolean> checkIsReturnValid(Integer roomId, Date month);
+
+	List<InvoiceDto> issueInvoiceByRoomId(Integer roomId, Date month);
+
+	List<InvoiceResponse> getInvoice(Integer accomodationId, Date month);
 	
 }

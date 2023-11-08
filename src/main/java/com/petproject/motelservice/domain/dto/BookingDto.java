@@ -26,4 +26,5 @@ public class BookingDto {
 	private Integer roomId;
 	
 	private String room;
+	
 }

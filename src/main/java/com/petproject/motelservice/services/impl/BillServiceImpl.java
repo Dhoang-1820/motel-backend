@@ -124,6 +124,22 @@ public class BillServiceImpl implements BillServices {
 		}
 		return result;
 	}
+	
+	@Override
+	public List<InvoiceResponse> getInvoice(Integer accomodationId, Date month) {
+		Date currentMonth = new Date();
+		Calendar current = Calendar.getInstance();
+		current.setTime(currentMonth);
+		Calendar request = Calendar.getInstance();
+		request.setTime(month);
+		List<InvoiceResponse> invoices = null;
+		if (request.get(Calendar.MONTH) >= current.get(Calendar.MONTH) && request.get(Calendar.YEAR) >= current.get(Calendar.YEAR)) {
+			invoices = billRepository.findCurrentInvoiceByMonth(accomodationId, month);			
+		} else {
+			invoices = billRepository.findInvoiceByMonth(accomodationId, month);		
+		}
+		return invoices;
+	}
 
 	@Override
 	public List<InvoiceDto> getInvoiceByMonth(Integer accomodationId, Date month, Boolean isReturn) {
@@ -298,6 +314,14 @@ public class BillServiceImpl implements BillServices {
 	}
 	
 	@Override
+	public List<InvoiceDto> issueInvoiceByRoomId(Integer roomId,  Date month) {
+		List<InvoiceDto> result = null;
+		InvoiceDto invoice = getIssueInvoicePreview(roomId, month);
+		result = issueInvoice(invoice, false);
+		return result;
+	}
+	
+	@Override
 	public List<InvoiceDto> issueInvoice(InvoiceDto request, Boolean isReturn) {
 		List<InvoiceDto> result = null;
 		try {
@@ -339,7 +363,7 @@ public class BillServiceImpl implements BillServices {
 			}
 			bill.setInvoiceType(type);
 			bill = billRepository.save(bill);
-//			sendInvoice(bill.getId());
+			sendInvoice(bill.getId());
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -512,7 +536,7 @@ public class BillServiceImpl implements BillServices {
 	        Ward ward = address.getWard();
 			District district = ward.getDistrict();
 			Province province = district.getProvince();
-	        properties.put("accomodationAddress", address.getAddressLine() + " " + address.getWard() + " " + district.getDistrict() + " " + province.getProvince());
+	        properties.put("accomodationAddress", address.getAddressLine() + " " + ward.getWard() + " " + district.getDistrict() + " " + province.getProvince());
 	       
 	        email.setFrom("fromemail@gmail.com");
 	        email.setTemplate("email_test.html");

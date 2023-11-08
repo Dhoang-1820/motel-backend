@@ -33,7 +33,7 @@ public class Booking extends BaseEntity {
 	@Column(name = "review_date")
 	private Date reviewDate;
 	
-	@Column(name = "is_active")
+	@Column(name = "is_active", columnDefinition = "BOOLEAN")
 	private Boolean isActive;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

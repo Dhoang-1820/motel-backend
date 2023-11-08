@@ -117,6 +117,13 @@ public class RoomServiceImpl implements RoomService {
                 .collect(Collectors.toList());
 		return result;
 	}
+	
+
+	@Override
+	public RoomResponse getRoomById(Integer roomId) {
+		Rooms room = roomRepository.findById(roomId).orElse(null);
+		return new RoomResponse(room.getId(), room.getName(), room.getPrice());
+	}
 
 	@Override
 	public List<RoomServiceResponse> getRoomNotHasService(Integer accomodationId) {
@@ -207,10 +214,15 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public List<RoomResponse> getRoomNoRented(Integer accomodationId) {
 		List<Rooms> rooms = roomRepository.findRoomNoRented(accomodationId);
-		List<RoomResponse> result = rooms.stream()
-                .map(source -> mapper.map(source, RoomResponse.class))
-                .collect(Collectors.toList());
+		List<RoomResponse> result = new ArrayList<>();
+		for (Rooms room : rooms) {
+			result.add(convert2RoomReponse(room));
+		}
 		return result;
+	}
+	
+	private RoomResponse convert2RoomReponse(Rooms room) {
+		return new RoomResponse(room.getId(), room.getName(), room.getPrice());
 	}
 	
 	@Override

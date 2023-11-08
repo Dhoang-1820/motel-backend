@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,4 +36,11 @@ public class BookingController {
 		final List<BookingDto> result = bookingService.getAllBookingByUserId(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
+	
+	@PutMapping("/{bookingId}")
+	public ResponseEntity<ApiResponse> deactivateBooking(@PathVariable Integer bookingId) {
+		bookingService.deactivateBooking(bookingId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.CREATE_SUCCESS_MSG));
+	}
+	
 }	

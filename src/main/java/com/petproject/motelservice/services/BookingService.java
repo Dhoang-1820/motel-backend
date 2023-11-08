@@ -12,4 +12,6 @@ public interface BookingService {
 	void sendOutNotification(Booking request);
 	
 	List<BookingDto> getAllBookingByUserId(Integer userId);
+	
+	void deactivateBooking(Integer bookingId);
 }

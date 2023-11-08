@@ -21,6 +21,8 @@ public interface RoomService {
 	
 	List<RoomResponse> getRoomDropDown(Integer accomodationId);
 	
+	RoomResponse getRoomById(Integer roomId);
+	
 	List<RoomServiceResponse> getRoomNotHasService(Integer accomodationId);
 
 	RoomImageDto getRoomImages(Integer roomId);

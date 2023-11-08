@@ -28,16 +28,16 @@ import com.petproject.motelservice.services.MailService;
 @Service
 public class BookingServiceImpl implements BookingService {
 
-	@Autowired 
+	@Autowired
 	BookingRepositoty bookingRepository;
-	
+
 	@Autowired
 	RoomRepository roomRepository;
-	
+
 	@Autowired
 	MailService mailService;
-	
-	@Autowired 
+
+	@Autowired
 	ModelMapper mapper;
 
 	@Override
@@ -51,8 +51,7 @@ public class BookingServiceImpl implements BookingService {
 		sendOutNotification(booking);
 		return result;
 	}
-	
-	
+
 	@Override
 	public List<BookingDto> getAllBookingByUserId(Integer userId) {
 		List<BookingDto> result = new ArrayList<>();
@@ -62,7 +61,7 @@ public class BookingServiceImpl implements BookingService {
 		}
 		return result;
 	}
-	
+
 	private BookingDto convert2Dto(Booking booking) {
 		BookingDto dto = new BookingDto();
 		dto.setId(booking.getId());
@@ -80,35 +79,35 @@ public class BookingServiceImpl implements BookingService {
 
 	private void sendBookingNotification(String room, Accomodations accomodation, Booking booking) {
 		Email email = new Email();
-		 Users user = accomodation.getUser();
+		Users user = accomodation.getUser();
 		try {
-	        Map<String, Object> properties = new HashMap<>();
-	        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm"); 
-	        String bookingDate = dateFormat.format(booking.getBookingDate());
-	        
-	        email.setSubject("Motel service: Thông báo đặt phòng");
-	        
-	        properties.put("lanlord", user.getFirstname() + " " + user.getLastname());
-	        properties.put("accomodationName", accomodation.getName());
-	        properties.put("roomName", room);
-	        properties.put("customer", booking.getName());
-	        properties.put("customerEmail", booking.getEmail());
-	        properties.put("customerPhone", booking.getPhone());
-	        properties.put("bookingDate", bookingDate);
-	        
-	        email.setFrom("fromemail@gmail.com");
-	        email.setTemplate("notification.html");
-	        email.setProperties(properties);
-	        
-	        String regex = "^(.+)@(.+)$";
-	        Pattern pattern = Pattern.compile(regex);
-	       
-	        Matcher matcher = pattern.matcher(user.getEmail());
+			Map<String, Object> properties = new HashMap<>();
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			String bookingDate = dateFormat.format(booking.getBookingDate());
+
+			email.setSubject("Motel service: Thông báo đặt phòng");
+
+			properties.put("lanlord", user.getFirstname() + " " + user.getLastname());
+			properties.put("accomodationName", accomodation.getName());
+			properties.put("roomName", room);
+			properties.put("customer", booking.getName());
+			properties.put("customerEmail", booking.getEmail());
+			properties.put("customerPhone", booking.getPhone());
+			properties.put("bookingDate", bookingDate);
+
+			email.setFrom("fromemail@gmail.com");
+			email.setTemplate("notification.html");
+			email.setProperties(properties);
+
+			String regex = "^(.+)@(.+)$";
+			Pattern pattern = Pattern.compile(regex);
+
+			Matcher matcher = pattern.matcher(user.getEmail());
 			if (matcher.matches()) {
 				email.setTo(user.getEmail());
 				mailService.sendInvoiceEmail(email);
 			}
-	        
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -116,9 +115,16 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public void sendOutNotification(Booking request) {
-		Rooms room = roomRepository.findById(Integer.valueOf(request.getRoom().getId())).orElse(null);	
+		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
 		Accomodations accomodations = room.getAccomodations();
 		sendBookingNotification(room.getName(), accomodations, request);
 	}
-	
-}	
+
+	@Override
+	public void deactivateBooking(Integer bookingId) {
+		Booking booking = bookingRepository.findById(bookingId).orElse(null);
+		booking.setIsActive(Boolean.FALSE);
+		bookingRepository.save(booking);
+	}
+
+}
