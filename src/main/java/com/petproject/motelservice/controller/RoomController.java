@@ -56,6 +56,12 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@PostMapping("/utility/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicateName(@RequestBody String roomName) {
+		final Boolean result = roomService.isDuplicateRoom(roomName);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@GetMapping("/utility/no-service/{id}")
 	public ResponseEntity<ApiResponse> getRoomNotHasServiceByAccomodation(@PathVariable Integer id) {
 		final List<RoomServiceResponse> result = roomService.getRoomNotHasService(id);
@@ -127,28 +133,5 @@ public class RoomController {
 		roomFeeService.removeRoomFee(roomId, feeId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
-	
-	@PostMapping("/image/{roomId}")
-	public ResponseEntity<ApiResponse> saveRoomImage(@RequestParam("file") MultipartFile[] files, @PathVariable("roomId") Integer roomId) {
-		roomService.saveRoomImage(files, roomId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
-	
-	@GetMapping("/image/{roomId}")
-	public ResponseEntity<ApiResponse> getImagesByRoom(@PathVariable("roomId") Integer roomId) {
-		final RoomImageDto result = roomService.getRoomImages(roomId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
-	}
-	
-	@PutMapping("/image/{imgId}")
-	public ResponseEntity<ApiResponse> changeImageRoom(@RequestParam("file") MultipartFile[] files, @PathVariable("imgId") Integer imgId) {
-		roomService.changeRoomImage(files, imgId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
-	
-	@DeleteMapping("/image/{roomId}")
-	public ResponseEntity<ApiResponse> removeImage(@PathVariable("roomId") Integer roomId) {
-		roomService.removeImage(roomId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
+
 }

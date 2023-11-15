@@ -22,7 +22,7 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
 	Users findByUserId(@Param("userId") Integer id);
 	
 	
-	@Query(nativeQuery = true, value = "select users.id as userId, users.address, users.phone, users.email, users.firstname as firstName, users.lasname as lastName, users.active, users.created_at as createdAt, case when accomodation.accomodationNum > 0 then accomodation.accomodationNum else 0 end as accomodationNum from users left join (select count(accomodations.user_id) as accomodationNum, accomodations.user_id from accomodations group by accomodations.user_id) accomodation on users.id = accomodation.user_id join users_role on users.id = users_role.users_id where users_role.role_id != 1")
+	@Query(nativeQuery = true, value = "select users.id as userId, users.address, users.phone, users.email, users.firstname as firstName, users.lasname as lastName, users.active, users.created_at as createdAt, case when accomodation.accomodationNum > 0 then accomodation.accomodationNum else 0 end as accomodationNum from users left join (select count(accomodations.user_id) as accomodationNum, accomodations.user_id from accomodations group by accomodations.user_id) accomodation on users.id = accomodation.user_id join role on users.role_id = role.id where role.id != 2")
 	List<UserResponse> findAllUsers();
 		
 }

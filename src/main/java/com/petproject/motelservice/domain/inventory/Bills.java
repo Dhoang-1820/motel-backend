@@ -1,6 +1,7 @@
 package com.petproject.motelservice.domain.inventory;
 
 import java.util.Date;
+import java.util.List;
 
 import com.petproject.motelservice.framework.BaseEntity;
 
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,6 +58,12 @@ public class Bills extends BaseEntity{
 	
 	@Column(name = "note")
 	private String note;
+	
+	@Column(name = "is_active", columnDefinition = "BOOLEAN")
+	private Boolean isActive;
+	
+	@OneToMany(mappedBy = "bill", fetch = FetchType.LAZY)
+	List<ServicesBill> servicesBills;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "room_id")

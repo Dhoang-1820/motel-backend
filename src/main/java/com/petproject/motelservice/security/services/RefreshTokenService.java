@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.inventory.RefreshToken;
 import com.petproject.motelservice.domain.inventory.Users;
-import com.petproject.motelservice.exeption.TokenRefreshException;
 import com.petproject.motelservice.repository.RefreshTokenRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.security.jwt.JwtUtils;
@@ -46,7 +45,7 @@ public class RefreshTokenService {
 	public RefreshToken verifyExpiration(RefreshToken token) {
 		if (!jwtUtils.validateJwtToken(token.getToken())) {
 			refreshTokenRepository.delete(token);
-			throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signin request");
+//			throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signin request");
 		}
 		return token;
 	}

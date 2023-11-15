@@ -59,7 +59,7 @@ public class DepositServiceImpl implements DepositService {
 		dto.setIsActive(deposit.getIsActive());
 		dto.setIsRepaid(deposit.getIsRepaid());
 		dto.setNote(deposit.getNote());
-		dto.setRoom(new RoomResponse(deposit.getRoomId(), deposit.getRoomName(), deposit.getRoomPrice()));
+		dto.setRoom(new RoomResponse(deposit.getRoomId(), deposit.getRoomName(), deposit.getRoomPrice(), deposit.getRoomCapacity()));
 		dto.setStartDate(deposit.getStartDate());
 		dto.setTenantId(deposit.getTenantId());
 		dto.setEmail(deposit.getEmail());

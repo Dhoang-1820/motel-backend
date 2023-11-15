@@ -24,7 +24,7 @@ public class Scheduler {
 	@Autowired
 	BillServices billServices;
 
-	@Scheduled(cron = "0 03 00 * * *")
+	@Scheduled(cron = "0 20 1 * * *")
 	public void cronJobSch() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
@@ -44,7 +44,6 @@ public class Scheduler {
 				}
 			}
 		}
-		
 //		preferences = preferenceRepository.findRemindByDate(now);
 		
 	}

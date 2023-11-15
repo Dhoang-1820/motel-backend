@@ -26,9 +26,6 @@ public class Contract extends BaseEntity {
 	@Column(name = "duration")
 	private Integer duration;
 	
-	@Column(name = "recurrent")
-	private Integer recurrent;
-	
 	@Column(name = "deposits")
 	private Double deposits;
 	
@@ -43,6 +40,15 @@ public class Contract extends BaseEntity {
 	
 	@Column(name = "first_water_num")
 	private Integer firstWaterNum;
+	
+	@Column(name = "keep_room_deposit")
+	private Double keepRoomDeposit;
+	
+	@Column(name = "day_stayed_before")
+	private Integer dayStayedBefore;
+	
+	@Column(name = "first_come_payment")
+	private Double firstComePayment;
 	
 	@Column(name = "is_active", columnDefinition = "BOOLEAN")
 	private Boolean isActive = Boolean.TRUE;;

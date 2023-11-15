@@ -1,5 +1,7 @@
 package com.petproject.motelservice.services.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,12 +19,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
+import com.petproject.motelservice.domain.dto.BookingDto;
+import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.UserDto;
+import com.petproject.motelservice.domain.dto.UserPreferenceDto;
+import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.BankAccountInfo;
 import com.petproject.motelservice.domain.inventory.ERoles;
 import com.petproject.motelservice.domain.inventory.RefreshToken;
 import com.petproject.motelservice.domain.inventory.Role;
+import com.petproject.motelservice.domain.inventory.Rooms;
+import com.petproject.motelservice.domain.inventory.Tenants;
+import com.petproject.motelservice.domain.inventory.UserPreference;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
@@ -35,10 +44,13 @@ import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
 import com.petproject.motelservice.domain.query.response.UserResponse;
 import com.petproject.motelservice.repository.BankAccountRepository;
 import com.petproject.motelservice.repository.RolesRepository;
+import com.petproject.motelservice.repository.TenantRepository;
+import com.petproject.motelservice.repository.UserPreferenceRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.security.jwt.JwtUtils;
 import com.petproject.motelservice.security.services.RefreshTokenService;
 import com.petproject.motelservice.security.services.UserDetailsImpl;
+import com.petproject.motelservice.services.BookingService;
 import com.petproject.motelservice.services.FileService;
 import com.petproject.motelservice.services.UserService;
 
@@ -70,10 +82,19 @@ public class UserServiceImpl implements UserService {
 	FileService storageService;
 	
 	@Autowired
+	BookingService bookingService;
+	
+	@Autowired
+	TenantRepository tenantRepository;
+	
+	@Autowired
 	BankAccountRepository bankAccountRepository;
+	
+	@Autowired
+	UserPreferenceRepository preferenceRepository;
 
 	@Override
-	public JwtResponse signIn(LoginRequest loginRequest) {
+	public JwtResponse signIn(LoginRequest loginRequest) {	
 		JwtResponse jwtResponse = new JwtResponse();
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
@@ -81,6 +102,7 @@ public class UserServiceImpl implements UserService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		
 		String roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
 				.collect(Collectors.toList()).get(0);
 		String jwt = jwtUtils.generateJwtToken(authentication);
@@ -136,14 +158,6 @@ public class UserServiceImpl implements UserService {
 				role = rolesRepository.findByName(ERoles.ROLE_ADMIN)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 				break;
-			case "mod":
-				role = rolesRepository.findByName(ERoles.ROLE_MODERATOR)
-						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				break;
-			case "tenant":
-				role = rolesRepository.findByName(ERoles.ROLE_TENANT)
-						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				break;
 			case "landlord":
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -179,6 +193,86 @@ public class UserServiceImpl implements UserService {
 			banks.add(accountDto);
 		}
 		result.setBankAccounts(banks);
+		return result;
+	}
+	
+
+	@Override
+	public UserPreferenceDto getUserConfigByUserId(Integer userId) {
+		Users user =  usersRepository.findByUserId(userId);
+		UserPreference preference = user.getUserPreference();
+		UserPreferenceDto dto = convert2UserPreference(preference);
+		return dto;
+	}
+	
+	private UserPreferenceDto convert2UserPreference(UserPreference preference ) {
+		UserPreferenceDto dto = new UserPreferenceDto();
+		dto.setElectricWaterDate(preference.getEletricWaterDate());
+		dto.setIssueInvoiceDate(preference.getIssueInvoiceDate());
+		dto.setId(preference.getId());
+		dto.setUserId(preference.getUser().getId());
+		return dto;
+	}
+	
+	@Override
+	public UserPreferenceDto updateUserPreference(UserPreferenceDto request) {
+		UserPreference preference = null;
+		if (request.getId() != null) {
+			preference = preferenceRepository.findById(request.getId()).orElse(null);
+		} else {
+			preference = new UserPreference();
+		}
+		
+		try {
+			preference.setEletricWaterDate(request.getElectricWaterDate());
+			preference.setIssueInvoiceDate(request.getIssueInvoiceDate());
+			preference = preferenceRepository.save(preference);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return convert2UserPreference(preference);
+	}
+	
+	@Override
+	public DashBoardDto getUserDashboard(Integer userId) {
+		DashBoardDto dto = new DashBoardDto();
+		Users user = usersRepository.findByUserId(userId);
+		List<Accomodations> accomodations = user.getAccomodations();
+		dto.setAccomodationNum(accomodations.size());
+		int roomNum = 0;
+		int emptyRoomNum = 0;
+		int tenantCount = 0;
+		List<Rooms> rooms = null;
+		for (Accomodations item : accomodations) {
+			rooms = item.getRooms();
+			roomNum += rooms.size();
+			emptyRoomNum += getEmptyRoom(rooms);
+		}
+		List<Tenants> tenants = tenantRepository.countTenantByUserId(userId);
+		tenantCount = tenants.size();
+		dto.setAccomodationNum(accomodations.size());
+		dto.setRoomNum(roomNum);
+		dto.setTenantNum(tenantCount);
+		dto.setEmptyRoomNum(emptyRoomNum);
+		List<String> notifications = new ArrayList<>();
+		List<BookingDto> bookings = bookingService.getBookingByDate(userId, new Date());
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		String notification = "";
+		for (BookingDto booking : bookings) {
+			notification = dateFormat.format(booking.getCreatedDate()).toString() + " Khách đặt phòng số " + booking.getRoom();
+			notifications.add(notification);
+		}
+		dto.setNotifications(notifications);
+		return dto;
+	}
+	
+	private int getEmptyRoom(List<Rooms> rooms) {
+		int result = 0;
+		for (Rooms room : rooms) {
+			if (!room.getIsRent()) {
+				result += 1;
+			}
+		}
 		return result;
 	}
 
@@ -282,12 +376,12 @@ public class UserServiceImpl implements UserService {
 			SignupRequest sigupRequest = new SignupRequest();
 			sigupRequest.setAddress(request.getEmail());
 			sigupRequest.setEmail(request.getEmail());
-			sigupRequest.setPassword(request.getPassword());
+			sigupRequest.setPassword(encoder.encode(Constants.DEFAULT_PASSWORD));
 			sigupRequest.setPhone(request.getPhone());
 			sigupRequest.setUserName(request.getUserName());
 			sigupRequest.setFirstName(request.getFirstName());
 			sigupRequest.setLastName(request.getLastName());
-			sigupRequest.setRoles(request.getRole());
+			sigupRequest.setRoles("landlord");
 			signUp(sigupRequest);
 		}
 		

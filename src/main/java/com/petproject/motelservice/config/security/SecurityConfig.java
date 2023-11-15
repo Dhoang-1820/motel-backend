@@ -87,10 +87,10 @@ public class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/user/auth/**", "/accomodation", "booking").permitAll()
-						.anyRequest().authenticated());
+				.sessionManagement(session -> session
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/user/auth/**", "/post/address/*", "/post/price",
+						"/post/areage", "/post/search", "/post").permitAll().anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());
 

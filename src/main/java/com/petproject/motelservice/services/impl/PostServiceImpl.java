@@ -208,7 +208,7 @@ public class PostServiceImpl implements PostService {
 		dto.setServices(services);
 		images = getPostImages(post);
 		dto.setImages(images);
-		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice()));
+		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		dto.setCreatedAt(post.getCreatedAt());
 		dto.setIsActive(post.getIsActive());
 		return dto;

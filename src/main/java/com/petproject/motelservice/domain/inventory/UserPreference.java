@@ -1,3 +1,4 @@
+
 package com.petproject.motelservice.domain.inventory;
 
 import java.util.Date;
@@ -20,8 +21,8 @@ public class UserPreference extends BaseEntity {
 	@Column(name = "issue_invoice_date")
 	private Date issueInvoiceDate;
 	
-	@Column(name = "remind_date")
-	private Date remindDate;
+	@Column(name = "electric_water_date")
+	private Date eletricWaterDate;
 	
 	@OneToOne(mappedBy = "userPreference", fetch = FetchType.LAZY)
 	private Users user;

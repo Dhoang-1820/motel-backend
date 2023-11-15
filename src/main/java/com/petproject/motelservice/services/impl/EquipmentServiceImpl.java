@@ -50,6 +50,12 @@ public class EquipmentServiceImpl implements EquipmentService {
 
 		return result;
 	}
+	
+	@Override
+	public Boolean checkDuplicated(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public List<EquipmentDto> getByRoomId(Integer roomId) {
@@ -97,7 +103,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 			equipment.setRoomId(roomId);				
 			equipment.setUnit(item.getUnit());
 			equipment.setStatus(item.getStatus());
-			equipment.setRoom(new RoomResponse(roomId, roomName, price));
+			equipment.setRoom(new RoomResponse(roomId, roomName, price, null));
 			result.add(equipment);
 		}
 		return result;

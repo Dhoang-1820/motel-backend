@@ -48,5 +48,9 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	
+	@PostMapping("/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicated(@RequestBody String identifyNum) {
+		final Boolean result = tenantsServices.checkDuplicated(identifyNum);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
 }

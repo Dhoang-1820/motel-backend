@@ -14,7 +14,7 @@ public class ContractDto {
 	
 	private Integer duration;
 	
-	private Integer recurrent;
+	private Double oldDeposit;
 	
 	private Double deposit;
 	
@@ -37,4 +37,10 @@ public class ContractDto {
 	private RoomResponse room;
 
 	private Integer preRoom;
+	
+	private Double keepRoomDeposit;
+	
+	private Integer dayStayedBefore;
+	
+	private Double firstComePayment;
 }

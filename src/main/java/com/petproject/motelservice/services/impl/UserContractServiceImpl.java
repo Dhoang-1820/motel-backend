@@ -73,12 +73,14 @@ public class UserContractServiceImpl implements UserContractService {
 		dto.setId(contract.getId());
 		dto.setDuration(contract.getDuration());
 		dto.setDeposit(contract.getDeposits());
-		dto.setRecurrent(contract.getRecurrent());
 		dto.setStartDate(contract.getStartDate());
 		dto.setEndDate(contract.getEndDate());
 		dto.setFirstElectricNum(contract.getFirstElectricNum());
 		dto.setFirstWaterNum(contract.getFirstWaterNum());
 		dto.setIsActive(contract.getIsActive());
+		dto.setDayStayedBefore(contract.getDayStayedBefore());
+		dto.setFirstComePayment(contract.getFirstComePayment());
+		dto.setKeepRoomDeposit(contract.getKeepRoomDeposit());
 		if (contract.getRepresentative() != null) {
 			Tenants representative = tenantRepository.findById(contract.getRepresentative()).orElse(null);
 			if (representative != null) {
@@ -86,7 +88,7 @@ public class UserContractServiceImpl implements UserContractService {
 			}
 		}
 		room = contract.getRoom();
-		roomResponse = new RoomResponse(room.getId(), room.getName(), room.getPrice());
+		roomResponse = new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity());
 		dto.setRoom(roomResponse);
 		dto.setServices(convert2ServiceDto(contract.getContractServices()));
 		dto.setTenants(convert2TenantDto(contract.getTenants()));
@@ -126,7 +128,7 @@ public class UserContractServiceImpl implements UserContractService {
 	public List<ContractDto> saveContract(ContractDto request) {
 		Contract contract = null;
 		Rooms room = null;
-		Deposits deposit = null;
+        Deposits deposit = null;
 		try {
 			if (request.getId() != null) {
 				contract = contractRepository.findById(request.getId()).orElse(null);
@@ -140,14 +142,16 @@ public class UserContractServiceImpl implements UserContractService {
 			contract.setEndDate(request.getEndDate());
 			contract.setFirstElectricNum(request.getFirstElectricNum());
 			contract.setFirstWaterNum(request.getFirstWaterNum());
-			contract.setRecurrent(request.getRecurrent());
 			contract.setRepresentative(request.getRepresentative().getId());
-			room = roomRepository.findById(request.getRoom().getId()).orElse(null);
+			contract.setDayStayedBefore(request.getDayStayedBefore());
+			contract.setFirstComePayment(request.getFirstComePayment());
+			contract.setKeepRoomDeposit(request.getKeepRoomDeposit());
 			deposit = depositRepository.findByRoomId(request.getRoom().getId());
-			if (deposit != null) {
-				deposit.setIsActive(Boolean.FALSE);
-				depositRepository.save(deposit);
-			}
+            if (deposit != null) {
+                deposit.setIsActive(Boolean.FALSE);
+                depositRepository.save(deposit);
+            }
+			room = roomRepository.findById(request.getRoom().getId()).orElse(null);
 			room.setIsRent(Boolean.TRUE);
 			roomRepository.save(room);
 			contract.setRoom(room);
@@ -157,7 +161,7 @@ public class UserContractServiceImpl implements UserContractService {
 				room.setIsRent(Boolean.FALSE);
 				roomRepository.save(room);
 			}
-			
+            
 			saveContractService(request.getServices(), contract);
 			saveTenant(request.getTenants(), contract);
 			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Tenants;
-import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.RoomRepository;
@@ -41,6 +40,23 @@ public class TenantsServiceImpl implements TenantsService {
 		return result;
 	}
 	
+	
+	@Override
+	public List<Tenants> countTenantByUserId(Integer userId) {
+		return tenantRepository.countTenantByUserId(userId);
+	}
+
+
+	@Override
+	public Boolean checkDuplicated(String identifyNum) {
+		Boolean result = false;
+		Tenants tenant = tenantRepository.findByIdentifyNum(identifyNum);
+		if (tenant != null) {
+			result = true;
+		}
+		return result;
+	}
+
 	@Override
 	public TenantDto createOrUpdate(TenantDto request) {
 		Tenants tenant = null;

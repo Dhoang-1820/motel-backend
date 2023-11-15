@@ -19,4 +19,6 @@ public  class Constants {
 	public static final String ROOM_PRICE_NAME = "Tiền phòng";
 	
 	public static final String ROOM_UNIT = "Phòng";
+	
+	public static final String DEFAULT_PASSWORD = "12345678";
 }

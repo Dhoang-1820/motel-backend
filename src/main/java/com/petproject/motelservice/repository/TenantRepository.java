@@ -20,8 +20,14 @@ public interface TenantRepository extends JpaRepository<Tenants, Integer> {
 	@Query("FROM Tenants tenant WHERE tenant.contract IS NULL")
 	List<Tenants> findTenantNotContracted(@Param("id") Integer accomodationId);
 	
+	Tenants findByIdentifyNum(String identifyNum);
+	
 	@Modifying
 	@Transactional
 	@Query("UPDATE Tenants tenant SET tenant.contract = NULL WHERE tenant.contract.id = :contractId")
 	int updateTenantContractStatus(Integer contractId);
+	
+	@Query(nativeQuery = true, value = "select tenants.* from accomodations join rooms on accomodations.id = rooms.accomodation_id join (select room_id, id from contract where contract.is_active = 1) contract on rooms.id = contract.room_id join (select * from tenants where tenants.is_stayed != 0) tenants on contract.id = tenants.contract_id where accomodations.user_id = :userId")
+	List<Tenants> countTenantByUserId(@Param("userId") Integer userId);
+	
 }

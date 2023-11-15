@@ -17,6 +17,8 @@ public class RoomResponse {
 	private String name;
 	
 	private Double price;
+	
+	private Integer capacity;
 
 	@Override
 	public int hashCode() {

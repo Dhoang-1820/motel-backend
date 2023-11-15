@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +18,7 @@ import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
 import com.petproject.motelservice.domain.payload.request.BillRequest;
+import com.petproject.motelservice.domain.payload.request.ConfirmInvoiceRequest;
 import com.petproject.motelservice.domain.payload.request.IssueInvoiceRequest;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
@@ -34,6 +34,12 @@ public class BillsController {
 	@PostMapping("/electric-water")
 	public ResponseEntity<ApiResponse> getElectricWaterNumByAccomodation(@RequestBody BillRequest request) {
 		final List<ElectricityWaterDto> result = billServices.getElectricWaterNumByAccomodation(request.getId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PostMapping("/room/electric-water")
+	public ResponseEntity<ApiResponse> getElectricWaterByMonthAndRoom(@RequestBody BillRequest request) {
+		final ElectricityWaterDto result = billServices.getElectricWaterNumByMonthAndRoom(request.getId(), request.getMonth());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 		
@@ -55,15 +61,15 @@ public class BillsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse> getInvoiceDetail(@PathVariable("id") Integer billId) {
-		final InvoiceDto result = billServices.getInvoiceDetail(billId, false);
+	@PostMapping("/detail")
+	public ResponseEntity<ApiResponse> getInvoiceDetail(@RequestBody BillRequest request) {
+		final InvoiceDto result = billServices.getInvoiceDetail(request.getId(), request.getMonth(), false);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@GetMapping("/return/{id}")
-	public ResponseEntity<ApiResponse> getReturnInvoiceDetail(@PathVariable("id") Integer billId) {
-		final InvoiceDto result = billServices.getInvoiceDetail(billId, true);
+	@PostMapping("/return/detail")
+	public ResponseEntity<ApiResponse> getReturnInvoiceDetail(@RequestBody BillRequest request) {
+		final InvoiceDto result = billServices.getInvoiceDetail(request.getId(), request.getMonth(), true);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
@@ -79,10 +85,10 @@ public class BillsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@PostMapping("/send/{id}")
-	public ResponseEntity<ApiResponse> sendInvoice(@PathVariable("id") Integer invoiceId) {
-		Boolean result = billServices.sendInvoice(invoiceId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	@PostMapping("/send")
+	public ResponseEntity<ApiResponse> sendInvoice(@RequestBody BillRequest request) {
+		billServices.sendInvoiceEmail(request.getId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
 	
 	@PostMapping("/room")
@@ -91,9 +97,9 @@ public class BillsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@PutMapping("/confirm/{id}")
-	public ResponseEntity<ApiResponse> confirmInvoicePayment(@PathVariable("id") Integer invoiceId) {
-		final Boolean result = billServices.changePaymentStatus(invoiceId);
+	@PutMapping("/confirm")
+	public ResponseEntity<ApiResponse> confirmInvoicePayment(@RequestBody ConfirmInvoiceRequest request) {
+		final Boolean result = billServices.confirmPayment(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

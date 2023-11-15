@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
-import com.petproject.motelservice.domain.dto.BillDto;
 import com.petproject.motelservice.domain.dto.BillServiceDto;
 import com.petproject.motelservice.domain.dto.BillServiceEmail;
 import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
@@ -39,10 +39,12 @@ import com.petproject.motelservice.domain.inventory.ElectricWaterNum;
 import com.petproject.motelservice.domain.inventory.InvoiceType;
 import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
+import com.petproject.motelservice.domain.inventory.ServicesBill;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.Email;
+import com.petproject.motelservice.domain.payload.request.ConfirmInvoiceRequest;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.domain.query.response.InvoiceResponse;
@@ -52,9 +54,11 @@ import com.petproject.motelservice.repository.ContractRepository;
 import com.petproject.motelservice.repository.ElectricWaterNumRepository;
 import com.petproject.motelservice.repository.InvoiceTypeRepository;
 import com.petproject.motelservice.repository.RoomRepository;
+import com.petproject.motelservice.repository.ServicesBillRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.services.BillServices;
 import com.petproject.motelservice.services.MailService;
+import com.petproject.motelservice.thread.InvoiceThread;
 
 @Service
 public class BillServiceImpl implements BillServices {
@@ -70,50 +74,42 @@ public class BillServiceImpl implements BillServices {
 
 	@Autowired
 	ElectricWaterNumRepository electricWaterNumRepository;
-	
+
 	@Autowired
 	ContractRepository contractRepository;
 
 	@Autowired
 	MailService mailService;
-	
+
 	@Autowired
 	TenantRepository tenantRepository;
-	
-	@Autowired 
+
+	@Autowired
 	InvoiceTypeRepository invoiceTypeRepository;
 
 	@Autowired
+	ServicesBillRepository servicesBillRepository;
+
+	@Autowired
 	ModelMapper mapper;
-
-	@Override
-	public List<BillDto> getMonthBillByAccomodation(Integer accomodationId, Date month) {
-		Accomodations accomodations = accomodationsRepository.findById(accomodationId).orElse(null);
-		List<Rooms> rooms = roomRepository.findByAccomodations(accomodations);
-		List<BillDto> result = new ArrayList<>();
-		BillDto billDto = null;
-		List<Bills> bills = null;
-		for (Rooms room : rooms) {
-//			bills = billRepository.findBillMonthByRomm(month, room.getId());
-			for (Bills bill : bills) {
-				billDto = convertToDto(bill, room);
-				result.add(billDto);
-			}
-		}
-		return result;
-	}
-
-	private BillDto convertToDto(Bills bill, Rooms room) {
-		BillDto billDto = mapper.map(bill, BillDto.class);
-		RoomResponse roomResponse = new RoomResponse(room.getId(), room.getName(), room.getPrice());
-		billDto.setRoom(roomResponse);
-		return billDto;
-	}
+	
+	@Autowired
+	ThreadPoolTaskExecutor taskExecutor;
+	
+	@Autowired 
+	InvoiceThread invoiceThread;
 
 	private Date getPreMonth(Date month) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(month);
 		calendar.add(Calendar.MONTH, -1);
+		return calendar.getTime();
+	}
+
+	private Date getNextMonth(Date month) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(month);
+		calendar.add(Calendar.MONTH, 1);
 		return calendar.getTime();
 	}
 
@@ -124,20 +120,21 @@ public class BillServiceImpl implements BillServices {
 		}
 		return result;
 	}
-	
+
+	@Override
+	public ElectricityWaterDto getElectricWaterNumByMonthAndRoom(Integer roomId, Date month) {
+		ElectricityWaterDto result = null;
+		ElectricWaterNum electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(roomId, month);
+		if (electricWaterNum != null) {
+			result = convert2ElectricityWaterDto(electricWaterNum);
+		}
+		return result;
+	}
+
 	@Override
 	public List<InvoiceResponse> getInvoice(Integer accomodationId, Date month) {
-		Date currentMonth = new Date();
-		Calendar current = Calendar.getInstance();
-		current.setTime(currentMonth);
-		Calendar request = Calendar.getInstance();
-		request.setTime(month);
 		List<InvoiceResponse> invoices = null;
-		if (request.get(Calendar.MONTH) >= current.get(Calendar.MONTH) && request.get(Calendar.YEAR) >= current.get(Calendar.YEAR)) {
-			invoices = billRepository.findCurrentInvoiceByMonth(accomodationId, month);			
-		} else {
-			invoices = billRepository.findInvoiceByMonth(accomodationId, month);		
-		}
+		invoices = billRepository.findCurrentInvoiceByMonth(accomodationId, month);
 		return invoices;
 	}
 
@@ -145,27 +142,18 @@ public class BillServiceImpl implements BillServices {
 	public List<InvoiceDto> getInvoiceByMonth(Integer accomodationId, Date month, Boolean isReturn) {
 		InvoiceDto invoiceDto = null;
 		List<InvoiceResponse> invoices = null;
-		Date currentMonth = new Date();
-		Calendar current = Calendar.getInstance();
-		current.setTime(currentMonth);
-		Calendar request = Calendar.getInstance();
-		request.setTime(month);
 		if (!isReturn) {
-			if (request.get(Calendar.MONTH) >= current.get(Calendar.MONTH) && request.get(Calendar.YEAR) >= current.get(Calendar.YEAR)) {
-				invoices = billRepository.findCurrentInvoiceByMonth(accomodationId, month);			
-			} else {
-				invoices = billRepository.findInvoiceByMonth(accomodationId, month);		
-			}
+			invoices = billRepository.findCurrentInvoiceByMonth(accomodationId, month);
 		} else {
 			invoices = billRepository.findCurrentReturnInvoiceByMonth(accomodationId, month);
 		}
-		
+
 		List<InvoiceDto> result = new ArrayList<>();
 		for (InvoiceResponse invoice : invoices) {
 			invoiceDto = new InvoiceDto();
 			invoiceDto.setId(invoice.getBillId());
 			invoiceDto.setBillDate(invoice.getBillDate());
-			invoiceDto.setRoom(new RoomResponse(invoice.getRoomId(), invoice.getRoomName(), null));
+			invoiceDto.setRoom(new RoomResponse(invoice.getRoomId(), invoice.getRoomName(), null, null));
 			invoiceDto.setIsPay(invoice.getIsPay());
 			invoiceDto.setDebt(invoice.getDebt());
 			invoiceDto.setQuantitySent(invoice.getQuantitySent());
@@ -180,48 +168,52 @@ public class BillServiceImpl implements BillServices {
 		}
 		return result;
 	}
-	
-	private List<BillServiceDto> getBillRoomService(Contract contract, Rooms room, Date month) {
+
+	private List<BillServiceDto> getRoomServiceAndCompute(Contract contract, Rooms room, Date month) {
 		BillServiceDto dto = new BillServiceDto();
 		List<BillServiceDto> services = new ArrayList<>();
 		AccomodationUtilities service = null;
 		List<ContractService> contractServices = contract.getContractServices();
-		ElectricWaterNum electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(room.getId(), month);
-		for (ContractService item :contractServices) {
+		ElectricWaterNum electricWaterNum = null;
+		for (ContractService item : contractServices) {
 			dto = new BillServiceDto();
 			service = item.getId().getAccomodationService();
 			dto.setServiceName(service.getName());
 			dto.setUnit(service.getUnit());
 			dto.setPrice(service.getPrice());
-			
+
 			if (service.getName().equals(Constants.ELECTRIC_PRICE_NAME)) {
+				electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(room.getId(), month);
 				if (electricWaterNum != null) {
 					dto.setFirstElectricNum(electricWaterNum.getFirstElectric());
 					dto.setLastElectricNum(electricWaterNum.getLastElectric());
 					dto.setElectricNum(electricWaterNum.getElectricNum());
+					dto.setQuantity(electricWaterNum.getElectricNum());
 					dto.setTotalPrice(electricWaterNum.getElectricNum() * service.getPrice());
-				} 
-//				else {
-//					electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(room.getId(), preMonth);
-//					dto.setFirstElectricNum(electricWaterNum.getLastElectric());
-//					dto.setLastElectricNum(0);
-//					dto.setElectricNum(0);
-//					dto.setTotalPrice(0D);
-//				}
+				} else {
+					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(room.getId(), month);
+					dto.setFirstElectricNum(electricWaterNum.getLastElectric());
+					dto.setLastElectricNum(electricWaterNum.getLastElectric());
+					dto.setElectricNum(0);
+					dto.setQuantity(0);
+					dto.setTotalPrice(0D);
+				}
 			} else if (service.getName().equals(Constants.WATER_PRICE_NAME)) {
+				electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(room.getId(), month);
 				if (electricWaterNum != null) {
 					dto.setFirstWaterNum(electricWaterNum.getFirstWater());
 					dto.setLastWaterNum(electricWaterNum.getLastWater());
 					dto.setWaterNum(electricWaterNum.getWaterNum());
+					dto.setQuantity(electricWaterNum.getWaterNum());
 					dto.setTotalPrice(electricWaterNum.getWaterNum() * service.getPrice());
-				} 
-//				else {
-//					electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(room.getId(), preMonth);
-//					dto.setFirstWaterNum(electricWaterNum.getLastWater());
-//					dto.setLastWaterNum(0);
-//					dto.setWaterNum(0);
-//					dto.setTotalPrice(0D);
-//				}
+				} else {
+					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(room.getId(), month);
+					dto.setFirstWaterNum(electricWaterNum.getLastWater());
+					dto.setLastWaterNum(electricWaterNum.getLastWater());
+					dto.setWaterNum(0);
+					dto.setQuantity(0);
+					dto.setTotalPrice(0D);
+				}
 			} else {
 				dto.setQuantity(item.getQuantity());
 				dto.setTotalPrice(service.getPrice() * item.getQuantity());
@@ -232,38 +224,96 @@ public class BillServiceImpl implements BillServices {
 		}
 		return services;
 	}
-	
-	private List<BillServiceDto> getBillServiceByBillId(Contract contract, Rooms room, Date month) {
-		List<BillServiceDto> services = new ArrayList<>();
-		BillServiceDto dto = new BillServiceDto();
-		Date preMonth = getPreMonth(month);
-		// add room monthly money
-		dto.setServiceName(Constants.ROOM_PRICE_NAME);
-		dto.setUnit(Constants.ROOM_UNIT);
-		dto.setPrice(room.getPrice()); 
-		dto.setQuantity(1);
-		dto.setTotalPrice(room.getPrice());
-		services.add(dto);
-		services.addAll(getBillRoomService(contract, room, preMonth));
-		return services;
-	}
 
 	@Override
-	public InvoiceDto getInvoiceDetail(Integer invoiceId, Boolean isReturn) {
+	public InvoiceDto getInvoiceDetail(Integer invoiceId, Date month, Boolean isReturn) {
 		Bills bill = billRepository.findById(invoiceId).orElse(null);
 		Rooms room = bill.getRoom();
 		Contract contract = contractRepository.findByRoomIdAndIsActive(room.getId(), true);
-		return convert2Dto(bill, room, contract, isReturn);
+		List<BillServiceDto> services = getContractServices(bill.getId(), room.getId(), month);
+		return convert2Dto(bill, room, contract, services);
 	}
-	
-	private InvoiceDto convert2Dto(Bills bill, Rooms room, Contract contract, Boolean isReturn) {
-		InvoiceDto dto = new InvoiceDto();
-		List<BillServiceDto> services = null;
+
+	private List<BillServiceDto> getRoomService(Contract contract, Rooms room, Date month, Boolean isReturn) {
+		List<BillServiceDto> services = new ArrayList<>();
+		// check if it is a return bill or not.
 		if (!isReturn) {
-			services = getBillServiceByBillId(contract, room, bill.getBillDate());			
+			Date nextMonth = getNextMonth(month);
+			DateFormat monthFormat = new SimpleDateFormat("MM/yyyy");
+			String monthInvoice = monthFormat.format(nextMonth);
+			BillServiceDto dto = new BillServiceDto();
+			Date preMonth = getPreMonth(month);
+			// add room monthly money
+			dto.setServiceName(Constants.ROOM_PRICE_NAME + " tháng " + monthInvoice);
+			dto.setUnit(Constants.ROOM_UNIT);
+			dto.setPrice(room.getPrice());
+			dto.setQuantity(1);
+			dto.setTotalPrice(room.getPrice());
+			services.add(dto);
+			services.addAll(getRoomServiceAndCompute(contract, room, preMonth));
 		} else {
-			services = getBillRoomService(contract, room, bill.getBillDate());		
+			services = getRoomServiceAndCompute(contract, room, month);
 		}
+		return services;
+	}
+
+	private List<BillServiceDto> getContractServices(Integer billId, Integer roomId, Date month) {
+		List<BillServiceDto> services = new ArrayList<>();
+		BillServiceDto dto = null;
+		List<ServicesBill> servicesBill = servicesBillRepository.findByBillId(billId);
+		ElectricWaterNum electricWaterNum = null;
+		for (ServicesBill service : servicesBill) {
+			dto = new BillServiceDto();
+			dto.setServiceName(service.getServiceName());
+			dto.setUnit(service.getUnit());
+			dto.setPrice(service.getPrice());
+
+			if (service.getServiceName().equals(Constants.ELECTRIC_PRICE_NAME)) {
+				electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(roomId, month);
+				if (electricWaterNum != null) {
+					dto.setFirstElectricNum(electricWaterNum.getFirstElectric());
+					dto.setLastElectricNum(electricWaterNum.getLastElectric());
+					dto.setElectricNum(electricWaterNum.getElectricNum());
+					dto.setQuantity(electricWaterNum.getElectricNum());
+					dto.setTotalPrice(electricWaterNum.getElectricNum() * service.getPrice());
+				} else {
+					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
+					dto.setFirstElectricNum(electricWaterNum.getLastElectric());
+					dto.setLastElectricNum(electricWaterNum.getLastElectric());
+					dto.setElectricNum(0);
+					dto.setQuantity(0);
+					dto.setTotalPrice(0D);
+				}
+			} else if (service.getServiceName().equals(Constants.WATER_PRICE_NAME)) {
+				electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(roomId, month);
+				if (electricWaterNum != null) {
+					dto.setFirstWaterNum(electricWaterNum.getFirstWater());
+					dto.setLastWaterNum(electricWaterNum.getLastWater());
+					dto.setWaterNum(electricWaterNum.getWaterNum());
+					dto.setQuantity(electricWaterNum.getWaterNum());
+					dto.setTotalPrice(electricWaterNum.getWaterNum() * service.getPrice());
+				} else {
+					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
+					dto.setFirstWaterNum(electricWaterNum.getLastWater());
+					dto.setLastWaterNum(electricWaterNum.getLastWater());
+					dto.setWaterNum(0);
+					dto.setQuantity(0);
+					dto.setTotalPrice(0D);
+				}
+			} else {
+				dto.setQuantity(service.getQuantity());
+				dto.setTotalPrice(service.getPrice() * service.getQuantity());
+			}
+			if (dto.getTotalPrice() != null) {
+				services.add(dto);
+			}
+		}
+		return services;
+	}
+
+	private InvoiceDto convert2Dto(Bills bill, Rooms room, Contract contract, List<BillServiceDto> services) {
+		InvoiceDto dto = new InvoiceDto();
+//		List<BillServiceDto> services = getServicePreview(contract, room, bill.getBillDate(), isReturn);
 		dto.setBillDate(bill.getBillDate());
 		dto.setCreatedAt(bill.getCreatedAt());
 		dto.setId(bill.getId());
@@ -278,7 +328,7 @@ public class BillServiceImpl implements BillServices {
 		dto.setDebt(debt);
 		dto.setPaidMoney(bill.getPaidMoney());
 		dto.setPaymentDate(bill.getPaymentDate());
-		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice()));
+		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		dto.setTotalPayment(bill.getTotalPayment());
 		dto.setTotalPrice(bill.getTotalPrice());
 		dto.setTotalService(bill.getTotalService());
@@ -287,8 +337,9 @@ public class BillServiceImpl implements BillServices {
 		dto.setService(services);
 		return dto;
 	}
-	
-	private Bills convertBill(Bills bill, Rooms room, Date month, Contract contract, Double totalPrice) {
+
+	private Bills generateBill(Bills bill, Rooms room, Date month, Contract contract, Double totalPrice) {
+		bill = new Bills();
 		Date preMonth = getPreMonth(month);
 		Double debt = billRepository.findDebtByRoom(room.getId(), preMonth);
 		Double discount = 0D;
@@ -298,44 +349,40 @@ public class BillServiceImpl implements BillServices {
 		bill.setIsSent(Boolean.FALSE);
 		if (debt == null) {
 			debt = 0D;
-		} 
-		bill.setDebt(debt);	
+		}
+		bill.setDebt(debt);
 		totalPrice += debt;
 		bill.setTotalPrice(totalPrice);
 		totalPrice -= discount;
-		bill.setTotalPayment(totalPrice); 
+		bill.setTotalPayment(totalPrice);
 		bill.setPaidMoney(totalPrice);
 		bill.setQuantitySent(0);
 		bill.setBillDate(month);
 		bill.setRoom(room);
-		
+
 		bill.setCreatedAt(new Date());
 		return bill;
 	}
-	
+
 	@Override
-	public List<InvoiceDto> issueInvoiceByRoomId(Integer roomId,  Date month) {
+	public List<InvoiceDto> issueInvoiceByRoomId(Integer roomId, Date month) {
 		List<InvoiceDto> result = null;
 		InvoiceDto invoice = getIssueInvoicePreview(roomId, month);
 		result = issueInvoice(invoice, false);
 		return result;
 	}
-	
+
 	@Override
 	public List<InvoiceDto> issueInvoice(InvoiceDto request, Boolean isReturn) {
 		List<InvoiceDto> result = null;
 		try {
-			Bills bill = new Bills();
+			Bills bill = null;
 			Contract contract = contractRepository.findByRoomIdAndIsActive(request.getRoom().getId(), true);
 			Rooms room = contract.getRoom();
-			List<BillServiceDto> services = new ArrayList<>();
-			if (!isReturn) {
-				services = getBillServiceByBillId(contract, room, request.getBillDate());				
-			} else {
-				services = getBillRoomService(contract, room, request.getBillDate());
-			}
+			List<BillServiceDto> services = getRoomService(contract, room, request.getBillDate(), isReturn);
+
 			Double totalPrice = computeBills(contract, room, request.getBillDate(), services);
-			bill = convertBill(bill, room, request.getBillDate(), contract, totalPrice);
+			bill = generateBill(bill, room, request.getBillDate(), contract, totalPrice);
 			Double discount = request.getDiscount();
 			Double debt = 0D;
 			if (discount == null) {
@@ -347,30 +394,49 @@ public class BillServiceImpl implements BillServices {
 			bill.setIsSent(Boolean.FALSE);
 			bill.setTotalPrice(totalPrice);
 			totalPrice -= discount;
-			bill.setTotalPayment(totalPrice); 
+			bill.setTotalPayment(totalPrice);
 			bill.setPaidMoney(request.getPaidMoney());
 			debt = request.getTotalPayment() - request.getPaidMoney();
-			bill.setDebt(debt);	
+			bill.setDebt(debt);
 			bill.setQuantitySent(0);
 			bill.setBillDate(request.getBillDate());
+			bill.setIsActive(Boolean.TRUE);
 			bill.setRoom(room);
 			InvoiceType type = null;
 			if (!isReturn) {
-				type = invoiceTypeRepository.findById(1).orElse(null);	
+				type = invoiceTypeRepository.findById(1).orElse(null);
 				result = getInvoiceByMonth(room.getAccomodations().getId(), request.getBillDate(), false);
 			} else {
-				type = invoiceTypeRepository.findById(2).orElse(null);				
+				type = invoiceTypeRepository.findById(2).orElse(null);
 			}
 			bill.setInvoiceType(type);
 			bill = billRepository.save(bill);
-			sendInvoice(bill.getId());
-			
+
+			saveInvoiceService(services, bill, room);
+			invoiceThread.setInvoiceId(bill.getId());
+			invoiceThread.setMonth(bill.getBillDate());
+			taskExecutor.execute(invoiceThread);
+//			sendInvoice(bill.getId(), bill.getBillDate());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-	
+
+	private void saveInvoiceService(List<BillServiceDto> services, Bills bill, Rooms room) {
+		ServicesBill servicesBill = null;
+		for (BillServiceDto item : services) {
+			servicesBill = new ServicesBill();
+			servicesBill.setPrice(item.getTotalPrice());
+			servicesBill.setUnit(item.getUnit());
+			servicesBill.setQuantity(item.getQuantity());
+			servicesBill.setServiceName(item.getServiceName());
+			servicesBill.setBill(bill);
+			servicesBillRepository.save(servicesBill);
+		}
+	}
+
 	@Override
 	public InvoiceDto updateInvoice(InvoiceDto request) {
 		InvoiceDto result = null;
@@ -389,31 +455,35 @@ public class BillServiceImpl implements BillServices {
 			bill = billRepository.save(bill);
 			Rooms room = bill.getRoom();
 			Contract contract = contractRepository.findByRoomIdAndIsActive(room.getId(), true);
-			result = convert2Dto(bill, room, contract, request.getIsReturnBill());
+			List<BillServiceDto> services = getRoomService(contract, room, bill.getBillDate(),
+					request.getIsReturnBill());
+			result = convert2Dto(bill, room, contract, services);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-	
+
 	@Override
 	public InvoiceDto getIssueInvoicePreview(Integer roomId, Date month) {
 		Contract contract = contractRepository.findByRoomIdAndIsActive(roomId, true);
 		Rooms room = contract.getRoom();
-		Bills bill = new Bills();
-		List<BillServiceDto> services = getBillServiceByBillId(contract, room, month);
+		Bills bill = null;
+		List<BillServiceDto> services = getRoomService(contract, room, month, false);
+
 		Double totalPrice = computeBills(contract, room, month, services);
-		bill = convertBill(bill, room, month, contract, totalPrice);
-		return convert2Dto(bill, room, contract, false);
+		bill = generateBill(bill, room, month, contract, totalPrice);
+		return convert2Dto(bill, room, contract, services);
 	}
-	
+
 	@Override
-	public Boolean changePaymentStatus(Integer invoiceId) {
+	public Boolean confirmPayment(ConfirmInvoiceRequest request) {
 		Boolean result = false;
 		try {
-			Bills bill = billRepository.findById(invoiceId).orElse(null);
-			bill.setIsPay(true);
-			bill.setPaymentDate(new Date());
+			Bills bill = billRepository.findById(request.getInvoiceId()).orElse(null);
+			bill.setPaidMoney(request.getPaidMoney());
+			bill.setDebt(request.getDebt());
+			bill.setIsPay(Boolean.TRUE);
 			billRepository.save(bill);
 			result = true;
 		} catch (Exception e) {
@@ -425,13 +495,14 @@ public class BillServiceImpl implements BillServices {
 	@Override
 	public InvoiceDto getReturnRoomPreview(ReturnRoomRequest request) {
 		InvoiceDto dto = new InvoiceDto();
-		Contract contract = contractRepository.findByRoomIdAndIsActive(request.getRoomId(), true); 
+		Contract contract = contractRepository.findByRoomIdAndIsActive(request.getRoomId(), true);
 		Rooms room = contract.getRoom();
-		List<BillServiceDto> services = getBillRoomService(contract, room, request.getReturnDate());
+		List<BillServiceDto> services = getRoomServiceAndCompute(contract, room, request.getReturnDate());
 		Double totalPrice = computeBills(contract, room, request.getReturnDate(), services);
-		Bills bill = new Bills();
-		bill = convertBill(bill, room, request.getReturnDate(), contract, totalPrice);
-		
+
+		Bills bill = null;
+		bill = generateBill(bill, room, request.getReturnDate(), contract, totalPrice);
+
 		dto.setBillDate(bill.getBillDate());
 		dto.setCreatedAt(bill.getCreatedAt());
 		dto.setId(bill.getId());
@@ -446,7 +517,7 @@ public class BillServiceImpl implements BillServices {
 		dto.setDebt(debt);
 		dto.setPaidMoney(bill.getPaidMoney());
 		dto.setPaymentDate(bill.getPaymentDate());
-		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice()));
+		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		dto.setTotalPayment(bill.getTotalPayment());
 		dto.setTotalPrice(bill.getTotalPrice());
 		dto.setTotalService(bill.getTotalService());
@@ -455,13 +526,22 @@ public class BillServiceImpl implements BillServices {
 		dto.setService(services);
 		return dto;
 	}
+	
 
 	@Override
-	public Boolean sendInvoice(Integer invoiceId) {
+	public void sendInvoiceEmail(Integer invoiceId, Date month) {
+		invoiceThread.setInvoiceId(invoiceId);
+		invoiceThread.setMonth(month);
+		taskExecutor.execute(invoiceThread);
+//		sendInvoiceEmail(invoiceId, month);
+	}
+
+	@Override
+	public Boolean sendInvoice(Integer invoiceId, Date month) {
 		Boolean result = false;
 		try {
 			Bills bill = billRepository.findById(invoiceId).orElse(null);
-			InvoiceDto dto = getInvoiceDetail(invoiceId, false);
+			InvoiceDto dto = getInvoiceDetail(invoiceId, month, false);
 			Contract contract = contractRepository.findByRoomIdAndIsActive(dto.getRoom().getId(), true);
 			Rooms room = contract.getRoom();
 			Accomodations accomodation = room.getAccomodations();
@@ -470,10 +550,10 @@ public class BillServiceImpl implements BillServices {
 			List<Tenants> tenants = contract.getTenants();
 			Tenants tenant = tenantRepository.findById(contract.getRepresentative()).orElse(null);
 			Locale localeVN = new Locale("vi", "VN");
-		    NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
+			NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
 			List<BillServiceDto> services = dto.getService();
 			BillServiceEmail serviceEmail = null;
-			List<BillServiceEmail> serviceEmails =  new ArrayList<>();
+			List<BillServiceEmail> serviceEmails = new ArrayList<>();
 			for (BillServiceDto service : services) {
 				serviceEmail = new BillServiceEmail();
 				serviceEmail.setElectricNum(service.getElectricNum());
@@ -489,63 +569,64 @@ public class BillServiceImpl implements BillServices {
 				serviceEmail.setTotalPrice(currencyVN.format(service.getTotalPrice()));
 				serviceEmails.add(serviceEmail);
 			}
-			
+
 			List<BankAccountDto> bankAccounts = new ArrayList<>();
 			BankAccountDto bankAccountDto = null;
 			for (BankAccountInfo bank : banks) {
 				bankAccountDto = mapper.map(bank, BankAccountDto.class);
 				bankAccounts.add(bankAccountDto);
 			}
-			
-		    String totalService =null;
-		    String debt = null;
-		    String discount = null;
-		    String totalPrice = null;
-		    String totalPayment = null;
-		    totalService = currencyVN.format(dto.getTotalService());
-		    debt = currencyVN.format(dto.getDebt());
-		    discount = currencyVN.format(dto.getDiscount());
-		    totalPrice = currencyVN.format(dto.getTotalPrice());
-		    totalPayment = currencyVN.format(dto.getTotalPayment());
-		    
+
+			String totalService = null;
+			String debt = null;
+			String discount = null;
+			String totalPrice = null;
+			String totalPayment = null;
+			totalService = currencyVN.format(dto.getTotalService());
+			debt = currencyVN.format(dto.getDebt());
+			discount = currencyVN.format(dto.getDiscount());
+			totalPrice = currencyVN.format(dto.getTotalPrice());
+			totalPayment = currencyVN.format(dto.getTotalPayment());
+
 			Email email = new Email();
-	        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");  
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			LocalDateTime now = LocalDateTime.now();
 			Instant instant = now.atZone(ZoneId.systemDefault()).toInstant();
-	        Map<String, Object> properties = new HashMap<>();
-	        DateFormat monthFormat = new SimpleDateFormat("MM/yyyy");  
-	        String monthInvoice = monthFormat.format((Date) dto.getBillDate()); 	
-	        email.setSubject("Hoá đơn tháng " + monthInvoice + " phòng " + dto.getRoom().getName());
-	        
-	        properties.put("toDate", dateFormat.format(Date.from(instant)));
-	        properties.put("roomName", dto.getRoom().getName());
-	        properties.put("invoiceMonth", monthInvoice);
-	        properties.put("services", serviceEmails);
-	        properties.put("personNum", tenants.size());
-	        properties.put("startDate", dateFormat.format(contract.getStartDate()));
-	        properties.put("representative", tenant.getFirstName() + " " + tenant.getLastName());
-	        properties.put("representativeEmail", tenant.getEmail());
-	        properties.put("totalService", totalService);
-	        properties.put("debt", debt);
-	        properties.put("discount", discount);
-	        properties.put("totalPrice", totalPrice);
-	        properties.put("totalPayment", totalPayment);
-	        properties.put("banks", bankAccounts);
-	        properties.put("accomodationName", accomodation.getName());
-	        Address address = accomodation.getAddress();
-	        Ward ward = address.getWard();
+			Map<String, Object> properties = new HashMap<>();
+			DateFormat monthFormat = new SimpleDateFormat("MM/yyyy");
+			String monthInvoice = monthFormat.format((Date) dto.getBillDate());
+			email.setSubject("Hoá đơn tháng " + monthInvoice + " phòng " + dto.getRoom().getName());
+
+			properties.put("toDate", dateFormat.format(Date.from(instant)));
+			properties.put("roomName", dto.getRoom().getName());
+			properties.put("invoiceMonth", monthInvoice);
+			properties.put("services", serviceEmails);
+			properties.put("personNum", tenants.size());
+			properties.put("startDate", dateFormat.format(contract.getStartDate()));
+			properties.put("representative", tenant.getFirstName() + " " + tenant.getLastName());
+			properties.put("representativeEmail", tenant.getEmail());
+			properties.put("totalService", totalService);
+			properties.put("debt", debt);
+			properties.put("discount", discount);
+			properties.put("totalPrice", totalPrice);
+			properties.put("totalPayment", totalPayment);
+			properties.put("banks", bankAccounts);
+			properties.put("accomodationName", accomodation.getName());
+			Address address = accomodation.getAddress();
+			Ward ward = address.getWard();
 			District district = ward.getDistrict();
 			Province province = district.getProvince();
-	        properties.put("accomodationAddress", address.getAddressLine() + " " + ward.getWard() + " " + district.getDistrict() + " " + province.getProvince());
-	       
-	        email.setFrom("fromemail@gmail.com");
-	        email.setTemplate("email_test.html");
-	        email.setProperties(properties);
-	        
-	        String regex = "^(.+)@(.+)$";
-	        Pattern pattern = Pattern.compile(regex);
-	        Matcher matcher = pattern.matcher(tenant.getEmail());
-	        
+			properties.put("accomodationAddress", address.getAddressLine() + " " + ward.getWard() + " "
+					+ district.getDistrict() + " " + province.getProvince());
+
+			email.setFrom("fromemail@gmail.com");
+			email.setTemplate("email_test.html");
+			email.setProperties(properties);
+
+			String regex = "^(.+)@(.+)$";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(tenant.getEmail());
+
 			if (matcher.matches()) {
 				email.setTo(tenant.getEmail());
 				mailService.sendInvoiceEmail(email);
@@ -553,13 +634,13 @@ public class BillServiceImpl implements BillServices {
 			Integer quantitySent = bill.getQuantitySent() + 1;
 			bill.setQuantitySent(quantitySent);
 			billRepository.save(bill);
-	        result = true;
+			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<ElectricityWaterDto> getElectricWaterNumByAccomodation(Integer accomodationId, Date month) {
 		List<ElectricityWaterDto> result = new ArrayList<>();
@@ -567,10 +648,10 @@ public class BillServiceImpl implements BillServices {
 		for (ElectricWaterNum item : num) {
 			result.add(convert2ElectricityWaterDto(item));
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public Boolean checkIsRoomInputElectricWater(Integer roomId, Date month) {
 		Boolean result = false;
@@ -611,7 +692,7 @@ public class BillServiceImpl implements BillServices {
 		result.setWaterNum(num.getWaterNum());
 		result.setMonth(num.getMonth());
 		Rooms room = num.getRoom();
-		result.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice()));
+		result.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		return result;
 	}
 
@@ -620,7 +701,8 @@ public class BillServiceImpl implements BillServices {
 		Boolean result = false;
 		try {
 			Bills bill = billRepository.findById(invoiceId).orElse(null);
-			billRepository.delete(bill);
+			bill.setIsActive(Boolean.FALSE);
+			billRepository.save(bill);
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -646,6 +728,7 @@ public class BillServiceImpl implements BillServices {
 		return result;
 	}
 	
+
 	@Override
 	public Map<String, Boolean> checkIsReturnValid(Integer roomId, Date month) {
 		Map<String, Boolean> result = new HashMap<>();
@@ -657,7 +740,7 @@ public class BillServiceImpl implements BillServices {
 		if (!isInputed) {
 			result.put("inputed", true);
 		}
-		
+
 		return result;
 	}
 

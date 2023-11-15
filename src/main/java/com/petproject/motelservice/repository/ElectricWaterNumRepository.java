@@ -15,4 +15,7 @@ public interface ElectricWaterNumRepository extends JpaRepository<ElectricWaterN
 	
 	@Query("FROM ElectricWaterNum num WHERE num.room.id = :roomId AND month(num.month) = month(:month) AND year(num.month) = year(:month)")
 	ElectricWaterNum findByRoomIdAndMonth(Integer roomId, Date month);
+	
+	@Query("FROM ElectricWaterNum num WHERE num.room.id = :roomId AND month(num.month) < month(:month) AND year(num.month) <= year(:month) ORDER BY num.month LIMIT 1")
+	ElectricWaterNum findBeforeByRoomId(Integer roomId, Date month);
 }

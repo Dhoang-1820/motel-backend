@@ -21,7 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
+import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.UserDto;
+import com.petproject.motelservice.domain.dto.UserPreferenceDto;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
 import com.petproject.motelservice.domain.payload.request.SignupRequest;
@@ -64,6 +66,18 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/preference/{userId}")
+	public ResponseEntity<ApiResponse> getUserPreference(@PathVariable Integer userId) {
+		final UserPreferenceDto result = userService.getUserConfigByUserId(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@PutMapping("/preference")
+	public ResponseEntity<ApiResponse> updateUserPreference(@RequestBody UserPreferenceDto request) {
+		final UserPreferenceDto result = userService.updateUserPreference(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@GetMapping()
 	public ResponseEntity<ApiResponse> getAllUser() {
 		final List<UserResponse> result = userService.getAllUser();
@@ -101,5 +115,13 @@ public class UserController {
 		final UserDto result = userService.createOrUpdate(dto, files);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
+	
+	@GetMapping("/dashboard/{id}")
+	public ResponseEntity<ApiResponse> getDashboard(@PathVariable Integer id) {
+		final DashBoardDto result = userService.getUserDashboard(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	
 
 }

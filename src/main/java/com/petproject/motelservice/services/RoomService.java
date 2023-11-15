@@ -19,6 +19,8 @@ public interface RoomService {
 	
 	void removeRoom(Integer roomId);
 	
+	Boolean isDuplicateRoom(String roomName);
+	
 	List<RoomResponse> getRoomDropDown(Integer accomodationId);
 	
 	RoomResponse getRoomById(Integer roomId);

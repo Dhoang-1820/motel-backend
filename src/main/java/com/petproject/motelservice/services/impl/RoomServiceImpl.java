@@ -89,12 +89,23 @@ public class RoomServiceImpl implements RoomService {
 			dto.setLastName(tenant.getLastName());
 			dto.setId(tenant.getId());
 			result.put("depositor", dto);
+			result.put("depositMoney", deposit.getDeposit());
 		} else {
 			result.put("isBooked", Boolean.FALSE);
 		}
 		return result;
 	}
 
+	
+	@Override
+	public Boolean isDuplicateRoom(String roomName) {
+		Boolean result = false;
+		Rooms room = roomRepository.findByName(roomName);
+		if (room != null) {
+			result = true;
+		}
+		return result;
+	}
 
 	@Override
 	public void removeRoom(Integer roomId) {
@@ -122,7 +133,7 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public RoomResponse getRoomById(Integer roomId) {
 		Rooms room = roomRepository.findById(roomId).orElse(null);
-		return new RoomResponse(room.getId(), room.getName(), room.getPrice());
+		return new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity());
 	}
 
 	@Override
@@ -222,7 +233,7 @@ public class RoomServiceImpl implements RoomService {
 	}
 	
 	private RoomResponse convert2RoomReponse(Rooms room) {
-		return new RoomResponse(room.getId(), room.getName(), room.getPrice());
+		return new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity());
 	}
 	
 	@Override

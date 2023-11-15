@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.domain.dto.BankAccountDto;
+import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.UserDto;
+import com.petproject.motelservice.domain.dto.UserPreferenceDto;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
@@ -40,4 +42,10 @@ public interface UserService {
 	List<UserResponse> getAllUser();
 	
 	UpdateUserRequest createOrUpdate(UpdateUserRequest request);
+	
+	UserPreferenceDto getUserConfigByUserId(Integer userId);
+
+	UserPreferenceDto updateUserPreference(UserPreferenceDto request);
+	
+	DashBoardDto getUserDashboard(Integer userId);
 }

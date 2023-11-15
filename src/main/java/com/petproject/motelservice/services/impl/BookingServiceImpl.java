@@ -20,6 +20,7 @@ import com.petproject.motelservice.domain.inventory.Booking;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.payload.Email;
+import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.BookingRepositoty;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.services.BookingService;
@@ -42,10 +43,15 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public BookingDto saveBooking(BookingDto request) {
-		Booking booking = mapper.map(request, Booking.class);
+		Booking booking = new Booking();
+		booking.setEmail(request.getEmail());
+		booking.setName(request.getName());
+		booking.setPhone(request.getPhone());
+		booking.setReviewDate(request.getReviewDate());
 		Rooms room = roomRepository.findById(request.getRoomId()).orElse(null);
 		booking.setBookingDate(new Date());
 		booking.setRoom(room);
+		booking.setIsActive(Boolean.TRUE);
 		booking = bookingRepository.save(booking);
 		BookingDto result = convert2Dto(booking);
 		sendOutNotification(booking);
@@ -72,9 +78,20 @@ public class BookingServiceImpl implements BookingService {
 		dto.setName(booking.getName());
 		dto.setPhone(booking.getPhone());
 		dto.setReviewDate(booking.getBookingDate());
-		dto.setRoom(booking.getRoom().getName());
+		Rooms room = booking.getRoom();
+		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		dto.setRoomId(booking.getRoom().getId());
 		return dto;
+	}
+	
+	@Override
+	public List<BookingDto> getBookingByDate(Integer userId, Date date) {
+		List<BookingDto> result = new ArrayList<>();
+		List<Booking> booking = bookingRepository.findBookingByUserIdAndDate(userId, date);
+		for (Booking item : booking) {
+			result.add(convert2Dto(item));
+		}
+		return result;
 	}
 
 	private void sendBookingNotification(String room, Accomodations accomodation, Booking booking) {
@@ -82,8 +99,12 @@ public class BookingServiceImpl implements BookingService {
 		Users user = accomodation.getUser();
 		try {
 			Map<String, Object> properties = new HashMap<>();
-			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy, HH:mm");
 			String bookingDate = dateFormat.format(booking.getBookingDate());
+			String reviewDate = null;
+			if (booking.getReviewDate() != null) {
+				reviewDate = dateFormat.format(booking.getReviewDate());				
+			}
 
 			email.setSubject("Motel service: Thông báo đặt phòng");
 
@@ -94,6 +115,9 @@ public class BookingServiceImpl implements BookingService {
 			properties.put("customerEmail", booking.getEmail());
 			properties.put("customerPhone", booking.getPhone());
 			properties.put("bookingDate", bookingDate);
+			if (reviewDate != null) {
+				properties.put("reviewDate", reviewDate);				
+			}
 
 			email.setFrom("fromemail@gmail.com");
 			email.setTemplate("notification.html");
