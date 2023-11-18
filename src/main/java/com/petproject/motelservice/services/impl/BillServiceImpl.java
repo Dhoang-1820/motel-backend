@@ -1,20 +1,13 @@
 package com.petproject.motelservice.services.impl;
 
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,28 +15,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.common.Constants;
-import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.BillServiceDto;
-import com.petproject.motelservice.domain.dto.BillServiceEmail;
 import com.petproject.motelservice.domain.dto.ElectricityWaterDto;
 import com.petproject.motelservice.domain.dto.InvoiceDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
-import com.petproject.motelservice.domain.inventory.Accomodations;
-import com.petproject.motelservice.domain.inventory.Address;
-import com.petproject.motelservice.domain.inventory.BankAccountInfo;
 import com.petproject.motelservice.domain.inventory.Bills;
 import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.ContractService;
-import com.petproject.motelservice.domain.inventory.District;
 import com.petproject.motelservice.domain.inventory.ElectricWaterNum;
 import com.petproject.motelservice.domain.inventory.InvoiceType;
-import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.ServicesBill;
 import com.petproject.motelservice.domain.inventory.Tenants;
-import com.petproject.motelservice.domain.inventory.Users;
-import com.petproject.motelservice.domain.inventory.Ward;
-import com.petproject.motelservice.domain.payload.Email;
 import com.petproject.motelservice.domain.payload.request.ConfirmInvoiceRequest;
 import com.petproject.motelservice.domain.payload.request.ReturnRoomRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -313,7 +296,6 @@ public class BillServiceImpl implements BillServices {
 
 	private InvoiceDto convert2Dto(Bills bill, Rooms room, Contract contract, List<BillServiceDto> services) {
 		InvoiceDto dto = new InvoiceDto();
-//		List<BillServiceDto> services = getServicePreview(contract, room, bill.getBillDate(), isReturn);
 		dto.setBillDate(bill.getBillDate());
 		dto.setCreatedAt(bill.getCreatedAt());
 		dto.setId(bill.getId());
@@ -416,7 +398,6 @@ public class BillServiceImpl implements BillServices {
 			invoiceThread.setInvoiceId(bill.getId());
 			invoiceThread.setMonth(bill.getBillDate());
 			taskExecutor.execute(invoiceThread);
-//			sendInvoice(bill.getId(), bill.getBillDate());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -533,112 +514,6 @@ public class BillServiceImpl implements BillServices {
 		invoiceThread.setInvoiceId(invoiceId);
 		invoiceThread.setMonth(month);
 		taskExecutor.execute(invoiceThread);
-//		sendInvoiceEmail(invoiceId, month);
-	}
-
-	@Override
-	public Boolean sendInvoice(Integer invoiceId, Date month) {
-		Boolean result = false;
-		try {
-			Bills bill = billRepository.findById(invoiceId).orElse(null);
-			InvoiceDto dto = getInvoiceDetail(invoiceId, month, false);
-			Contract contract = contractRepository.findByRoomIdAndIsActive(dto.getRoom().getId(), true);
-			Rooms room = contract.getRoom();
-			Accomodations accomodation = room.getAccomodations();
-			Users user = accomodation.getUser();
-			List<BankAccountInfo> banks = user.getBankAccountInfos();
-			List<Tenants> tenants = contract.getTenants();
-			Tenants tenant = tenantRepository.findById(contract.getRepresentative()).orElse(null);
-			Locale localeVN = new Locale("vi", "VN");
-			NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
-			List<BillServiceDto> services = dto.getService();
-			BillServiceEmail serviceEmail = null;
-			List<BillServiceEmail> serviceEmails = new ArrayList<>();
-			for (BillServiceDto service : services) {
-				serviceEmail = new BillServiceEmail();
-				serviceEmail.setElectricNum(service.getElectricNum());
-				serviceEmail.setFirstElectricNum(service.getFirstElectricNum());
-				serviceEmail.setLastElectricNum(service.getLastElectricNum());
-				serviceEmail.setWaterNum(service.getWaterNum());
-				serviceEmail.setFirstWaterNum(service.getFirstWaterNum());
-				serviceEmail.setLastWaterNum(service.getLastWaterNum());
-				serviceEmail.setServiceName(service.getServiceName());
-				serviceEmail.setQuantity(service.getQuantity());
-				serviceEmail.setUnit(service.getUnit());
-				serviceEmail.setPrice(currencyVN.format(service.getPrice()));
-				serviceEmail.setTotalPrice(currencyVN.format(service.getTotalPrice()));
-				serviceEmails.add(serviceEmail);
-			}
-
-			List<BankAccountDto> bankAccounts = new ArrayList<>();
-			BankAccountDto bankAccountDto = null;
-			for (BankAccountInfo bank : banks) {
-				bankAccountDto = mapper.map(bank, BankAccountDto.class);
-				bankAccounts.add(bankAccountDto);
-			}
-
-			String totalService = null;
-			String debt = null;
-			String discount = null;
-			String totalPrice = null;
-			String totalPayment = null;
-			totalService = currencyVN.format(dto.getTotalService());
-			debt = currencyVN.format(dto.getDebt());
-			discount = currencyVN.format(dto.getDiscount());
-			totalPrice = currencyVN.format(dto.getTotalPrice());
-			totalPayment = currencyVN.format(dto.getTotalPayment());
-
-			Email email = new Email();
-			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-			LocalDateTime now = LocalDateTime.now();
-			Instant instant = now.atZone(ZoneId.systemDefault()).toInstant();
-			Map<String, Object> properties = new HashMap<>();
-			DateFormat monthFormat = new SimpleDateFormat("MM/yyyy");
-			String monthInvoice = monthFormat.format((Date) dto.getBillDate());
-			email.setSubject("Hoá đơn tháng " + monthInvoice + " phòng " + dto.getRoom().getName());
-
-			properties.put("toDate", dateFormat.format(Date.from(instant)));
-			properties.put("roomName", dto.getRoom().getName());
-			properties.put("invoiceMonth", monthInvoice);
-			properties.put("services", serviceEmails);
-			properties.put("personNum", tenants.size());
-			properties.put("startDate", dateFormat.format(contract.getStartDate()));
-			properties.put("representative", tenant.getFirstName() + " " + tenant.getLastName());
-			properties.put("representativeEmail", tenant.getEmail());
-			properties.put("totalService", totalService);
-			properties.put("debt", debt);
-			properties.put("discount", discount);
-			properties.put("totalPrice", totalPrice);
-			properties.put("totalPayment", totalPayment);
-			properties.put("banks", bankAccounts);
-			properties.put("accomodationName", accomodation.getName());
-			Address address = accomodation.getAddress();
-			Ward ward = address.getWard();
-			District district = ward.getDistrict();
-			Province province = district.getProvince();
-			properties.put("accomodationAddress", address.getAddressLine() + " " + ward.getWard() + " "
-					+ district.getDistrict() + " " + province.getProvince());
-
-			email.setFrom("fromemail@gmail.com");
-			email.setTemplate("email_test.html");
-			email.setProperties(properties);
-
-			String regex = "^(.+)@(.+)$";
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(tenant.getEmail());
-
-			if (matcher.matches()) {
-				email.setTo(tenant.getEmail());
-				mailService.sendInvoiceEmail(email);
-			}
-			Integer quantitySent = bill.getQuantitySent() + 1;
-			bill.setQuantitySent(quantitySent);
-			billRepository.save(bill);
-			result = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
 	}
 
 	@Override

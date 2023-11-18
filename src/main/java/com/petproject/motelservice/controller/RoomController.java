@@ -1,5 +1,6 @@
 package com.petproject.motelservice.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -10,22 +11,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
 import com.petproject.motelservice.domain.dto.RoomDto;
-import com.petproject.motelservice.domain.dto.RoomImageDto;
 import com.petproject.motelservice.domain.payload.request.BillRequest;
-import com.petproject.motelservice.domain.payload.request.RoomFeeRequest;
 import com.petproject.motelservice.domain.payload.response.ApiResponse;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
-import com.petproject.motelservice.domain.query.response.RoomServiceResponse;
-import com.petproject.motelservice.services.RoomFeeService;
 import com.petproject.motelservice.services.RoomService;
 
 @RestController
@@ -34,9 +29,6 @@ public class RoomController {
 	
 	@Autowired
 	RoomService roomService;
-	
-	@Autowired
-	RoomFeeService roomFeeService;
 	
 	@GetMapping("/accomodations/{id}")
 	public ResponseEntity<ApiResponse> getRoomByAccomodationId(@PathVariable Integer id) {
@@ -59,12 +51,6 @@ public class RoomController {
 	@PostMapping("/utility/duplicated")
 	public ResponseEntity<ApiResponse> checkDuplicateName(@RequestBody String roomName) {
 		final Boolean result = roomService.isDuplicateRoom(roomName);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
-	}
-	
-	@GetMapping("/utility/no-service/{id}")
-	public ResponseEntity<ApiResponse> getRoomNotHasServiceByAccomodation(@PathVariable Integer id) {
-		final List<RoomServiceResponse> result = roomService.getRoomNotHasService(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
@@ -98,6 +84,12 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/utility/rented-date/{id}")
+	public ResponseEntity<ApiResponse> getRoomRentedDate(@PathVariable Integer id) {
+		final Map<String, Date> result = roomService.getRoomRentedDate(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PostMapping("/utility/no-electric-water")
 	public ResponseEntity<ApiResponse> getRoomNoElectricWater(@RequestBody BillRequest request) {
 		final List<RoomResponse> result = roomService.getRoomNoElectricWaterIndex(request.getId(), request.getMonth());
@@ -122,16 +114,4 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
 	}
 	
-	@PostMapping("/fee")
-	public ResponseEntity<ApiResponse> saveRoomFee(@RequestBody RoomFeeRequest request) {
-		roomFeeService.saveRoomFee(request);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
-	
-	@DeleteMapping("/fee/{roomId}/{feeId}")
-	public ResponseEntity<ApiResponse> removeRoomFee(@PathVariable("roomId") Integer roomId, @PathVariable("feeId") Integer feeId) {
-		roomFeeService.removeRoomFee(roomId, feeId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
-
 }

@@ -20,6 +20,8 @@ public class JwtResponse {
 	
 	private String email;
 	
+	private Boolean isActive;
+	
 	private String roles;
 	
 }

@@ -115,6 +115,7 @@ public class UserServiceImpl implements UserService {
 		
 		jwtResponse.setId(userDetails.getId());
 		jwtResponse.setEmail(userDetails.getEmail());
+		jwtResponse.setIsActive(userDetails.getIsActive());
 		jwtResponse.setUsername(userDetails.getUsername());
 		jwtResponse.setRefreshToken(refreshToken.getToken());
 		jwtResponse.setToken(jwt);
@@ -239,18 +240,22 @@ public class UserServiceImpl implements UserService {
 		Users user = usersRepository.findByUserId(userId);
 		List<Accomodations> accomodations = user.getAccomodations();
 		dto.setAccomodationNum(accomodations.size());
+		int accomodationNum = 0;
 		int roomNum = 0;
 		int emptyRoomNum = 0;
 		int tenantCount = 0;
 		List<Rooms> rooms = null;
 		for (Accomodations item : accomodations) {
-			rooms = item.getRooms();
-			roomNum += rooms.size();
-			emptyRoomNum += getEmptyRoom(rooms);
+			if (item.getIsActive().equals(Boolean.TRUE)) {
+				rooms = item.getRooms();
+				accomodationNum += 1;
+				roomNum += rooms.size();
+				emptyRoomNum += getEmptyRoom(rooms);
+			}
 		}
 		List<Tenants> tenants = tenantRepository.countTenantByUserId(userId);
 		tenantCount = tenants.size();
-		dto.setAccomodationNum(accomodations.size());
+		dto.setAccomodationNum(accomodationNum);
 		dto.setRoomNum(roomNum);
 		dto.setTenantNum(tenantCount);
 		dto.setEmptyRoomNum(emptyRoomNum);
@@ -259,7 +264,7 @@ public class UserServiceImpl implements UserService {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		String notification = "";
 		for (BookingDto booking : bookings) {
-			notification = dateFormat.format(booking.getCreatedDate()).toString() + " Khách đặt phòng số " + booking.getRoom();
+			notification = dateFormat.format(booking.getCreatedDate()).toString() + " Khách đặt phòng số " + booking.getRoom().getName();
 			notifications.add(notification);
 		}
 		dto.setNotifications(notifications);

@@ -16,6 +16,7 @@ import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
 import com.petproject.motelservice.domain.inventory.District;
 import com.petproject.motelservice.domain.inventory.Province;
+import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
@@ -118,12 +119,32 @@ public class AccomodationServiceImpl implements AccomodationService {
 		return result;
 	}
 	
+	
 	@Override
-	public void removeAccomodation(Integer id) {
+	public Boolean isCanRemoveAccomodation(Integer id) {
+		Boolean result = false;
 		Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
-		if (accomodations != null) {
-			accomodationsRepository.delete(accomodations);
+		List<Rooms> rooms = accomodations.getRooms();
+		if (rooms.isEmpty()) {
+			result = true;
 		}
+		return result;
+	}
+
+	@Override
+	public Boolean removeAccomodation(Integer id) {
+		Boolean result = false;
+		try {
+			Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
+			if (accomodations != null) {
+				accomodations.setIsActive(Boolean.FALSE);
+				accomodationsRepository.save(accomodations);
+			}
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	private AccomodationsDto convert2Dto(Accomodations accomodation, List<AccomodationUtilities> utilities) {
@@ -163,7 +184,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 
 	@Override
 	public List<AccomodationsDto> getAccomodationByUserId(Integer userId) {
-		List<Accomodations> accomodations = accomodationsRepository.findByUserId(userId);
+		List<Accomodations> accomodations = accomodationsRepository.findByUserIdAndIsActive(userId, true);
 		List<AccomodationsDto> result = new ArrayList<>();
 		List<AccomodationUtilities> services = null;
 		for (Accomodations accomodation : accomodations) {
@@ -175,7 +196,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 
 	@Override
 	public List<DropDownAccomodation> getDropdownAccomodationByUserId(Integer userId) {
-		List<Accomodations> accomodations = accomodationsRepository.findByUserId(userId);
+		List<Accomodations> accomodations = accomodationsRepository.findByUserIdAndIsActive(userId, true);
 		List<DropDownAccomodation> result = accomodations.stream()
                 .map(source -> mapper.map(source, DropDownAccomodation.class))
                 .collect(Collectors.toList());

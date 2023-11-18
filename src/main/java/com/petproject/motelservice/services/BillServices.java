@@ -20,8 +20,6 @@ public interface BillServices {
 	
 	Boolean removeInvoice(Integer invoiceId);
 	
-	Boolean sendInvoice(Integer invoiceId, Date month);
-	
 	void sendInvoiceEmail(Integer invoiceId, Date month);
 	
 	ElectricityWaterDto saveElectricWaterNum(ElectricityWaterDto request);

@@ -16,14 +16,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Autowired
 	UsersRepository usersRepository;
-
+	
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		Users user = usersRepository.findByUsername(userName).orElse(null);
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found with username: " + userName);
-		}
+		} 
 		return UserDetailsImpl.build(user);
 	}
 

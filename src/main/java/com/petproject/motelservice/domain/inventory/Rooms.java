@@ -35,6 +35,9 @@ public class Rooms extends BaseEntity{
 	@Column(name = "is_rent", columnDefinition = "BOOLEAN")
 	private Boolean isRent;
 	
+	@Column(name = "is_active", columnDefinition = "BOOLEAN")
+	private Boolean isActive;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "accomodation_id")
 	private Accomodations accomodations;

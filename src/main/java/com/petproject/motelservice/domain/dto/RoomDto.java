@@ -6,6 +6,8 @@ import lombok.Data;
 public class RoomDto {
 
 	private Integer id;
+	
+	private Integer currentTenantNum;
 
 	private Integer capacity;
 	

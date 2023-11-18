@@ -23,6 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.petproject.motelservice.security.jwt.AuthEntryPointJwt;
 import com.petproject.motelservice.security.jwt.AuthTokenFilter;
+import com.petproject.motelservice.security.jwt.RestAuthenticationFailureHandler;
 import com.petproject.motelservice.security.services.UserDetailsServiceImpl;
 
 @Configuration
@@ -39,7 +40,7 @@ public class SecurityConfig {
 	AuthTokenFilter authenticationJwtTokenFilter() {
 		return new AuthTokenFilter();
 	}
-
+	
 	@Bean
 	WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
@@ -56,6 +57,7 @@ public class SecurityConfig {
 
 		authProvider.setUserDetailsService(userDetailsService);
 		authProvider.setPasswordEncoder(passwordEncoder());
+		authProvider.setHideUserNotFoundExceptions(false);
 
 		return authProvider;
 	}
@@ -64,6 +66,11 @@ public class SecurityConfig {
 	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
 			throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
+	}
+
+	@Bean
+	RestAuthenticationFailureHandler authenticationFailureHandler() {
+		return new RestAuthenticationFailureHandler();
 	}
 
 	@Bean
@@ -93,6 +100,7 @@ public class SecurityConfig {
 						"/post/areage", "/post/search", "/post").permitAll().anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());
+		
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 

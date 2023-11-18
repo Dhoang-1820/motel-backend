@@ -26,7 +26,6 @@ public class AccomodationController {
 	
 	@Autowired 
 	AccomodationService accomodationService;
-
 	
 	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse> getAccomodationByUserId(@PathVariable Integer userId) {
@@ -46,8 +45,13 @@ public class AccomodationController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
+	@GetMapping("/check/remove/{id}") ResponseEntity<ApiResponse> isCanRemove(@PathVariable Integer id){
+		final Boolean result = accomodationService.isCanRemoveAccomodation(id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse(true, result, Constants.DELETE_SUCCESS_MSG));
+	}
+	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<ApiResponse> removeOtherFee(@PathVariable Integer id) {
+	public ResponseEntity<ApiResponse> removeAccomodation(@PathVariable Integer id) {
 		accomodationService.removeAccomodation(id);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse(true, null, Constants.DELETE_SUCCESS_MSG));
 	}

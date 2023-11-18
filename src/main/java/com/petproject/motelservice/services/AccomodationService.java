@@ -12,7 +12,9 @@ public interface AccomodationService {
 
 	List<AccomodationsDto> getAccomodationByUserId(Integer userId);
 
-	void removeAccomodation(Integer id);
+	Boolean removeAccomodation(Integer id);
+	
+	Boolean isCanRemoveAccomodation(Integer id);
 
 	List<DropDownAccomodation> getDropdownAccomodationByUserId(Integer userId);
 	

@@ -14,21 +14,17 @@ import org.apache.commons.logging.LogFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.petproject.motelservice.domain.dto.FileUploadDto;
-import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.RoomDto;
-import com.petproject.motelservice.domain.dto.RoomImageDto;
 import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.Deposits;
-import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
-import com.petproject.motelservice.domain.query.response.RoomServiceResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
+import com.petproject.motelservice.repository.ContractRepository;
 import com.petproject.motelservice.repository.DepositRepository;
 import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.RoomRepository;
@@ -48,6 +44,9 @@ public class RoomServiceImpl implements RoomService {
 	AccomodationsRepository accomodationsRepository;
 	
 	@Autowired
+	ContractRepository contractRepository;
+	
+	@Autowired
 	ImageRepository imageRepository;
 	
 	@Autowired
@@ -60,11 +59,31 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public List<RoomDto> getRoomsByAccomodation(Integer id) {
+		List<RoomDto> result = new ArrayList<>();
+		RoomDto dto = null;
 		Accomodations accomodations = accomodationsRepository.findById(id).orElse(null);
-		List<Rooms> rooms = roomRepository.findByAccomodations(accomodations);
-		List<RoomDto> result = rooms.stream()
-                .map(source -> mapper.map(source, RoomDto.class))
-                .collect(Collectors.toList());
+		List<Rooms> rooms = roomRepository.findByAccomodationsAndIsActive(accomodations, true);
+		Contract contract = null;
+		Integer tenantsNum = null;
+		for (Rooms room : rooms) {
+			dto = new RoomDto();
+			contract = contractRepository.findByRoomIdAndIsActive(room.getId(), true);
+			if (contract != null) {
+				tenantsNum = contract.getTenants().size();				
+			} else {
+				tenantsNum = 0;
+			}
+			dto.setId(room.getId());
+			dto.setAccomodationId(id);
+			dto.setAcreage(room.getAcreage());
+			dto.setCapacity(room.getCapacity());
+			dto.setCurrentTenantNum(tenantsNum);
+			dto.setIsRent(room.getIsRent());
+			dto.setName(room.getName());
+			dto.setPrice(room.getPrice());
+			result.add(dto);
+		}
+		
 		return result;
 	}
 
@@ -100,7 +119,7 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public Boolean isDuplicateRoom(String roomName) {
 		Boolean result = false;
-		Rooms room = roomRepository.findByName(roomName);
+		Rooms room = roomRepository.findByNameAndIsActive(roomName, true);
 		if (room != null) {
 			result = true;
 		}
@@ -112,7 +131,8 @@ public class RoomServiceImpl implements RoomService {
 		try {
 			Rooms room = roomRepository.findById(roomId).orElse(null);
 			if (room != null) {
-				roomRepository.delete(room);			
+				room.setIsActive(Boolean.FALSE);
+				roomRepository.save(room);			
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -122,7 +142,7 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public List<RoomResponse> getRoomDropDown(Integer accomodationId) {
 		Accomodations accomodations = accomodationsRepository.findById(accomodationId).orElse(null);
-		List<Rooms> rooms = roomRepository.findByAccomodations(accomodations);
+		List<Rooms> rooms = roomRepository.findByAccomodationsAndIsActive(accomodations, true);
 		List<RoomResponse> result = rooms.stream()
                 .map(source -> mapper.map(source, RoomResponse.class))
                 .collect(Collectors.toList());
@@ -136,12 +156,6 @@ public class RoomServiceImpl implements RoomService {
 		return new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity());
 	}
 
-	@Override
-	public List<RoomServiceResponse> getRoomNotHasService(Integer accomodationId) {
-		List<RoomServiceResponse> result = roomRepository.findRoomNotHasService(accomodationId);
-		return result;
-	}
-	
 	@Override
 	public List<RoomResponse> getRoomNoDeposit(Integer accomodationId) {
 		List<Rooms> rooms = roomRepository.findRoomNoDepostit(accomodationId);
@@ -160,6 +174,15 @@ public class RoomServiceImpl implements RoomService {
 		return result;
 	}
 	
+	
+	@Override
+	public Map<String, Date> getRoomRentedDate(Integer roomId) {
+		 Map<String, Date> result = new HashMap<>();
+		 Contract contract = contractRepository.findByRoomIdAndIsActive(roomId, true);
+		 result.put("date", contract.getStartDate());
+		return result;
+	}
+
 	@Override
 	public List<RoomResponse> getRoomNoPostAndDeposit(Integer accomodationId) {
 		Set<RoomResponse> noDeposit = new HashSet<>();
@@ -168,58 +191,6 @@ public class RoomServiceImpl implements RoomService {
 		noPost.addAll(getRoomNoPost(accomodationId));
 		noPost.retainAll(noDeposit);
 		return new ArrayList<>(noPost);
-	}
-
-	@Override
-	public RoomImageDto getRoomImages(Integer roomId) {
-		Rooms room = roomRepository.findById(roomId).orElse(null);
-//		List<Images> images = room.getImages();
-		RoomImageDto result = new RoomImageDto();
-		result.setRoomId(roomId);
-		List<ImageDto> dto = new ArrayList<>();
-		ImageDto imgDto = null;
-//		for (Images img : images) {
-//			imgDto = new ImageDto();
-//			imgDto.setImageId(img.getId());
-//			imgDto.setImgName(img.getImageName());
-//			imgDto.setImgUrl(img.getImageUrl());
-//			dto.add(imgDto);
-//		}
-		result.setImages(dto);
-		return result;
-	}
-
-	@Override
-	public void removeImage(Integer imageId) {
-		Images image = imageRepository.findById(imageId).orElse(null);
-		imageRepository.delete(image);
-	}
-	
-	@Override
-	public void saveRoomImage(MultipartFile[] images, Integer roomId) {
-		List<Images> roomImg = new ArrayList<>();
-		Images img = null;
-		Rooms room = roomRepository.findById(roomId).orElse(null);
-		if (images != null) {
-			List<FileUploadDto> imgResult = storageService.uploadFiles(images);
-			for (FileUploadDto item : imgResult) {
-				img = new Images();
-				img.setCreatedAt(new Date());
-				img.setImageName(item.getFileName());
-				img.setImageUrl(item.getFileUrl());
-//				img.setRoom(room);
-				roomImg.add(img);
-			}
-		}
-		roomImg = imageRepository.saveAll(roomImg);
-	}
-
-	@Override
-	public void changeRoomImage(MultipartFile[] images, Integer imageId) {
-		List<FileUploadDto> imgResult = storageService.uploadFiles(images);
-		Images img = imageRepository.findById(imageId).orElse(null);
-		img.setImageUrl(imgResult.get(0).getFileUrl());
-		imageRepository.save(img);
 	}
 
 	@Override

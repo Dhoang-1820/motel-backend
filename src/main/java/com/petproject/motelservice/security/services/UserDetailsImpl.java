@@ -21,6 +21,8 @@ public class UserDetailsImpl implements UserDetails {
 	private String username;
 
 	private String email;
+	
+	private Boolean isActive;
 
 	@JsonIgnore
 	private String password;
@@ -30,17 +32,18 @@ public class UserDetailsImpl implements UserDetails {
 	public static UserDetailsImpl build(Users user) {
 		GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRole().getName().name());
 
-		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
+		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities, user.getActive());
 	}
 
 	public UserDetailsImpl(Integer id, String username, String email, String password,
-			GrantedAuthority authority) {
+			GrantedAuthority authority, Boolean isActive) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.authority = authority;
+		this.isActive = isActive;
 	}
 
 	public Integer getId() {
@@ -49,6 +52,14 @@ public class UserDetailsImpl implements UserDetails {
 
 	public String getEmail() {
 		return email;
+	}
+	
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	@Override
