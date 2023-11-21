@@ -46,7 +46,7 @@ public class SecurityConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net");
+				registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net/");
 			}
 		};
 	}
@@ -76,7 +76,7 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net"));
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net/"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
 		configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
 		configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
@@ -95,12 +95,13 @@ public class SecurityConfig {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(
-						auth -> auth
-								.requestMatchers("/user/auth/**", "/post/address/*", "/post/price", "/post/areage",
-										"/post/search", "/post", "/motel-service/**", "/motel-management/**",
-										"/auth/**", "/access-denined/**", "/administration/**", "/page-not-found/**")
-								.permitAll().anyRequest().authenticated());
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+//				.authorizeHttpRequests(
+//						auth -> auth
+//								.requestMatchers("/user/auth/**", "/post/address/*", "/post/price", "/post/areage",
+//										"/post/search", "/post", "/motel-service/**", "/motel-management/**",
+//										"/auth/**", "/access-denined/**", "/administration/**", "/page-not-found/**")
+//								.permitAll().anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());
 
