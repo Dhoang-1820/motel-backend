@@ -120,6 +120,10 @@ public class UserServiceImpl implements UserService {
 		jwtResponse.setRefreshToken(refreshToken.getToken());
 		jwtResponse.setToken(jwt);
 		jwtResponse.setRoles(roles);
+		jwtResponse.setFirstname(userDetails.getFirstname());
+		jwtResponse.setLastname(userDetails.getLastname());
+		jwtResponse.setIdentifyNum(userDetails.getIdentifyNum());
+		jwtResponse.setPhone(userDetails.getPhone());
 		return jwtResponse;
 	}
 
@@ -294,6 +298,7 @@ public class UserServiceImpl implements UserService {
 		user.setEmail(request.getEmail());
 		user.setAddress(request.getAddress());
 		user.setPhone(request.getPhone());
+		user.setIdentifyNum(request.getIdentifyNum());
 		
 		if (image != null) {
 			List<FileUploadDto> imgResult = storageService.uploadFiles(image);
@@ -368,12 +373,11 @@ public class UserServiceImpl implements UserService {
 		UpdateUserRequest result = null;
 		if (request.getUserId() != null ) {
 			user = usersRepository.findByUserId(request.getUserId());
-			user.setFirstname(request.getFirstName());
-			user.setLastname(request.getLastName());
+			user.setFirstname(request.getFirstname());
+			user.setLastname(request.getLastname());
 			user.setActive(request.getActive());
 			user.setEmail(request.getEmail());
 			user.setAddress(request.getAddress());
-			user.setPhone(request.getPhone());
 			
 			user = usersRepository.save(user);
 			result = mapper.map(user, UpdateUserRequest.class);
@@ -384,8 +388,8 @@ public class UserServiceImpl implements UserService {
 			sigupRequest.setPassword(encoder.encode(Constants.DEFAULT_PASSWORD));
 			sigupRequest.setPhone(request.getPhone());
 			sigupRequest.setUserName(request.getUserName());
-			sigupRequest.setFirstName(request.getFirstName());
-			sigupRequest.setLastName(request.getLastName());
+			sigupRequest.setFirstName(request.getFirstname());
+			sigupRequest.setLastName(request.getLastname());
 			sigupRequest.setRoles("landlord");
 			signUp(sigupRequest);
 		}

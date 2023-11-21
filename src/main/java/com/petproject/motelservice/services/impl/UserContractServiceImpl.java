@@ -1,6 +1,7 @@
 package com.petproject.motelservice.services.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -84,7 +85,7 @@ public class UserContractServiceImpl implements UserContractService {
 		if (contract.getRepresentative() != null) {
 			Tenants representative = tenantRepository.findById(contract.getRepresentative()).orElse(null);
 			if (representative != null) {
-				dto.setRepresentative(new TenantDto(representative.getId(), representative.getFirstName(), representative.getLastName()));							
+				dto.setRepresentative(new TenantDto(representative.getId(), representative.getIdentifyNum() ,representative.getFirstName(), representative.getLastName(), representative.getPhone()));							
 			}
 		}
 		room = contract.getRoom();
@@ -108,6 +109,46 @@ public class UserContractServiceImpl implements UserContractService {
 		 return result;
 	}
 	
+	@Override
+	public Boolean isCanRemoveContract(Integer contractId) {
+		Boolean result = false;
+		Contract contract = contractRepository.findById(contractId).orElse(null);
+		Date now = new Date();
+		if (contract != null) {
+			Date endDate = contract.getEndDate();
+			if (endDate.before(now)) {
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public Boolean removeContract(Integer contractId) {
+		Boolean result = false;
+		try {
+			Contract contract = contractRepository.findById(contractId).orElse(null);
+			if (contract != null) {
+				contract.setIsActive(Boolean.FALSE);
+				contractRepository.save(contract);
+				Rooms room = contract.getRoom();
+				room.setIsRent(Boolean.FALSE);
+				roomRepository.save(room);
+				List<Tenants> tenants = contract.getTenants();
+				for (Tenants tenant : tenants) {
+					tenant.setContract(null);
+					tenantRepository.save(tenant);
+				}
+			}
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	
+
 	private List<ContractServiceDto> convert2ServiceDto(List<ContractService> services) {
 		ContractServiceDto contractSerivce = null;
 		List<ContractServiceDto> contractSerivces = new ArrayList<>();
@@ -119,6 +160,7 @@ public class UserContractServiceImpl implements UserContractService {
 			contractSerivce.setUnit(accomodationUtilities.getUnit());
 			contractSerivce.setName(accomodationUtilities.getName());
 			contractSerivce.setQuantity(service.getQuantity());
+			contractSerivce.setPrice(accomodationUtilities.getPrice());
 			contractSerivces.add(contractSerivce);
 		}
 		return contractSerivces;

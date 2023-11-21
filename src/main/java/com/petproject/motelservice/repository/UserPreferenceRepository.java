@@ -13,6 +13,6 @@ public interface UserPreferenceRepository extends JpaRepository<UserPreference, 
 	@Query("SELECT userPreference FROM UserPreference userPreference WHERE day(userPreference.issueInvoiceDate) = day(:date)")
 	List<UserPreference> findIssueDateByDate(Date date);
 	
-//	@Query("SELECT userPreference FROM UserPreference userPreference WHERE day(userPreference.remindDate) = day(:date) AND month(userPreference.remindDate) = month(:date) AND year(userPreference.remindDate) = year(:date)")
-//	List<UserPreference> findRemindByDate(Date date);
+	@Query("SELECT userPreference FROM UserPreference userPreference WHERE day(userPreference.eletricWaterDate) = day(:date) AND month(userPreference.eletricWaterDate) = month(:date) AND year(userPreference.eletricWaterDate) = year(:date)")
+	List<UserPreference> findRemindByDate(Date date);
 }

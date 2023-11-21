@@ -380,7 +380,7 @@ public class BillServiceImpl implements BillServices {
 			bill.setPaidMoney(request.getPaidMoney());
 			debt = request.getTotalPayment() - request.getPaidMoney();
 			bill.setDebt(debt);
-			bill.setQuantitySent(0);
+			bill.setQuantitySent(1);
 			bill.setBillDate(request.getBillDate());
 			bill.setIsActive(Boolean.TRUE);
 			bill.setRoom(room);
@@ -395,9 +395,7 @@ public class BillServiceImpl implements BillServices {
 			bill = billRepository.save(bill);
 
 			saveInvoiceService(services, bill, room);
-			invoiceThread.setInvoiceId(bill.getId());
-			invoiceThread.setMonth(bill.getBillDate());
-			taskExecutor.execute(invoiceThread);
+			sendInvoiceEmail(bill.getId(), bill.getBillDate());
 
 		} catch (Exception e) {
 			e.printStackTrace();

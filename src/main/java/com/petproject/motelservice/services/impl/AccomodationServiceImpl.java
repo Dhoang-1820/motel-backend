@@ -3,7 +3,6 @@ package com.petproject.motelservice.services.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,9 +196,25 @@ public class AccomodationServiceImpl implements AccomodationService {
 	@Override
 	public List<DropDownAccomodation> getDropdownAccomodationByUserId(Integer userId) {
 		List<Accomodations> accomodations = accomodationsRepository.findByUserIdAndIsActive(userId, true);
-		List<DropDownAccomodation> result = accomodations.stream()
-                .map(source -> mapper.map(source, DropDownAccomodation.class))
-                .collect(Collectors.toList());
+		DropDownAccomodation dto = null;
+		List<DropDownAccomodation> result = new ArrayList<>();
+		for (Accomodations item : accomodations) {
+			dto = new DropDownAccomodation();
+			dto.setId(item.getId());
+			dto.setName(item.getName());
+			dto.setAddress(getAccomodationAddress(item));
+			result.add(dto);
+		}
+		return result;
+	}
+	
+	private String getAccomodationAddress(Accomodations accomodations) {
+		String result;
+		Address address = accomodations.getAddress();
+		Ward ward = address.getWard();
+		District district = ward.getDistrict();
+		Province province = district.getProvince();	
+		result = address.getAddressLine() + ", " + ward.getWard() + ", " + district.getDistrict() + ", " + province.getProvince();
 		return result;
 	}
 

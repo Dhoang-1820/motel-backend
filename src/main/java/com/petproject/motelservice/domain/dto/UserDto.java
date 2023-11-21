@@ -17,6 +17,8 @@ public class UserDto {
 	
 	private String address;
 	
+	private String identifyNum;
+	
 	private String phone;
 	
 	private String imageUrl;

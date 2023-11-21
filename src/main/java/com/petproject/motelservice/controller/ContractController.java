@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,18 @@ public class ContractController {
 	@GetMapping("/accomodation/{id}")
 	public ResponseEntity<ApiResponse> getContractByAccomodation(@PathVariable Integer id) {
 		final List<ContractDto> result = userContractService.getContractByAccomodation(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@GetMapping("/check/remove/{id}")
+	public ResponseEntity<ApiResponse> checkIsCanRemove(@PathVariable Integer id) {
+		final Boolean result = userContractService.isCanRemoveContract(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse> removeContract(@PathVariable Integer id) {
+		final Boolean result = userContractService.removeContract(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

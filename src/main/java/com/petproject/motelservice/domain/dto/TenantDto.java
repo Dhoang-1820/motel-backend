@@ -31,13 +31,19 @@ public class TenantDto {
 	
 	private Integer accomodationId;
 	
-	public TenantDto(Integer id, String firstName, String lastName) {
-		super();
-		this.id = id;
-		this.firstName = firstName;
-		this.lastName = lastName;
-	}
+	
 
 	public TenantDto() { }
+
+
+
+	public TenantDto(Integer id, String identifyNum, String firstName, String lastName, String phone) {
+		super();
+		this.id = id;
+		this.identifyNum = identifyNum;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phone = phone;
+	}
 	
 }

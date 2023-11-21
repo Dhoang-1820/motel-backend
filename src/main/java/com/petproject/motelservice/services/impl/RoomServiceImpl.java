@@ -91,6 +91,7 @@ public class RoomServiceImpl implements RoomService {
 	public List<RoomDto> saveRoom(RoomDto request) {
 		Rooms room = mapper.map(request, Rooms.class);
 		Accomodations accomodations = accomodationsRepository.findById(request.getAccomodationId()).orElse(null);
+		room.setIsActive(Boolean.TRUE);
 		room.setAccomodations(accomodations);
 		room = roomRepository.save(room);
 		return getRoomsByAccomodation(request.getAccomodationId());

@@ -23,6 +23,14 @@ public class UserDetailsImpl implements UserDetails {
 	private String email;
 	
 	private Boolean isActive;
+	
+	private String firstname;
+	
+	private String lastname;
+	
+	private String identifyNum;
+	
+	private String phone;
 
 	@JsonIgnore
 	private String password;
@@ -31,19 +39,54 @@ public class UserDetailsImpl implements UserDetails {
 
 	public static UserDetailsImpl build(Users user) {
 		GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRole().getName().name());
-
-		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities, user.getActive());
+		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getActive(), user.getFirstname(), user.getLastname(), user.getIdentifyNum(), authorities, user.getPassword(), user.getPhone());
 	}
-
-	public UserDetailsImpl(Integer id, String username, String email, String password,
-			GrantedAuthority authority, Boolean isActive) {
+	
+	public UserDetailsImpl(Integer id, String username, String email, Boolean isActive, String firstname,
+			String lastname, String identifyNum, GrantedAuthority authority, String password, String phone) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
-		this.password = password;
-		this.authority = authority;
 		this.isActive = isActive;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.identifyNum = identifyNum;
+		this.authority = authority;
+		this.password = password;
+		this.phone = phone;
+	}
+	
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getIdentifyNum() {
+		return identifyNum;
+	}
+
+	public void setIdentifyNum(String identifyNum) {
+		this.identifyNum = identifyNum;
+	}
+
+	public String getFirstname() {
+		return firstname;
+	}
+
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
 	}
 
 	public Integer getId() {

@@ -18,7 +18,15 @@ public class JwtResponse {
 	
 	private String username;
 	
+	private String firstname;
+	
+	private String lastname;
+	
+	private String identifyNum;
+	
 	private String email;
+	
+	private String phone;
 	
 	private Boolean isActive;
 	

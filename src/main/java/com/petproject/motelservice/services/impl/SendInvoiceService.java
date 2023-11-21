@@ -36,6 +36,7 @@ import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.ServicesBill;
 import com.petproject.motelservice.domain.inventory.Tenants;
+import com.petproject.motelservice.domain.inventory.UserPreference;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.Email;
@@ -43,6 +44,7 @@ import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.BillRepository;
 import com.petproject.motelservice.repository.ContractRepository;
 import com.petproject.motelservice.repository.ElectricWaterNumRepository;
+import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.ServicesBillRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.services.MailService;
@@ -71,7 +73,53 @@ public class SendInvoiceService {
 	@Autowired
 	ServicesBillRepository servicesBillRepository;
 	
-	public InvoiceDto getInvoiceDetail(Integer invoiceId, Date month, Boolean isReturn) {
+	@Autowired
+	RoomRepository roomRepository;
+	
+	public void sendRemind(UserPreference preference, Boolean isDetail) {
+		Users user = preference.getUser();
+		Date electricWaterDate = preference.getEletricWaterDate();
+		DateFormat monthFormat = new SimpleDateFormat("dd/MM/yyyy");
+		String electricWaterDateStr = monthFormat.format(electricWaterDate);
+		Email email = new Email();
+		Map<String, Object> properties = new HashMap<>();
+		properties.put("electricWaterDate", electricWaterDateStr);
+		properties.put("lanlord", user.getFirstname() + " " + user.getLastname());
+		email.setSubject("[Nhắc nhở] Nhắc nhập chỉ số điện nước!");
+		email.setFrom("fromemail@gmail.com");
+		if (isDetail) {
+			Date month = new Date();
+			List<Accomodations> accomodations =  user.getAccomodations();
+			List<Rooms> rooms = new ArrayList<>();
+			for (Accomodations item : accomodations) {
+				rooms.addAll(roomRepository.findRoomNoElectricWater(item.getId(), month));
+			}
+			List<String> roomsStr = new ArrayList<>();
+			for (Rooms room : rooms) {
+				roomsStr.add(room.getName());
+			}
+			properties.put("rooms", roomsStr);
+			email.setTemplate("remind_detail.html");
+		} else {
+			email.setTemplate("remind.html");			
+		}
+		email.setProperties(properties);
+
+		String regex = "^(.+)@(.+)$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(user.getEmail());
+
+		if (matcher.matches()) {
+			email.setTo(user.getEmail());
+			try {
+				mailService.sendInvoiceEmail(email);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private InvoiceDto getInvoiceDetail(Integer invoiceId, Date month, Boolean isReturn) {
 		Bills bill = billRepository.findById(invoiceId).orElse(null);
 		Rooms room = bill.getRoom();
 		Contract contract = contractRepository.findByRoomIdAndIsActive(room.getId(), true);

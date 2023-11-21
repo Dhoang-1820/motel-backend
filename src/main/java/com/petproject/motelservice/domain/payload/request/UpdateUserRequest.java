@@ -7,9 +7,11 @@ public class UpdateUserRequest {
 	
 	private Integer userId;
 	
-	private String firstName;
+	private String firstname;
 	
-	private String lastName;
+	private String lastname;
+	
+	private String identifyNum;
 	
 	private Boolean active;
 	

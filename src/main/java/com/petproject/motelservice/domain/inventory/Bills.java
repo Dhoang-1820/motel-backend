@@ -54,7 +54,7 @@ public class Bills extends BaseEntity{
 	private Date paymentDate;
 	
 	@Column(name = "quantity_sent")
-	private Integer quantitySent;
+	private Integer quantitySent = 0;
 	
 	@Column(name = "note")
 	private String note;

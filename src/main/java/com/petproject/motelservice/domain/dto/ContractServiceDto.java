@@ -12,4 +12,6 @@ public class ContractServiceDto {
 	private String name;
 	
 	private Integer quantity;
+	
+	private Double price;
 }

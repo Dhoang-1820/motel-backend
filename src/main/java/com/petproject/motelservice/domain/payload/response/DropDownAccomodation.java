@@ -1,7 +1,11 @@
 package com.petproject.motelservice.domain.payload.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.Data;
 
+@JsonInclude(value = Include.NON_NULL)
 @Data
 public class DropDownAccomodation {
 	
@@ -9,7 +13,5 @@ public class DropDownAccomodation {
 	
 	private String name;
 	
-	private Double waterPrice;
-	
-	private Integer electricPrice;
+	private String address;
 }

@@ -40,6 +40,9 @@ public class Users extends BaseEntity {
 	@Column(name = "phone")
 	private String phone;
 	
+	@Column(name = "identify_num")
+	private String identifyNum;
+	
 	@Column(name = "email")
 	private String email;
 	

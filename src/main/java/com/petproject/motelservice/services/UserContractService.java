@@ -10,4 +10,8 @@ public interface UserContractService {
 	
 	List<ContractDto> saveContract(ContractDto request);
 	
+	Boolean isCanRemoveContract(Integer contractId);
+
+	Boolean removeContract(Integer contractId);
+	
 }
