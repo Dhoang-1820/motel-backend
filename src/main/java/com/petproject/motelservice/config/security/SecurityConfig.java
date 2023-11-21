@@ -46,7 +46,7 @@ public class SecurityConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080");
+				registry.addMapping("/**").allowedOrigins("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net");
 			}
 		};
 	}
@@ -76,7 +76,7 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8080", "https://motel-service.azurewebsites.net"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
 		configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
 		configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
