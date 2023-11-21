@@ -10,6 +10,11 @@ server:
   servlet:
     context-path: /motel-service/api
 spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: Hh181101
+    url: jdbc:mysql://motel.mysql.database.azure.com:3306/motel_service
+    username: hoang
   jpa:
     generate-ddl: true
     hibernate:
@@ -18,8 +23,6 @@ spring:
       hibernate:
         format_sql: true
         enable_lazy_load_no_trans: true
-  profiles:
-    active: ${ENVIRONMENT:local}
   security:
     user:
       name: user
