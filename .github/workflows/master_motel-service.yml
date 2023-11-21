@@ -19,7 +19,7 @@ jobs:
       - name: Set up Java version
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '17'
 
       - name: Build with Maven
         run: mvn clean install
@@ -50,4 +50,4 @@ jobs:
           app-name: 'motel-service'
           slot-name: 'Production'
           package: '*.jar'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3FA910BCE34B428FBC169E233B7F4AA7 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_ED57610E62C74415884FC5417718AC73 }}
