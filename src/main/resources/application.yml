@@ -7,8 +7,6 @@ logging:
         stat: DEBUG
 server:
   port: 8080
-  servlet:
-    context-path: /motel-service/api
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
