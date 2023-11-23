@@ -40,4 +40,8 @@ public class Equipments extends BaseEntity {
 	@JoinColumn(name = "accomodation_id", nullable = false)
 	private Accomodations accomodations;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_id", nullable = false)
+	private Post post;
+	
 }

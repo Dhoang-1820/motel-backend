@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
-
 import lombok.Data;
 
 @Data
@@ -29,13 +27,25 @@ public class PostDto {
 	
 	private Boolean isActive;
 	
-	private RoomResponse room;
-	
-	private List<EquipmentDto> equipments;
-	
 	private List<ImageDto> images;
 	
 	private List<ContractServiceDto> services;
+	
+	private Integer addressId;
+
+	private String addressLine;
+	
+	private String ward;
+
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
 
 	@Override
 	public boolean equals(Object obj) {

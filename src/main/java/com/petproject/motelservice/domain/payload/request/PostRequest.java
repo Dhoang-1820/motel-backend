@@ -14,6 +14,12 @@ public class PostRequest {
 	private Integer id;
 
 	private String title;
+	
+	private Double acreage;
+	
+	private Integer capacity;
+	
+	private Double price;
 
 	private String content;
 	
@@ -28,4 +34,20 @@ public class PostRequest {
 	private RoomResponse room;
 	
 	private List<ContractServiceDto> services;
+	
+	private Integer addressId;
+
+	private String addressLine;
+	
+	private String ward;
+
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
 }

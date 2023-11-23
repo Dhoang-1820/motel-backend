@@ -95,13 +95,13 @@ public class SecurityConfig {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-//				.authorizeHttpRequests(
-//						auth -> auth
-//								.requestMatchers("/user/auth/**", "/post/address/*", "/post/price", "/post/areage",
-//										"/post/search", "/post", "/motel-service/**", "/motel-management/**",
-//										"/auth/**", "/access-denined/**", "/administration/**", "/page-not-found/**")
-//								.permitAll().anyRequest().authenticated());
+//				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+				.authorizeHttpRequests(
+						auth -> auth
+								.requestMatchers("/user/auth/**", "/post/address/*", "/post/price", "/post/areage",
+										"/post/search", "/post", "/motel-service/**", "/motel-management/**",
+										"/auth/**", "/access-denined/**", "/administration/**", "/page-not-found/**")
+								.permitAll().anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());
 

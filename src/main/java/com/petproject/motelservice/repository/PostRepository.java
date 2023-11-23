@@ -13,16 +13,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 	@Query("SELECT post FROM Post post INNER JOIN Users user ON post.user.id = user.id INNER JOIN Accomodations accomodations ON accomodations.user.id = user.id WHERE user.id = :userId AND accomodations.id = :accomodationId")
 	List<Post> findByUserIdAndAccomodationId(Integer userId, Integer accomodationId);
 	
-	@Query("FROM Post post WHERE post.isActive = true")
+	@Query("FROM Post post WHERE post.isActive = true AND post.postStatus.id = 1")
 	List<Post> findActivePost();
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id INNER JOIN Accomodations accomodations ON accomodations.id = room.accomodations.id WHERE  post.isActive = true AND accomodations.address IN (:address)")
+	@Query("SELECT post FROM Post post WHERE post.isActive = true AND post.address IN (:address)")
 	List<Post> findByAddressId(List<Address> address);
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id WHERE room.price BETWEEN :from AND :to AND post.isActive = true")
+	@Query("SELECT post FROM Post post WHERE post.price BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.id = 1")
 	List<Post> findByRangeRoomPrice(Double from, Double to);
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id WHERE room.acreage BETWEEN :from AND :to AND post.isActive = true")
+	@Query("SELECT post FROM Post post WHERE post.acreage BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.id = 1")
 	List<Post> findByRangeRoomAreage(Double from, Double to);
 	
 	List<Post> findByRoomIdAndIsActive(Integer roomId, Boolean isActive);

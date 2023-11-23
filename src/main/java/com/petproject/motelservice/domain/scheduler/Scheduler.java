@@ -29,41 +29,41 @@ public class Scheduler {
 	@Autowired
 	SendInvoiceService sendInvoiceService;
 
-	@Scheduled(cron = "0 35 23 * * *")
-	public void cronJobSch() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		Date now = new Date();
-		String strDate = sdf.format(now);
-		System.out.println("Java cron job expression: " + strDate);
-		List<UserPreference> preferences = preferenceRepository.findIssueDateByDate(now);
-		Users user = null;
-		List<InvoiceResponse> invoices = null;
-		List<Accomodations> accomodations = null;
-		for (UserPreference preference : preferences) {
-			user = preference.getUser();
-			accomodations = user.getAccomodations();
-			for (Accomodations accomodation : accomodations) {
-				invoices = billServices.getInvoice(accomodation.getId(), now);
-				for (InvoiceResponse invoice : invoices) {
-					billServices.issueInvoiceByRoomId(invoice.getRoomId(), now);
-				}
-			}
-		}
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(now);
-		calendar.add(Calendar.DATE, 3);
-		Date next3Day = calendar.getTime();
-		preferences = preferenceRepository.findRemindByDate(next3Day);
-		
-		for (UserPreference preference : preferences) {
-			sendInvoiceService.sendRemind(preference, false);
-		}
-		
-		preferences = preferenceRepository.findRemindByDate(now);
-		
-		for (UserPreference preference : preferences) {
-			sendInvoiceService.sendRemind(preference, true);
-		}
-		
-	}
+//	@Scheduled(cron = "0 35 23 * * *")
+//	public void cronJobSch() {
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//		Date now = new Date();
+//		String strDate = sdf.format(now);
+//		System.out.println("Java cron job expression: " + strDate);
+//		List<UserPreference> preferences = preferenceRepository.findIssueDateByDate(now);
+//		Users user = null;
+//		List<InvoiceResponse> invoices = null;
+//		List<Accomodations> accomodations = null;
+//		for (UserPreference preference : preferences) {
+//			user = preference.getUser();
+//			accomodations = user.getAccomodations();
+//			for (Accomodations accomodation : accomodations) {
+//				invoices = billServices.getInvoice(accomodation.getId(), now);
+//				for (InvoiceResponse invoice : invoices) {
+//					billServices.issueInvoiceByRoomId(invoice.getRoomId(), now);
+//				}
+//			}
+//		}
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.setTime(now);
+//		calendar.add(Calendar.DATE, 3);
+//		Date next3Day = calendar.getTime();
+//		preferences = preferenceRepository.findRemindByDate(next3Day);
+//		
+//		for (UserPreference preference : preferences) {
+//			sendInvoiceService.sendRemind(preference, false);
+//		}
+//		
+//		preferences = preferenceRepository.findRemindByDate(now);
+//		
+//		for (UserPreference preference : preferences) {
+//			sendInvoiceService.sendRemind(preference, true);
+//		}
+//		
+//	}
 }

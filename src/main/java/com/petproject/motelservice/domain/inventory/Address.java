@@ -24,6 +24,10 @@ public class Address extends BaseEntity {
 	@OneToOne(mappedBy = "address")
 	private Accomodations accomodation;
 	
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "post_id", nullable = false)
+//	private Post post;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ward_id", nullable = false)
 	private Ward ward;
