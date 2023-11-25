@@ -28,6 +28,7 @@ import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.PostStatusRequest;
 import com.petproject.motelservice.domain.payload.request.RangeRequest;
 import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
 import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
@@ -52,7 +53,7 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	PostRepository postRepository;
-	
+
 	@Autowired
 	AccomodationsRepository accomodationsRepository;
 
@@ -67,33 +68,33 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	EquipmentService equipmentService;
-	
+
 	@Autowired
 	AccomodationServiceRepository accomodationServiceRepository;
-	
+
 	@Autowired
 	ImageRepository imageRepository;
-	
+
 	@Autowired
 	FileService storageService;
-	
+
 	@Autowired
 	WardRepository wardRepository;
-	
+
 	@Autowired
 	DistrictRepository districtRepository;
-	
+
 	@Autowired
 	ProvinceRepository provinceRepository;
-	
+
 	@Autowired
 	AddressRepository addressRepository;
-	
+
 	@Autowired
 	PostStatusRepository postStatusRepository;
-	
+
 	private static final Log logger = LogFactory.getLog(PostServiceImpl.class);
-	
+
 	@Override
 	public List<String> savePostImage(MultipartFile[] images, Integer postId) {
 		List<Images> roomImg = new ArrayList<>();
@@ -141,7 +142,7 @@ public class PostServiceImpl implements PostService {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public List<PostDto> getByUserId(Integer userId) {
 		List<PostDto> result = new ArrayList<>();
@@ -169,14 +170,14 @@ public class PostServiceImpl implements PostService {
 		}
 		return result;
 	}
-	
+
 	private PostDto convert2Dto(Post post) {
 		PostDto dto = null;
 		Address address = null;
 		String addressLine = null;
 		List<ImageDto> images = null;
 		Users user = usersRepository.findByUserId(post.getUser().getId());
-		
+
 		dto = new PostDto();
 		dto.setId(post.getId());
 		dto.setTitle(post.getTitle());
@@ -192,7 +193,7 @@ public class PostServiceImpl implements PostService {
 		addressLine = address.getAddressLine() + ", " + ward.getWard() + ", " + district.getDistrict() + ", "
 				+ province.getProvince();
 		dto.setAddress(addressLine);
-		
+
 		if (address != null) {
 			dto.setAddressId(address.getId());
 			dto.setAddressLine(address.getAddressLine());
@@ -210,7 +211,7 @@ public class PostServiceImpl implements PostService {
 		dto.setIsActive(post.getIsActive());
 		return dto;
 	}
-	
+
 	@Override
 	public Boolean savePost(PostRequest request, MultipartFile[] images) {
 		Boolean result = false;
@@ -267,7 +268,7 @@ public class PostServiceImpl implements PostService {
 			address = addressRepository.save(address);
 			post.setAddress(address);
 			post = postRepository.save(post);
-			
+
 			List<Images> roomImg = new ArrayList<>();
 			Images img = null;
 			if (images != null) {
@@ -290,12 +291,14 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public Boolean changePostStatus(PostRequest request) {
+	public Boolean changePostStatus(PostStatusRequest request) {
 		Boolean result = false;
 		try {
-			Post post = postRepository.findById(request.getId()).orElse(null);
+			Post post = postRepository.findById(request.getPostId()).orElse(null);
 			if (post != null) {
-				post.setIsActive(request.getIsActive());
+				PostStatus status = postStatusRepository.findByName(request.getStatus());
+				post.setPostStatus(status);
+				postRepository.save(post);
 			}
 			postRepository.save(post);
 			result = true;
@@ -319,7 +322,7 @@ public class PostServiceImpl implements PostService {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public void changeRoomImage(MultipartFile[] images, Integer imageId) {
 		List<FileUploadDto> imgResult = storageService.uploadFiles(images);
@@ -327,8 +330,7 @@ public class PostServiceImpl implements PostService {
 		img.setImageUrl(imgResult.get(0).getFileUrl());
 		imageRepository.save(img);
 	}
-	
-	
+
 	@Override
 	public List<ImageDto> getImageByPost(Integer postId) {
 		Post post = postRepository.findById(postId).orElse(null);
@@ -395,14 +397,14 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public List<PostDto> getPostByAddress(SearchByAddressRequest request) {
 		List<PostDto> result = new ArrayList<>();
-		
+
 		Province province = null;
 		District district = null;
 		Ward ward = null;
-		List<District> districts= null;
+		List<District> districts = null;
 		List<Ward> wards = null;
 		List<Address> addresses = new ArrayList<>();
-		
+
 		if (request.getLevel().equals(1)) {
 			if (!request.getCode().equals(1001)) {
 				province = provinceRepository.findByProvinceCode(request.getCode());
@@ -416,7 +418,7 @@ public class PostServiceImpl implements PostService {
 			} else {
 				result = getAll();
 			}
-			
+
 		} else if (request.getLevel().equals(2)) {
 			if (!request.getCode().equals(1002)) {
 				district = districtRepository.findByDistrictCode(request.getCode());
@@ -434,7 +436,7 @@ public class PostServiceImpl implements PostService {
 					}
 				}
 			}
-			
+
 		} else if (request.getLevel().equals(3)) {
 			if (!request.getCode().equals(1003)) {
 				ward = wardRepository.findByWardCode(request.getCode());
@@ -446,7 +448,7 @@ public class PostServiceImpl implements PostService {
 					addresses.addAll(wardItem.getAddresses());
 				}
 			}
-			
+
 		}
 		List<Post> posts = postRepository.findByAddressId(addresses);
 		for (Post post : posts) {
@@ -482,7 +484,7 @@ public class PostServiceImpl implements PostService {
 		Set<PostDto> priceSet = new HashSet<>();
 		Set<PostDto> areageSet = new HashSet<>();
 		Set<PostDto> finalSet = new HashSet<>();
-		
+
 		if (request.getAddress() != null) {
 			addressSet.addAll(getPostByAddress(request.getAddress()));
 			finalSet.addAll(addressSet);
@@ -498,15 +500,30 @@ public class PostServiceImpl implements PostService {
 		if (request.getAreage() != null) {
 			areageSet.addAll(getPostByAreage(request.getAreage()));
 			if (!finalSet.isEmpty()) {
-				finalSet.retainAll(areageSet);				
+				finalSet.retainAll(areageSet);
 			} else {
 				finalSet.addAll(areageSet);
 			}
 		}
-		
+
 		result = new ArrayList<>(finalSet);
 		return result;
 	}
-	
-	
+
+	@Override
+	public List<PostDto> getByStatus(PostStatusRequest request) {
+		List<PostDto> result = new ArrayList<>();
+		List<Post> posts = null;
+		if (request.getStatus() != null) {
+			posts = postRepository.findByPostStatusName(request.getStatus());
+		} else {
+			posts = postRepository.findAll();
+		}
+		
+		for (Post post : posts) {
+			result.add(convert2Dto(post));
+		}
+		return result;
+	}
+
 }

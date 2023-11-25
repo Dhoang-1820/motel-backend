@@ -8,6 +8,7 @@ import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.PostStatusRequest;
 import com.petproject.motelservice.domain.payload.request.RangeRequest;
 import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
 import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
@@ -23,7 +24,7 @@ public interface PostService {
 	
 	Boolean savePost(PostRequest request, MultipartFile[] files);
 	
-	Boolean changePostStatus(PostRequest request);
+	Boolean changePostStatus(PostStatusRequest request);
 	
 	Boolean removePost(Integer postId);
 	
@@ -44,5 +45,7 @@ public interface PostService {
 	List<PostDto> getPostByAreage(RangeRequest request);
 	
 	List<PostDto> searchPost(SearchPostRequest request);
+	
+	List<PostDto> getByStatus(PostStatusRequest request);
 
 }

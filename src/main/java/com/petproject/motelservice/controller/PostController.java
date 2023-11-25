@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petproject.motelservice.common.Constants;
-import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
+import com.petproject.motelservice.domain.payload.request.PostStatusRequest;
 import com.petproject.motelservice.domain.payload.request.RangeRequest;
 import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
 import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
@@ -93,24 +93,6 @@ public class PostController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@PostMapping("/image/{postId}")
-	public ResponseEntity<ApiResponse> savePostImage(@RequestParam("file") MultipartFile[] files, @PathVariable("postId") Integer postId) {
-		final List<String> result = postService.savePostImage(files, postId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
-	}
-	
-	@GetMapping("/image/{postId}")
-	public ResponseEntity<ApiResponse> getImageByPost(@PathVariable("postId") Integer postId) {
-		final List<ImageDto> result = postService.getImageByPost(postId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
-	}
-	
-	@PutMapping("/image/{imgId}")
-	public ResponseEntity<ApiResponse> changeImageRoom(@RequestParam("file") MultipartFile[] files, @PathVariable("imgId") Integer imgId) {
-		postService.changeRoomImage(files, imgId);
-		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
-	}
-	
 	@DeleteMapping("/image/{imageId}")
 	public ResponseEntity<ApiResponse> removeImage(@PathVariable("imageId") Integer imageId) {
 		postService.removeImage(imageId);
@@ -118,7 +100,7 @@ public class PostController {
 	}
 	
 	@PutMapping()
-	public ResponseEntity<ApiResponse> changePostStatus(@RequestBody PostRequest request) {
+	public ResponseEntity<ApiResponse> changePostStatus(@RequestBody PostStatusRequest request) {
 		final Boolean result = postService.changePostStatus(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
@@ -129,5 +111,9 @@ public class PostController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	
+	@PostMapping("/status")
+	public ResponseEntity<ApiResponse> searchPost(@RequestBody PostStatusRequest request) {
+		final List<PostDto> result = postService.getByStatus(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
 }
