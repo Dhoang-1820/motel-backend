@@ -13,5 +13,19 @@ public class DropDownAccomodation {
 	
 	private String name;
 	
-	private String address;
+	private Integer addressId;
+
+	private String addressLine;
+	
+	private String ward;
+
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
 }

@@ -12,37 +12,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.petproject.motelservice.domain.dto.ContractServiceDto;
 import com.petproject.motelservice.domain.dto.DistrictDto;
-import com.petproject.motelservice.domain.dto.EquipmentDto;
 import com.petproject.motelservice.domain.dto.FileUploadDto;
 import com.petproject.motelservice.domain.dto.ImageDto;
 import com.petproject.motelservice.domain.dto.PostAddressDto;
 import com.petproject.motelservice.domain.dto.PostDto;
 import com.petproject.motelservice.domain.dto.WardDto;
-import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
-import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
 import com.petproject.motelservice.domain.inventory.District;
+import com.petproject.motelservice.domain.inventory.EPostStatus;
 import com.petproject.motelservice.domain.inventory.Images;
 import com.petproject.motelservice.domain.inventory.Post;
-import com.petproject.motelservice.domain.inventory.PostUtilitiesId;
-import com.petproject.motelservice.domain.inventory.PostUtitlities;
+import com.petproject.motelservice.domain.inventory.PostStatus;
 import com.petproject.motelservice.domain.inventory.Province;
-import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.request.PostRequest;
 import com.petproject.motelservice.domain.payload.request.RangeRequest;
 import com.petproject.motelservice.domain.payload.request.SearchByAddressRequest;
 import com.petproject.motelservice.domain.payload.request.SearchPostRequest;
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
+import com.petproject.motelservice.repository.AddressRepository;
 import com.petproject.motelservice.repository.DistrictRepository;
 import com.petproject.motelservice.repository.ImageRepository;
 import com.petproject.motelservice.repository.PostRepository;
-import com.petproject.motelservice.repository.PostUtilitiesRepository;
+import com.petproject.motelservice.repository.PostStatusRepository;
 import com.petproject.motelservice.repository.ProvinceRepository;
 import com.petproject.motelservice.repository.RoomRepository;
 import com.petproject.motelservice.repository.TenantRepository;
@@ -77,9 +72,6 @@ public class PostServiceImpl implements PostService {
 	AccomodationServiceRepository accomodationServiceRepository;
 	
 	@Autowired
-	PostUtilitiesRepository postUtilitiesRepository;
-	
-	@Autowired
 	ImageRepository imageRepository;
 	
 	@Autowired
@@ -93,6 +85,12 @@ public class PostServiceImpl implements PostService {
 	
 	@Autowired
 	ProvinceRepository provinceRepository;
+	
+	@Autowired
+	AddressRepository addressRepository;
+	
+	@Autowired
+	PostStatusRepository postStatusRepository;
 	
 	private static final Log logger = LogFactory.getLog(PostServiceImpl.class);
 	
@@ -131,7 +129,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public List<PostDto> getPostByUserId(Integer userId, Integer accomodationId) {
+	public List<PostDto> getPostByUserIdAndAccomodation(Integer userId, Integer accomodationId) {
 		List<PostDto> result = new ArrayList<>();
 		try {
 			List<Post> posts = postRepository.findByUserIdAndAccomodationId(userId, accomodationId);
@@ -143,20 +141,19 @@ public class PostServiceImpl implements PostService {
 		}
 		return result;
 	}
-
-	private List<ContractServiceDto> getPostServices(List<PostUtitlities> postUtitlities) {
-		List<ContractServiceDto> contractSerivces = new ArrayList<>();
-		ContractServiceDto contractSerivce = null;
-		AccomodationUtilities accomodationUtilities = null;
-		for (PostUtitlities item : postUtitlities) {
-			contractSerivce = new ContractServiceDto();
-			accomodationUtilities = item.getId().getAccomodationService();
-			contractSerivce.setId(accomodationUtilities.getId());
-			contractSerivce.setUnit(accomodationUtilities.getUnit());
-			contractSerivce.setName(accomodationUtilities.getName());
-			contractSerivces.add(contractSerivce);
+	
+	@Override
+	public List<PostDto> getByUserId(Integer userId) {
+		List<PostDto> result = new ArrayList<>();
+		try {
+			List<Post> posts = postRepository.findByUserId(userId);
+			for (Post post : posts) {
+				result.add(convert2Dto(post));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return contractSerivces;
+		return result;
 	}
 
 	private List<ImageDto> getPostImages(Post post) {
@@ -175,13 +172,8 @@ public class PostServiceImpl implements PostService {
 	
 	private PostDto convert2Dto(Post post) {
 		PostDto dto = null;
-		Rooms room = null;
-		Accomodations accomodation = null;
 		Address address = null;
 		String addressLine = null;
-		List<EquipmentDto> equipments = null;
-		List<ContractServiceDto> services = null;
-		List<PostUtitlities> postUtitlities = null;
 		List<ImageDto> images = null;
 		Users user = usersRepository.findByUserId(post.getUser().getId());
 		
@@ -189,96 +181,112 @@ public class PostServiceImpl implements PostService {
 		dto.setId(post.getId());
 		dto.setTitle(post.getTitle());
 		dto.setContent(post.getContent());
-		room = post.getRoom();
-		dto.setAcreage(room.getAcreage());
-		dto.setPrice(room.getPrice());
-		accomodation = room.getAccomodations();
-		address = accomodation.getAddress();
+		dto.setAcreage(post.getAcreage());
+		dto.setPrice(post.getPrice());
+		dto.setCapacity(post.getCapacity());
+		dto.setStatus(post.getPostStatus().getName());
+		address = post.getAddress();
 		Ward ward = address.getWard();
 		District district = ward.getDistrict();
 		Province province = district.getProvince();
 		addressLine = address.getAddressLine() + ", " + ward.getWard() + ", " + district.getDistrict() + ", "
 				+ province.getProvince();
 		dto.setAddress(addressLine);
+		
+		if (address != null) {
+			dto.setAddressId(address.getId());
+			dto.setAddressLine(address.getAddressLine());
+			dto.setDistrict(district.getDistrict());
+			dto.setDistrictCode(district.getDistrictCode());
+			dto.setProvince(province.getProvince());
+			dto.setProvinceCode(province.getProvinceCode());
+			dto.setWard(ward.getWard());
+			dto.setWardCode(ward.getWardCode());
+		}
 		dto.setPhone(user.getPhone());
-		equipments = getEquipment(equipmentService.getByRoomId(room.getId()));
-		dto.setEquipments(equipments);
-		postUtitlities = post.getPostUtitlities();
-		services = getPostServices(postUtitlities);
-		dto.setServices(services);
 		images = getPostImages(post);
 		dto.setImages(images);
-		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
 		dto.setCreatedAt(post.getCreatedAt());
 		dto.setIsActive(post.getIsActive());
 		return dto;
 	}
 	
-	private List<EquipmentDto> getEquipment(List<EquipmentDto> equipmentDtos) {
-		List<EquipmentDto> result = new ArrayList<>();
-		for (EquipmentDto item : equipmentDtos) {
-			if (!isContain(result, item.getName())) {
-				result.add(item);				
-			}
-		}
-		return result;
-	}
-	
-	private Boolean isContain(List<EquipmentDto> equips, String name) {
-		Boolean result = false;
-		int i;
-		for (i = 0; i < equips.size(); i++) {
-			if (equips.get(i).getName().equalsIgnoreCase(name)) {
-				result = true;
-				break;
-			}
-		}
-		return result;
-	}
-
 	@Override
-	public Boolean savePost(PostRequest request) {
+	public Boolean savePost(PostRequest request, MultipartFile[] images) {
 		Boolean result = false;
 		Post post = null;
+		Address address = null;
 		try {
 			if (request.getId() != null) {
 				post = postRepository.findById(request.getId()).orElse(null);
+				address = post.getAddress();
+				if (address == null) {
+					address = new Address();
+				}
 				post.setLastChange(new Date());
 			} else {
 				post = new Post();
+				address = new Address();
 				post.setCreatedAt(new Date());
+				PostStatus postStatus = postStatusRepository.findByName(EPostStatus.IN_PROGRESS);
+				post.setPostStatus(postStatus);
 				post.setIsActive(Boolean.TRUE);
 			}
 			Users user = usersRepository.findByUserId(request.getUserId());
-			Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
 			post.setTitle(request.getTitle());
 			post.setContent(request.getContent());
 			post.setUser(user);
-			post.setRoom(room);
+			post.setAcreage(request.getAcreage());
+			post.setPrice(request.getPrice());
+			post.setCapacity(request.getCapacity());
+			Ward ward = wardRepository.findByWardCode(request.getWardCode());
+			if (ward == null) {
+				ward = new Ward();
+				ward.setWard(request.getWard());
+				ward.setWardCode(request.getWardCode());
+				District district = districtRepository.findByDistrictCode(request.getDistrictCode());
+				if (district == null) {
+					district = new District();
+					district.setDistrict(request.getDistrict());
+					district.setDistrictCode(request.getDistrictCode());
+					Province province = provinceRepository.findByProvinceCode(request.getProvinceCode());
+					if (province == null) {
+						province = new Province();
+						province.setProvince(request.getProvince());
+						province.setProvinceCode(request.getProvinceCode());
+						province = provinceRepository.save(province);
+					}
+					district.setProvince(province);
+					district = districtRepository.save(district);
+				}
+				ward.setDistrict(district);
+				ward = wardRepository.save(ward);
+			}
+			address.setAddressLine(request.getAddressLine());
+			address.setWard(ward);
+			address = addressRepository.save(address);
+			post.setAddress(address);
 			post = postRepository.save(post);
-			savePostUtilities(request.getServices(), post);
+			
+			List<Images> roomImg = new ArrayList<>();
+			Images img = null;
+			if (images != null) {
+				List<FileUploadDto> imgResult = storageService.uploadFiles(images);
+				for (FileUploadDto item : imgResult) {
+					img = new Images();
+					img.setCreatedAt(new Date());
+					img.setImageName(item.getFileName());
+					img.setImageUrl(item.getFileUrl());
+					img.setPost(post);
+					roomImg.add(img);
+				}
+			}
+			roomImg = imageRepository.saveAll(roomImg);
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
-	}
-
-	private void savePostUtilities(List<ContractServiceDto> services, Post post) {
-		PostUtitlities service = null;
-		PostUtilitiesId serviceId = null;
-		AccomodationUtilities accomodationUtilities = null;
-		int updatedRows = postUtilitiesRepository.deleteByIdPostId(post.getId());
-		logger.info("deletedRows: " + updatedRows);
-		for (ContractServiceDto item : services) {
-			service = new PostUtitlities();
-			serviceId = new PostUtilitiesId();
-			accomodationUtilities = accomodationServiceRepository.findById(item.getId()).orElse(null);
-			serviceId.setPost(post);
-			serviceId.setAccomodationService(accomodationUtilities);
-			service.setId(serviceId);
-			postUtilitiesRepository.save(service);
-		}
 	}
 
 	@Override
@@ -302,9 +310,7 @@ public class PostServiceImpl implements PostService {
 		Boolean result = false;
 		try {
 			Post post = postRepository.findById(postId).orElse(null);
-			List<PostUtitlities> postUtitlities = post.getPostUtitlities();
 			List<Images> images = post.getImages();
-			postUtilitiesRepository.deleteAll(postUtitlities);
 			imageRepository.deleteAll(images);
 			postRepository.delete(post);
 			result = true;

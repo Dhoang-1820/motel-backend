@@ -17,9 +17,11 @@ public interface PostService {
 	
 	List<PostDto> getAll();
 	
-	List<PostDto> getPostByUserId(Integer userId, Integer accomodationId);
+	List<PostDto> getPostByUserIdAndAccomodation(Integer userId, Integer accomodationId);
 	
-	Boolean savePost(PostRequest request);
+	List<PostDto> getByUserId(Integer userId);
+	
+	Boolean savePost(PostRequest request, MultipartFile[] files);
 	
 	Boolean changePostStatus(PostRequest request);
 	

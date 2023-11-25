@@ -3,8 +3,8 @@ package com.petproject.motelservice.domain.payload.request;
 import java.util.Date;
 import java.util.List;
 
-import com.petproject.motelservice.domain.dto.ContractServiceDto;
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
+import com.petproject.motelservice.domain.dto.ImageDto;
+import com.petproject.motelservice.domain.inventory.EPostStatus;
 
 import lombok.Data;
 
@@ -14,6 +14,12 @@ public class PostRequest {
 	private Integer id;
 
 	private String title;
+	
+	private Double acreage;
+	
+	private Integer capacity;
+	
+	private Double price;
 
 	private String content;
 	
@@ -25,7 +31,27 @@ public class PostRequest {
 	
 	private Integer userId;
 	
-	private RoomResponse room;
+	private Integer addressId;
 	
-	private List<ContractServiceDto> services;
+	private String address;
+
+	private String addressLine;
+	
+	private String ward;
+
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
+	
+	private String phone;
+	
+	private EPostStatus status;
+	
+	private List<ImageDto> images;
 }

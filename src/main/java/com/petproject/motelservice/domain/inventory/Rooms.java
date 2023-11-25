@@ -42,9 +42,6 @@ public class Rooms extends BaseEntity{
 	@JoinColumn(name = "accomodation_id")
 	private Accomodations accomodations;
 	
-	@OneToOne(mappedBy = "room")
-	private Post post;
-	
 	@OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
 	private List<Deposits> deposits;
 

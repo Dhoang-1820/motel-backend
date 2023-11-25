@@ -11,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +22,15 @@ public class Post extends BaseEntity {
 	
 	@Column(name = "title")
 	private String title;
+	
+	@Column(name = "acreage")
+	private Double acreage;
+	
+	@Column(name = "capacity")
+	private Integer capacity;
+	
+	@Column(name = "price")
+	private Double price;
 	
 	@Column(name = "content", columnDefinition = "TEXT")
     private String content;
@@ -40,14 +48,15 @@ public class Post extends BaseEntity {
 	@JoinColumn(name = "user_id")
 	private Users user;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "room_id")
-	 private Rooms room;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_status_id")
+	private PostStatus postStatus;
 	
 	@OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Images> images;
 	
-	@OneToMany(mappedBy = "id.post", fetch = FetchType.LAZY)
-    private List<PostUtitlities> postUtitlities;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "address_id")
+	private Address address;
 	
 }

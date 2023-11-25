@@ -198,11 +198,25 @@ public class AccomodationServiceImpl implements AccomodationService {
 		List<Accomodations> accomodations = accomodationsRepository.findByUserIdAndIsActive(userId, true);
 		DropDownAccomodation dto = null;
 		List<DropDownAccomodation> result = new ArrayList<>();
+		Address address = null;
+		
 		for (Accomodations item : accomodations) {
 			dto = new DropDownAccomodation();
 			dto.setId(item.getId());
 			dto.setName(item.getName());
-			dto.setAddress(getAccomodationAddress(item));
+			address = item.getAddress();
+			if (address != null) {
+				Ward ward = address.getWard();
+				District district = ward.getDistrict();
+				Province province = district.getProvince();
+				dto.setAddressLine(address.getAddressLine());
+				dto.setDistrict(district.getDistrict());
+				dto.setDistrictCode(district.getDistrictCode());
+				dto.setProvince(province.getProvince());
+				dto.setProvinceCode(province.getProvinceCode());
+				dto.setWard(ward.getWard());
+				dto.setWardCode(ward.getWardCode());
+			}
 			result.add(dto);
 		}
 		return result;

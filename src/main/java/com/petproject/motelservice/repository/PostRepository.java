@@ -16,14 +16,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 	@Query("FROM Post post WHERE post.isActive = true")
 	List<Post> findActivePost();
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id INNER JOIN Accomodations accomodations ON accomodations.id = room.accomodations.id WHERE  post.isActive = true AND accomodations.address IN (:address)")
+	@Query("SELECT post FROM Post post WHERE  post.isActive = true AND post.address IN (:address)")
 	List<Post> findByAddressId(List<Address> address);
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id WHERE room.price BETWEEN :from AND :to AND post.isActive = true")
+	@Query("SELECT post FROM Post post WHERE post.price BETWEEN :from AND :to AND post.isActive = true")
 	List<Post> findByRangeRoomPrice(Double from, Double to);
 	
-	@Query("SELECT post FROM Post post INNER JOIN Rooms room ON post.room.id = room.id WHERE room.acreage BETWEEN :from AND :to AND post.isActive = true")
+	@Query("SELECT post FROM Post post WHERE post.acreage BETWEEN :from AND :to AND post.isActive = true")
 	List<Post> findByRangeRoomAreage(Double from, Double to);
 	
-	List<Post> findByRoomIdAndIsActive(Integer roomId, Boolean isActive);
+	List<Post> findByUserId(Integer userId);
+	
+//	List<Post> findByRoomIdAndIsActive(Integer roomId, Boolean isActive);
 }

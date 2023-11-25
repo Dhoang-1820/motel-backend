@@ -167,6 +167,10 @@ public class UserServiceImpl implements UserService {
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 				break;
+			case "poster":
+				role = rolesRepository.findByName(ERoles.ROLE_POSTER)
+				.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				break;
 			default:
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -179,6 +183,19 @@ public class UserServiceImpl implements UserService {
 		response.setMessage(Constants.SIGNUP_SUCCESS_MSG);
 		response.setSuccess(Boolean.TRUE);
 		return response;
+	}
+	
+
+	@Override
+	public Boolean checkDuplicateEmail(String email) {
+		Users user = usersRepository.findByEmail(email);
+		return user != null;
+	}
+	
+	@Override
+	public Boolean checkDuplicateUsername(String userName) {
+		Users user = usersRepository.findByUsername(userName).orElse(null);
+		return user != null;
 	}
 
 	@Override

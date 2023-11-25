@@ -103,11 +103,11 @@ public class DepositServiceImpl implements DepositService {
 			tenant = tenantRepository.save(tenant);
 			deposit.setTenant(tenant);
 			depositRepository.save(deposit);
-			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
-			for (Post post : posts) {
-				post.setIsActive(false);
-				postRepository.save(post);
-			}
+//			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
+//			for (Post post : posts) {
+//				post.setIsActive(false);
+//				postRepository.save(post);
+//			}
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -25,6 +25,10 @@ public interface UserService {
 	
 	ApiResponse signUp(SignupRequest signUpRequest);
 	
+	Boolean checkDuplicateEmail(String email);
+	
+	Boolean checkDuplicateUsername(String email);
+	
 	TokenRefreshResponse getRefreshtoken(TokenRefreshRequest request);
 	
 	Users getUserById(Integer userId);

@@ -206,11 +206,11 @@ public class UserContractServiceImpl implements UserContractService {
             
 			saveContractService(request.getServices(), contract);
 			saveTenant(request.getTenants(), contract);
-			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
-			for (Post post : posts) {
-				post.setIsActive(false);
-				postRepository.save(post);
-			}
+//			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
+//			for (Post post : posts) {
+//				post.setIsActive(false);
+//				postRepository.save(post);
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

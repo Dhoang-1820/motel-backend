@@ -78,6 +78,18 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@PostMapping("/email/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicated(@RequestBody String email) {
+		final Boolean result = userService.checkDuplicateEmail(email);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
+	
+	@PostMapping("/username/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicatedUsername(@RequestBody String username) {
+		final Boolean result = userService.checkDuplicateUsername(username);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
+	
 	@GetMapping()
 	public ResponseEntity<ApiResponse> getAllUser() {
 		final List<UserResponse> result = userService.getAllUser();

@@ -168,7 +168,7 @@ public class RoomServiceImpl implements RoomService {
 	
 	@Override
 	public List<RoomResponse> getRoomNoPost(Integer accomodationId) {
-		List<Rooms> rooms = roomRepository.findRoomNoPost(accomodationId);
+		List<Rooms> rooms = new ArrayList<>();
 		List<RoomResponse> result = rooms.stream()
                 .map(source -> mapper.map(source, RoomResponse.class))
                 .collect(Collectors.toList());

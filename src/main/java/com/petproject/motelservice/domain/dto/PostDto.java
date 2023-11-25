@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
+import com.petproject.motelservice.domain.inventory.EPostStatus;
 
 import lombok.Data;
 
@@ -21,7 +21,25 @@ public class PostDto {
 	
 	private Double price;
 	
+	private Integer capacity;
+	
+	private Integer addressId;
+	
 	private String address;
+
+	private String addressLine;
+	
+	private String ward;
+
+	private Integer wardCode;
+	
+	private String district;
+	
+	private Integer districtCode;
+	
+	private String province;
+	
+	private Integer provinceCode;
 	
 	private String phone;
 	
@@ -29,13 +47,9 @@ public class PostDto {
 	
 	private Boolean isActive;
 	
-	private RoomResponse room;
-	
-	private List<EquipmentDto> equipments;
+	private EPostStatus status;
 	
 	private List<ImageDto> images;
-	
-	private List<ContractServiceDto> services;
 
 	@Override
 	public boolean equals(Object obj) {

@@ -38,9 +38,6 @@ public class AccomodationUtilities extends BaseEntity {
 	@OneToMany(mappedBy = "id.accomodationService", fetch = FetchType.LAZY)
 	private List<ContractService> contractServices;
 	
-	@OneToMany(mappedBy = "id.accomodationService", fetch = FetchType.LAZY)
-    private List<PostUtitlities> postUtitlities;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accomodation_id", nullable = false)
 	private Accomodations accomodation;
