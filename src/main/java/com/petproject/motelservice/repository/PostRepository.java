@@ -26,10 +26,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 	@Query("SELECT post FROM Post post WHERE post.acreage BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.name != 'REJECTED' OR post.postStatus.name != 'REMOVED'")
 	List<Post> findByRangeRoomAreage(Double from, Double to);
 	
-	@Query("SELECT post FROM Post post WHERE post.user.id = :userId AND post.postStatus.name != 'REMOVED'")
+	@Query("SELECT post FROM Post post WHERE post.user.id = :userId AND post.isActive = true")
 	List<Post> findByUserId(Integer userId);
 	
-	@Query("SELECT post FROM Post post WHERE post.postStatus.name = :postStatus AND post.postStatus.name != 'REMOVED'")
+	@Query("SELECT post FROM Post post WHERE post.postStatus.name = :postStatus AND post.postStatus.name != 'REMOVED' AND post.isActive = true")
 	List<Post> findByPostStatusName(EPostStatus postStatus);
 	
 //	List<Post> findByRoomIdAndIsActive(Integer roomId, Boolean isActive);

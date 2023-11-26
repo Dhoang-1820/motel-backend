@@ -9,6 +9,8 @@ public class BookingDto {
 	
 	private Integer id;
 	
+	private String accomodation;
+	
 	private String name;
 	
 	private String email;

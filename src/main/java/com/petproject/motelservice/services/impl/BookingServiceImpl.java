@@ -43,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
 
 	@Autowired
 	UsersRepository usersRepository;
-	
+
 	@Autowired
 	ModelMapper mapper;
 
@@ -68,15 +68,22 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public List<BookingDto> getAllBookingByUserId(Integer userId) {
 		List<BookingDto> result = new ArrayList<>();
-//		List<Booking> booking = bookingRepository.findBookingByUserId(userId);
-//		for (Booking item : booking) {
-//			result.add(convert2Dto(item));
-//		}
+		List<Booking> booking = bookingRepository.findBookingByUserId(userId);
+		for (Booking item : booking) {
+			result.add(convert2Dto(item));
+		}
 		return result;
 	}
 
 	private BookingDto convert2Dto(Booking booking) {
 		BookingDto dto = new BookingDto();
+		Post post = booking.getPost();
+		Address address = post.getAddress();
+		Ward ward = address.getWard();
+		District district = ward.getDistrict();
+		Province province = district.getProvince();
+		dto.setAccomodation(address.getAddressLine() + ", " + ward.getWard() + ", " + district.getDistrict() + ", "
+				+ province.getProvince());
 		dto.setId(booking.getId());
 		dto.setCreatedDate(booking.getBookingDate());
 		dto.setEmail(booking.getEmail());
@@ -85,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
 		dto.setReviewDate(booking.getBookingDate());
 		return dto;
 	}
-	
+
 	@Override
 	public List<BookingDto> getBookingByDate(Integer userId, Date date) {
 		List<BookingDto> result = new ArrayList<>();
@@ -98,14 +105,14 @@ public class BookingServiceImpl implements BookingService {
 
 	private void sendBookingNotification(Booking booking, Users user, Post post) {
 		Email email = new Email();
-		
+
 		try {
 			Map<String, Object> properties = new HashMap<>();
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy, HH:mm");
 			String bookingDate = dateFormat.format(booking.getBookingDate());
 			String reviewDate = null;
 			if (booking.getReviewDate() != null) {
-				reviewDate = dateFormat.format(booking.getReviewDate());				
+				reviewDate = dateFormat.format(booking.getReviewDate());
 			}
 
 			email.setSubject("Motel service: Thông báo đặt phòng");
@@ -113,15 +120,15 @@ public class BookingServiceImpl implements BookingService {
 			Ward ward = address.getWard();
 			District district = ward.getDistrict();
 			Province province = district.getProvince();
-			properties.put("accomodationName", address.getAddressLine() + " " + ward.getWard() + " "
-					+ district.getDistrict() + " " + province.getProvince());
+			properties.put("accomodationName", address.getAddressLine() + ", " + ward.getWard() + ", "
+					+ district.getDistrict() + ", " + province.getProvince());
 			properties.put("lanlord", user.getFirstname() + " " + user.getLastname());
 			properties.put("customer", booking.getName());
 			properties.put("customerEmail", booking.getEmail());
 			properties.put("customerPhone", booking.getPhone());
 			properties.put("bookingDate", bookingDate);
 			if (reviewDate != null) {
-				properties.put("reviewDate", reviewDate);				
+				properties.put("reviewDate", reviewDate);
 			}
 
 			email.setFrom("fromemail@gmail.com");
