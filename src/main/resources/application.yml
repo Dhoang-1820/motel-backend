@@ -10,9 +10,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: 1234
-    url: jdbc:mysql://localhost:3306/motel_service
-    username: root
+    password: Hh181101
+    url: jdbc:mysql://motel.mysql.database.azure.com:3306/motel_service
+    username: hoang
   jpa:
     generate-ddl: true
     hibernate:
