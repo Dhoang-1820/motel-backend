@@ -11,7 +11,11 @@ public interface TenantsService {
 
 	TenantDto createOrUpdate(TenantDto request);
 
-	Boolean checkDuplicated(String identifyNum);
+	Boolean checkDuplicatedIdentifyNum(String identifyNum);
+	
+	Boolean checkDuplicatedEmail(String email);
+	
+	Boolean checkDuplicatedPhone(String phone);
 	
 	List<TenantDto> getTenantNotDeposit(Integer id);
 

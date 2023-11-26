@@ -186,6 +186,7 @@ public class PostServiceImpl implements PostService {
 		dto.setPrice(post.getPrice());
 		dto.setCapacity(post.getCapacity());
 		dto.setStatus(post.getPostStatus().getName());
+		dto.setUserId(post.getUser().getId());
 		address = post.getAddress();
 		Ward ward = address.getWard();
 		District district = ward.getDistrict();

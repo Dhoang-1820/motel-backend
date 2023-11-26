@@ -5,12 +5,11 @@ import java.util.List;
 
 import com.petproject.motelservice.domain.dto.BookingDto;
 import com.petproject.motelservice.domain.inventory.Booking;
+import com.petproject.motelservice.domain.inventory.Users;
 
 public interface BookingService {
 	
 	BookingDto saveBooking(BookingDto request);
-	
-	void sendOutNotification(Booking request);
 	
 	List<BookingDto> getAllBookingByUserId(Integer userId);
 	

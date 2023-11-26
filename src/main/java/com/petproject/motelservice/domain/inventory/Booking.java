@@ -37,7 +37,6 @@ public class Booking extends BaseEntity {
 	private Boolean isActive;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "room_id", nullable = false)
-	private Rooms room;
-	
+	@JoinColumn(name = "post_id")
+	private Post post;
 }

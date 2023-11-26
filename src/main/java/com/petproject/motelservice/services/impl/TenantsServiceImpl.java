@@ -48,7 +48,7 @@ public class TenantsServiceImpl implements TenantsService {
 
 
 	@Override
-	public Boolean checkDuplicated(String identifyNum) {
+	public Boolean checkDuplicatedIdentifyNum(String identifyNum) {
 		Boolean result = false;
 		Tenants tenant = tenantRepository.findByIdentifyNum(identifyNum);
 		if (tenant != null) {
@@ -56,6 +56,29 @@ public class TenantsServiceImpl implements TenantsService {
 		}
 		return result;
 	}
+	
+
+	@Override
+	public Boolean checkDuplicatedEmail(String email) {
+		Boolean result = false;
+		Tenants tenant = tenantRepository.findByEmail(email);
+		if (tenant != null) {
+			result = true;
+		}
+		return result;
+	}
+
+
+	@Override
+	public Boolean checkDuplicatedPhone(String phone) {
+		Boolean result = false;
+		Tenants tenant = tenantRepository.findByPhone(phone);
+		if (tenant != null) {
+			result = true;
+		}
+		return result;
+	}
+
 
 	@Override
 	public TenantDto createOrUpdate(TenantDto request) {

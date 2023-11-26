@@ -15,14 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.BookingDto;
-import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Address;
 import com.petproject.motelservice.domain.inventory.Booking;
-import com.petproject.motelservice.domain.inventory.Rooms;
+import com.petproject.motelservice.domain.inventory.District;
+import com.petproject.motelservice.domain.inventory.Post;
+import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Users;
+import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.Email;
-import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.repository.BookingRepositoty;
-import com.petproject.motelservice.repository.RoomRepository;
+import com.petproject.motelservice.repository.PostRepository;
+import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.services.BookingService;
 import com.petproject.motelservice.services.MailService;
 
@@ -33,11 +36,14 @@ public class BookingServiceImpl implements BookingService {
 	BookingRepositoty bookingRepository;
 
 	@Autowired
-	RoomRepository roomRepository;
+	PostRepository postRepository;
 
 	@Autowired
 	MailService mailService;
 
+	@Autowired
+	UsersRepository usersRepository;
+	
 	@Autowired
 	ModelMapper mapper;
 
@@ -48,55 +54,51 @@ public class BookingServiceImpl implements BookingService {
 		booking.setName(request.getName());
 		booking.setPhone(request.getPhone());
 		booking.setReviewDate(request.getReviewDate());
-		Rooms room = roomRepository.findById(request.getRoomId()).orElse(null);
 		booking.setBookingDate(new Date());
-		booking.setRoom(room);
 		booking.setIsActive(Boolean.TRUE);
+		Post post = postRepository.findById(request.getPostId()).orElse(null);
+		booking.setPost(post);
 		booking = bookingRepository.save(booking);
 		BookingDto result = convert2Dto(booking);
-		sendOutNotification(booking);
+		Users user = usersRepository.findByUserId(request.getUserId());
+		sendOutNotification(booking, user, post);
 		return result;
 	}
 
 	@Override
 	public List<BookingDto> getAllBookingByUserId(Integer userId) {
 		List<BookingDto> result = new ArrayList<>();
-		List<Booking> booking = bookingRepository.findBookingByUserId(userId);
-		for (Booking item : booking) {
-			result.add(convert2Dto(item));
-		}
+//		List<Booking> booking = bookingRepository.findBookingByUserId(userId);
+//		for (Booking item : booking) {
+//			result.add(convert2Dto(item));
+//		}
 		return result;
 	}
 
 	private BookingDto convert2Dto(Booking booking) {
 		BookingDto dto = new BookingDto();
 		dto.setId(booking.getId());
-		dto.setAccomodation(booking.getRoom().getAccomodations().getName());
-		dto.setAccomodationId(booking.getRoom().getAccomodations().getId());
 		dto.setCreatedDate(booking.getBookingDate());
 		dto.setEmail(booking.getEmail());
 		dto.setName(booking.getName());
 		dto.setPhone(booking.getPhone());
 		dto.setReviewDate(booking.getBookingDate());
-		Rooms room = booking.getRoom();
-		dto.setRoom(new RoomResponse(room.getId(), room.getName(), room.getPrice(), room.getCapacity()));
-		dto.setRoomId(booking.getRoom().getId());
 		return dto;
 	}
 	
 	@Override
 	public List<BookingDto> getBookingByDate(Integer userId, Date date) {
 		List<BookingDto> result = new ArrayList<>();
-		List<Booking> booking = bookingRepository.findBookingByUserIdAndDate(userId, date);
-		for (Booking item : booking) {
-			result.add(convert2Dto(item));
-		}
+//		List<Booking> booking = bookingRepository.findBookingByUserIdAndDate(userId, date);
+//		for (Booking item : booking) {
+//			result.add(convert2Dto(item));
+//		}
 		return result;
 	}
 
-	private void sendBookingNotification(String room, Accomodations accomodation, Booking booking) {
+	private void sendBookingNotification(Booking booking, Users user, Post post) {
 		Email email = new Email();
-		Users user = accomodation.getUser();
+		
 		try {
 			Map<String, Object> properties = new HashMap<>();
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy, HH:mm");
@@ -107,10 +109,13 @@ public class BookingServiceImpl implements BookingService {
 			}
 
 			email.setSubject("Motel service: Thông báo đặt phòng");
-
+			Address address = post.getAddress();
+			Ward ward = address.getWard();
+			District district = ward.getDistrict();
+			Province province = district.getProvince();
+			properties.put("accomodationName", address.getAddressLine() + " " + ward.getWard() + " "
+					+ district.getDistrict() + " " + province.getProvince());
 			properties.put("lanlord", user.getFirstname() + " " + user.getLastname());
-			properties.put("accomodationName", accomodation.getName());
-			properties.put("roomName", room);
 			properties.put("customer", booking.getName());
 			properties.put("customerEmail", booking.getEmail());
 			properties.put("customerPhone", booking.getPhone());
@@ -137,11 +142,8 @@ public class BookingServiceImpl implements BookingService {
 		}
 	}
 
-	@Override
-	public void sendOutNotification(Booking request) {
-		Rooms room = roomRepository.findById(request.getRoom().getId()).orElse(null);
-		Accomodations accomodations = room.getAccomodations();
-		sendBookingNotification(room.getName(), accomodations, request);
+	public void sendOutNotification(Booking request, Users users, Post post) {
+		sendBookingNotification(request, users, post);
 	}
 
 	@Override

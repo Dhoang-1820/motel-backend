@@ -59,4 +59,7 @@ public class Post extends BaseEntity {
 	@JoinColumn(name = "address_id")
 	private Address address;
 	
+	@OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Booking> booking;
+	
 }

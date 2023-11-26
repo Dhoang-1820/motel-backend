@@ -285,7 +285,7 @@ public class UserServiceImpl implements UserService {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		String notification = "";
 		for (BookingDto booking : bookings) {
-			notification = dateFormat.format(booking.getCreatedDate()).toString() + " Khách đặt phòng số " + booking.getRoom().getName();
+			notification = dateFormat.format(booking.getCreatedDate()).toString();
 			notifications.add(notification);
 		}
 		dto.setNotifications(notifications);

@@ -48,9 +48,21 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	@PostMapping("/duplicated")
-	public ResponseEntity<ApiResponse> checkDuplicated(@RequestBody String identifyNum) {
-		final Boolean result = tenantsServices.checkDuplicated(identifyNum);
+	@PostMapping("/identify/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicatedIdentify(@RequestBody String identifyNum) {
+		final Boolean result = tenantsServices.checkDuplicatedIdentifyNum(identifyNum);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
+	
+	@PostMapping("/email/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicatedEmail(@RequestBody String email) {
+		final Boolean result = tenantsServices.checkDuplicatedEmail(email);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
+	}
+	
+	@PostMapping("/phone/duplicated")
+	public ResponseEntity<ApiResponse> checkDuplicatedPhone(@RequestBody String phone) {
+		final Boolean result = tenantsServices.checkDuplicatedPhone(phone);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 }
