@@ -310,8 +310,8 @@ public class UserServiceImpl implements UserService {
 		} else {
 			user = usersRepository.findById(request.getId()).orElse(null);
 		}
-		user.setFirstname(request.getFirstname());
-		user.setLastname(request.getLastname());
+		user.setFirstname(request.getFirstName());
+		user.setLastname(request.getLastName());
 		user.setEmail(request.getEmail());
 		user.setAddress(request.getAddress());
 		user.setPhone(request.getPhone());
@@ -390,8 +390,8 @@ public class UserServiceImpl implements UserService {
 		UpdateUserRequest result = null;
 		if (request.getUserId() != null ) {
 			user = usersRepository.findByUserId(request.getUserId());
-			user.setFirstname(request.getFirstname());
-			user.setLastname(request.getLastname());
+			user.setFirstname(request.getFirstName());
+			user.setLastname(request.getLastName());
 			user.setActive(request.getActive());
 			user.setEmail(request.getEmail());
 			user.setAddress(request.getAddress());
@@ -405,8 +405,8 @@ public class UserServiceImpl implements UserService {
 			sigupRequest.setPassword(encoder.encode(Constants.DEFAULT_PASSWORD));
 			sigupRequest.setPhone(request.getPhone());
 			sigupRequest.setUserName(request.getUserName());
-			sigupRequest.setFirstName(request.getFirstname());
-			sigupRequest.setLastName(request.getLastname());
+			sigupRequest.setFirstName(request.getFirstName());
+			sigupRequest.setLastName(request.getLastName());
 			sigupRequest.setRoles("landlord");
 			signUp(sigupRequest);
 		}

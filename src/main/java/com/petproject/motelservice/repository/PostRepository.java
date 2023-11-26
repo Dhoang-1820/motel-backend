@@ -17,13 +17,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 	@Query("FROM Post post WHERE post.isActive = true AND post.postStatus.name = 'APPROVED'")
 	List<Post> findActivePost();
 	
-	@Query("SELECT post FROM Post post WHERE post.isActive = true AND post.address IN (:address) AND post.postStatus.name != 'REJECTED' OR post.postStatus.name != 'REMOVED'")
+	@Query("SELECT post FROM Post post WHERE post.isActive = true AND post.address IN (:address) AND post.postStatus.name != 'REJECTED' AND post.postStatus.name != 'REMOVED'")
 	List<Post> findByAddressId(List<Address> address);
 	
-	@Query("SELECT post FROM Post post WHERE post.price BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.name != 'REJECTED' OR post.postStatus.name != 'REMOVED'")
+	@Query("SELECT post FROM Post post WHERE post.price BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.name != 'REJECTED' AND post.postStatus.name != 'REMOVED'")
 	List<Post> findByRangeRoomPrice(Double from, Double to);
 	
-	@Query("SELECT post FROM Post post WHERE post.acreage BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.name != 'REJECTED' OR post.postStatus.name != 'REMOVED'")
+	@Query("SELECT post FROM Post post WHERE post.acreage BETWEEN :from AND :to AND post.isActive = true AND post.postStatus.name != 'REJECTED' AND post.postStatus.name != 'REMOVED'")
 	List<Post> findByRangeRoomAreage(Double from, Double to);
 	
 	@Query("SELECT post FROM Post post WHERE post.user.id = :userId AND post.isActive = true")

@@ -272,8 +272,13 @@ public class BillServiceImpl implements BillServices {
 					dto.setTotalPrice(electricWaterNum.getElectricNum() * service.getPrice());
 				} else {
 					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
-					dto.setFirstElectricNum(electricWaterNum.getLastElectric());
-					dto.setLastElectricNum(electricWaterNum.getLastElectric());
+					if (electricWaterNum != null) {
+						dto.setFirstElectricNum(electricWaterNum.getLastElectric());
+						dto.setLastElectricNum(electricWaterNum.getLastElectric());
+					} else {
+						dto.setFirstElectricNum(0);
+						dto.setLastElectricNum(0);
+					}
 					dto.setElectricNum(0);
 					dto.setQuantity(0);
 					dto.setTotalPrice(0D);
@@ -288,8 +293,13 @@ public class BillServiceImpl implements BillServices {
 					dto.setTotalPrice(electricWaterNum.getWaterNum() * service.getPrice());
 				} else {
 					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
-					dto.setFirstWaterNum(electricWaterNum.getLastWater());
-					dto.setLastWaterNum(electricWaterNum.getLastWater());
+					if (electricWaterNum != null) {
+						dto.setFirstWaterNum(electricWaterNum.getLastWater());
+						dto.setLastWaterNum(electricWaterNum.getLastWater());
+					} else {
+						dto.setFirstWaterNum(0);
+						dto.setLastWaterNum(0);
+					}
 					dto.setWaterNum(0);
 					dto.setQuantity(0);
 					dto.setTotalPrice(0D);
