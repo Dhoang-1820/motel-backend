@@ -39,8 +39,8 @@ public class EquipmentController {
 	}
 	
 	@GetMapping()
-	public ResponseEntity<ApiResponse> getByName(@RequestParam("name") String name) {
-		final List<EquipmentDto> result = equipmentService.getByName(name);
+	public ResponseEntity<ApiResponse> getByName(@RequestParam("name") String name, @RequestParam("accomodationId") Integer accomodationId) {
+		final List<EquipmentDto> result = equipmentService.getByNameAndAccomodation(name, accomodationId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
@@ -50,7 +50,7 @@ public class EquipmentController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	@DeleteMapping()
+	@DeleteMapping("/{id}")
 	public ResponseEntity<ApiResponse> deteleEquipment(@PathVariable("id") Integer id) {
 		equipmentService.deleteEquipment(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.DELETE_SUCCESS_MSG));

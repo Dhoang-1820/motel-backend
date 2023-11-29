@@ -20,7 +20,9 @@ public interface UserResponse {
 
 	Date getCreatedAt();
 
-	String getUserRole();
+	String getRole();
+	
+	String getIdentifyNum();
 
 	Integer getAccomodationNum();
 }

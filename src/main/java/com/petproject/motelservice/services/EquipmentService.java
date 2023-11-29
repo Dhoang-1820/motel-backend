@@ -14,7 +14,7 @@ public interface EquipmentService {
 
 	List<EquipmentDto> getByRoomId(Integer roomId);
 
-	List<EquipmentDto> getByName(String name);
+	List<EquipmentDto> getByNameAndAccomodation(String name, Integer accomodationId);
 	
 	Boolean checkDuplicated(String name);
 }

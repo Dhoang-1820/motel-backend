@@ -28,6 +28,10 @@ public interface BillServices {
 	
 	ElectricityWaterDto getElectricWaterNumByMonthAndRoom(Integer roomId, Date month);
 	
+	Boolean checkIsCanRemoveEletricWater(Integer id, Date month);
+	
+	Boolean removeEletricWater(Integer id);
+	
 	Boolean checkIsRoomInputElectricWater(Integer accomodationId, Date month);
 
 	List<InvoiceDto> issueInvoice(InvoiceDto request,  Boolean isReturn);

@@ -9,6 +9,7 @@ import com.petproject.motelservice.domain.inventory.ContractServiceId;
 
 public interface ContractServiceRepository extends JpaRepository<ContractService, ContractServiceId> {
 	
+	
 	@Modifying
 	@Transactional
 	int deleteByIdContractId(Integer contractId);

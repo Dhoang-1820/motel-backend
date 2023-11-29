@@ -16,5 +16,5 @@ public interface EquipmentRepository extends JpaRepository<Equipments, Integer> 
 	
 	List<Equipments> findByRoomId(@Param("roomId") Integer roomId);
 	
-	List<Equipments> findByName(String name);
+	List<Equipments> findByNameAndAccomodationsId(String name, Integer accomodationId);
 }	

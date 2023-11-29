@@ -35,6 +35,9 @@ public class AccomodationUtilities extends BaseEntity {
 	@Column(name = "is_default", columnDefinition = "BOOLEAN")
 	private Boolean isDefault = Boolean.FALSE;
 	
+	@Column(name = "is_active", columnDefinition = "BOOLEAN")
+	private Boolean isActive = Boolean.TRUE;
+	
 	@OneToMany(mappedBy = "id.accomodationService", fetch = FetchType.LAZY)
 	private List<ContractService> contractServices;
 	

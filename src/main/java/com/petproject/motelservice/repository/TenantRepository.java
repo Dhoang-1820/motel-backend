@@ -17,8 +17,8 @@ public interface TenantRepository extends JpaRepository<Tenants, Integer> {
 	@Query("FROM Tenants tenant LEFT JOIN Deposits deposit ON tenant.id = deposit.tenant.id WHERE deposit.id IS NULL AND tenant.contract IS NULL AND tenant.accomodations.id = :id")
 	List<Tenants> findTenantWithoutDeposit(@Param("id") Integer accomodationId);
 	
-	@Query("FROM Tenants tenant WHERE tenant.contract IS NULL")
-	List<Tenants> findTenantNotContracted(@Param("id") Integer accomodationId);
+	@Query("FROM Tenants tenant WHERE tenant.contract IS NULL AND tenant.accomodations.id = :accomodationId")
+	List<Tenants> findTenantNotContracted(@Param("accomodationId") Integer accomodationId);
 	
 	@Query("FROM Tenants tenant WHERE tenant.identifyNum = :identifyNum AND tenant.endDate IS NULL")
 	Tenants findByIdentifyNum(String identifyNum);

@@ -130,8 +130,8 @@ public class TenantsServiceImpl implements TenantsService {
 	}
 
 	@Override
-	public List<TenantDto> getTenantNotContract(Integer id) {
-		List<Tenants> tenants = tenantRepository.findTenantNotContracted(id);
+	public List<TenantDto> getTenantNotContract(Integer accomodationId) {
+		List<Tenants> tenants = tenantRepository.findTenantNotContracted(accomodationId);
 		List<TenantDto> result = new ArrayList<>();
 		for (Tenants tenant : tenants) {
 			result.add(convert2Dto(tenant));

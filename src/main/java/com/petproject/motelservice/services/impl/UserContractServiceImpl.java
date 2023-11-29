@@ -137,6 +137,7 @@ public class UserContractServiceImpl implements UserContractService {
 				List<Tenants> tenants = contract.getTenants();
 				for (Tenants tenant : tenants) {
 					tenant.setContract(null);
+					tenant.setIsStayed(Boolean.FALSE);
 					tenantRepository.save(tenant);
 				}
 			}
@@ -223,6 +224,7 @@ public class UserContractServiceImpl implements UserContractService {
 		logger.info("updatedRows: " + updatedRows);
 		for (TenantDto tenantDto : tenants) {
 			tenant = tenantRepository.findById(tenantDto.getId()).orElse(null);
+			tenant.setIsStayed(Boolean.TRUE);
 			tenant.setStartDate(contract.getStartDate());
 			tenant.setContract(contract);
 			tenantRepository.save(tenant);

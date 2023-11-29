@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.payload.request;
 
+import com.petproject.motelservice.domain.inventory.ERoles;
+
 import lombok.Data;
 
 @Data
@@ -25,5 +27,5 @@ public class UpdateUserRequest {
 	
 	private String address;
 	
-	private String role;
+	private ERoles role;
 }

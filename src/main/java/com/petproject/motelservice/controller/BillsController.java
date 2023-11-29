@@ -42,6 +42,18 @@ public class BillsController {
 		final ElectricityWaterDto result = billServices.getElectricWaterNumByMonthAndRoom(request.getId(), request.getMonth());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
+	
+	@PostMapping("/check/electric-water")
+	public ResponseEntity<ApiResponse> checkRemoveEletricWater(@RequestBody IssueInvoiceRequest request) {
+		final Boolean result = billServices.checkIsCanRemoveEletricWater(request.getRoomId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
+	@DeleteMapping("/remove/electric-water/{id}")
+	public ResponseEntity<ApiResponse> removeEletricWater(@PathVariable Integer id) {
+		final Boolean result = billServices.removeEletricWater(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
 		
 	@PutMapping()
 	public ResponseEntity<ApiResponse> updateInvoice(@RequestBody InvoiceDto request) {

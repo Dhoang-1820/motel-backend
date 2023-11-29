@@ -29,7 +29,7 @@ public class Scheduler {
 	@Autowired
 	SendInvoiceService sendInvoiceService;
 
-	@Scheduled(cron = "0 35 23 * * *")
+	@Scheduled(cron = "0 01 00 * * *")
 	public void cronJobSch() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();

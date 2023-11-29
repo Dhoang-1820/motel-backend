@@ -13,6 +13,7 @@ import com.petproject.motelservice.domain.dto.AccomodationsDto;
 import com.petproject.motelservice.domain.inventory.AccomodationUtilities;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Address;
+import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.District;
 import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Rooms;
@@ -22,6 +23,7 @@ import com.petproject.motelservice.domain.payload.response.DropDownAccomodation;
 import com.petproject.motelservice.repository.AccomodationServiceRepository;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.AddressRepository;
+import com.petproject.motelservice.repository.ContractRepository;
 import com.petproject.motelservice.repository.DistrictRepository;
 import com.petproject.motelservice.repository.ProvinceRepository;
 import com.petproject.motelservice.repository.UsersRepository;
@@ -57,6 +59,9 @@ public class AccomodationServiceImpl implements AccomodationService {
 	
 	@Autowired
 	ProvinceRepository provinceRepository;
+	
+	@Autowired
+	ContractRepository contractRepository;
 	
 	@Autowired
 	ModelMapper mapper;
@@ -129,6 +134,12 @@ public class AccomodationServiceImpl implements AccomodationService {
 		}
 		return result;
 	}
+	
+	@Override
+	public Boolean isCanRemoveAccomodationService(AccomodationUtilitiesDto request) {
+		List<Contract> contracts = contractRepository.findByAccomodationAndService(request.getAccomodationId(), request.getId(), new Date());
+		return contracts.isEmpty();
+	}
 
 	@Override
 	public Boolean removeAccomodation(Integer id) {
@@ -146,6 +157,21 @@ public class AccomodationServiceImpl implements AccomodationService {
 		return result;
 	}
 	
+	@Override
+	public Boolean removeService(Integer id) {
+		Boolean result = false;
+		AccomodationUtilities service = accomodationServiceRepository.findById(id).orElse(null);
+		try {
+			service.setIsActive(false);
+			accomodationServiceRepository.save(service);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+
 	private AccomodationsDto convert2Dto(Accomodations accomodation, List<AccomodationUtilities> utilities) {
 		AccomodationsDto dto = new AccomodationsDto();
 		AccomodationUtilitiesDto utilitiesDto = null;
@@ -236,7 +262,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 	public List<AccomodationUtilitiesDto> getServiceByAccomodation(Integer accomodationId) {
 		List<AccomodationUtilitiesDto> result = new ArrayList<>();
 		AccomodationUtilitiesDto dto = null;
-		List<AccomodationUtilities> services = serviceRepository.findByAccomodationId(accomodationId);
+		List<AccomodationUtilities> services = serviceRepository.findByAccomodationIdAndIsActive(accomodationId, true);
 		for (AccomodationUtilities item : services) {
 			dto = new AccomodationUtilitiesDto();
 			dto.setAccomodationId(accomodationId);
@@ -275,7 +301,7 @@ public class AccomodationServiceImpl implements AccomodationService {
 	@Override
 	public Boolean checkServiceValid(AccomodationUtilitiesDto request) {
 		Boolean result = false;
-		List<AccomodationUtilities> services = serviceRepository.findByNameAndAccomodationId(request.getName(), request.getAccomodationId());
+		List<AccomodationUtilities> services = serviceRepository.findByNameAndAccomodationIdAndIsActive(request.getName(), request.getAccomodationId(), true);
 		if (services.isEmpty()) {
 			result = true;
 		}

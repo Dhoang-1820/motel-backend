@@ -118,9 +118,9 @@ public class RoomServiceImpl implements RoomService {
 
 	
 	@Override
-	public Boolean isDuplicateRoom(String roomName) {
+	public Boolean isDuplicateRoom(String roomName, Integer accomodationId) {
 		Boolean result = false;
-		Rooms room = roomRepository.findByNameAndIsActive(roomName, true);
+		Rooms room = roomRepository.findByNameAndIsActiveAndAccomodationsId(roomName, true, accomodationId);
 		if (room != null) {
 			result = true;
 		}

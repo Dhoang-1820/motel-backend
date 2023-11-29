@@ -14,7 +14,11 @@ public interface AccomodationService {
 
 	Boolean removeAccomodation(Integer id);
 	
+	Boolean removeService(Integer id);
+	
 	Boolean isCanRemoveAccomodation(Integer id);
+	
+	Boolean isCanRemoveAccomodationService(AccomodationUtilitiesDto request);
 
 	List<DropDownAccomodation> getDropdownAccomodationByUserId(Integer userId);
 	

@@ -36,9 +36,9 @@ public class TenantsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@GetMapping("/contract/{id}")
-	public ResponseEntity<ApiResponse> getTenantWithoutContract(@PathVariable Integer id) {
-		final List<TenantDto> result = tenantsServices.getTenantNotContract(id);
+	@GetMapping("/contract/{accomodationId}")
+	public ResponseEntity<ApiResponse> getTenantWithoutContract(@PathVariable Integer accomodationId) {
+		final List<TenantDto> result = tenantsServices.getTenantNotContract(accomodationId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

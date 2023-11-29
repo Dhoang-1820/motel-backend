@@ -153,21 +153,22 @@ public class UserServiceImpl implements UserService {
 		user.setFirstname(signUpRequest.getFirstName());
 		user.setLastname(signUpRequest.getLastName());
 		user.setActive(Boolean.TRUE);
+		user.setIdentifyNum(signUpRequest.getIdentifyNum());;
 		user.setPassword(encoder.encode(signUpRequest.getPassword()));
 
-		String strRoles = signUpRequest.getRoles();
+		String strRoles = signUpRequest.getRoles().toString();
 		Role role = null;
 		
 		switch (strRoles) {
-			case "admin":
+			case "ROLE_ADMIN":
 				role = rolesRepository.findByName(ERoles.ROLE_ADMIN)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 				break;
-			case "landlord":
+			case "ROLE_LANDLORD":
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 				break;
-			case "poster":
+			case "ROLE_POSTER":
 				role = rolesRepository.findByName(ERoles.ROLE_POSTER)
 				.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 				break;
@@ -395,7 +396,9 @@ public class UserServiceImpl implements UserService {
 			user.setActive(request.getActive());
 			user.setEmail(request.getEmail());
 			user.setAddress(request.getAddress());
-			
+			user.setIdentifyNum(request.getIdentifyNum());
+			Role role = rolesRepository.findByName(request.getRole()).orElse(null);
+			user.setRole(role);
 			user = usersRepository.save(user);
 			result = mapper.map(user, UpdateUserRequest.class);
 		} else {
@@ -407,7 +410,8 @@ public class UserServiceImpl implements UserService {
 			sigupRequest.setUserName(request.getUserName());
 			sigupRequest.setFirstName(request.getFirstName());
 			sigupRequest.setLastName(request.getLastName());
-			sigupRequest.setRoles("landlord");
+			sigupRequest.setIdentifyNum(request.getIdentifyNum());
+			sigupRequest.setRoles(request.getRole());
 			signUp(sigupRequest);
 		}
 		

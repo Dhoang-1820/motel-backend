@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.payload.request;
 
+import com.petproject.motelservice.domain.inventory.ERoles;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +24,9 @@ public class SignupRequest {
 	
 	private String phone;
 	
+	private String identifyNum;
+	
 	private String address;
 	
-	private String roles;
+	private ERoles roles;
 }

@@ -48,9 +48,9 @@ public class RoomController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	@PostMapping("/utility/duplicated")
-	public ResponseEntity<ApiResponse> checkDuplicateName(@RequestBody String roomName) {
-		final Boolean result = roomService.isDuplicateRoom(roomName);
+	@PostMapping("/utility/duplicated/{accomodationId}")
+	public ResponseEntity<ApiResponse> checkDuplicateName(@RequestBody String roomName, @PathVariable Integer accomodationId) {
+		final Boolean result = roomService.isDuplicateRoom(roomName, accomodationId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	

@@ -77,14 +77,15 @@ public class EquipmentServiceImpl implements EquipmentService {
 	}
 	
 	@Override
-	public List<EquipmentDto> getByName(String name) {
+	public List<EquipmentDto> getByNameAndAccomodation(String name, Integer accomodationId) {
 		List<EquipmentDto> result = new ArrayList<>();
-		List<Equipments> equipments = equipmentRepository.findByName(name);
+		List<Equipments> equipments = equipmentRepository.findByNameAndAccomodationsId(name, accomodationId);
 		EquipmentDto equipment = null;
 		Rooms room = null;
 		Integer roomId;
 		String roomName;
 		Double price;
+		Integer capacity;
 		for (Equipments item : equipments) {
 			equipment = new EquipmentDto();
 			equipment.setId(item.getId());
@@ -95,15 +96,17 @@ public class EquipmentServiceImpl implements EquipmentService {
 			roomId = null;
 			roomName = null;
 			price = null;
+			capacity = null;
 			if (room != null) {
 				roomId = room.getId();
 				roomName = room.getName();
 				price = room.getPrice();
+				capacity = room.getCapacity();
 			} 
 			equipment.setRoomId(roomId);				
 			equipment.setUnit(item.getUnit());
 			equipment.setStatus(item.getStatus());
-			equipment.setRoom(new RoomResponse(roomId, roomName, price, null));
+			equipment.setRoom(new RoomResponse(roomId, roomName, price, capacity));
 			result.add(equipment);
 		}
 		return result;

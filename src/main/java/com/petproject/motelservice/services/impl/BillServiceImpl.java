@@ -113,6 +113,28 @@ public class BillServiceImpl implements BillServices {
 		}
 		return result;
 	}
+	
+
+	@Override
+	public Boolean checkIsCanRemoveEletricWater(Integer roomId, Date month) {
+		Date nextMonth = getNextMonth(month);
+		Bills bill = billRepository.findByMonthAndRoom(nextMonth, roomId);
+		return bill == null;
+	}
+	
+
+	@Override
+	public Boolean removeEletricWater(Integer id) {
+		Boolean result = false;
+		ElectricWaterNum electricWaterNum = electricWaterNumRepository.findById(id).orElse(null);
+		try {
+			electricWaterNumRepository.delete(electricWaterNum);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 	@Override
 	public List<InvoiceResponse> getInvoice(Integer accomodationId, Date month) {

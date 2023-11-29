@@ -14,7 +14,7 @@ public interface RoomRepository extends JpaRepository<Rooms, Integer> {
 	
 	List<Rooms> findByAccomodationsAndIsActive(Accomodations accomodations, Boolean isActive);
 	
-	Rooms findByNameAndIsActive(String name, Boolean isActive);
+	Rooms findByNameAndIsActiveAndAccomodationsId(String name, Boolean isActive, Integer accomodationId);
 	
 	@Query("SELECT rooms FROM Rooms rooms  WHERE rooms.accomodations.id = :accomodationId AND rooms NOT IN (SELECT contract.room FROM Contract contract WHERE contract.isActive = true) AND rooms.isActive = true AND rooms.id NOT IN (SELECT deposit.room.id FROM Deposits deposit WHERE deposit.isActive = true)")
 	List<Rooms> findRoomNoDepostit(@Param("accomodationId") Integer accomodationId); 

@@ -23,54 +23,70 @@ import com.petproject.motelservice.services.AccomodationService;
 @RestController
 @RequestMapping(value = "/accomodation")
 public class AccomodationController {
-	
-	@Autowired 
+
+	@Autowired
 	AccomodationService accomodationService;
-	
+
 	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse> getAccomodationByUserId(@PathVariable Integer userId) {
 		final List<AccomodationsDto> result = accomodationService.getAccomodationByUserId(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
-	
+
 	@GetMapping("/utility/{userId}")
 	public ResponseEntity<ApiResponse> getDropdownAccomodationByUserId(@PathVariable Integer userId) {
-		final List<DropDownAccomodation> result = accomodationService.getDropdownAccomodationByUserId(userId);	
+		final List<DropDownAccomodation> result = accomodationService.getDropdownAccomodationByUserId(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
-	
+
 	@PostMapping()
 	public ResponseEntity<ApiResponse> saveAccomodation(@RequestBody AccomodationsDto accomodations) {
 		final List<AccomodationsDto> result = accomodationService.createOrUpdate(accomodations);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
-	
-	@GetMapping("/check/remove/{id}") ResponseEntity<ApiResponse> isCanRemove(@PathVariable Integer id){
+
+	@GetMapping("/check/remove/{id}")
+	ResponseEntity<ApiResponse> isCanRemove(@PathVariable Integer id) {
 		final Boolean result = accomodationService.isCanRemoveAccomodation(id);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse(true, result, Constants.DELETE_SUCCESS_MSG));
+		return ResponseEntity.status(HttpStatus.NO_CONTENT)
+				.body(new ApiResponse(true, result, Constants.DELETE_SUCCESS_MSG));
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<ApiResponse> removeAccomodation(@PathVariable Integer id) {
 		accomodationService.removeAccomodation(id);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse(true, null, Constants.DELETE_SUCCESS_MSG));
+		return ResponseEntity.status(HttpStatus.NO_CONTENT)
+				.body(new ApiResponse(true, null, Constants.DELETE_SUCCESS_MSG));
 	}
-	
+
 	@GetMapping("/services/{id}")
 	public ResponseEntity<ApiResponse> getServices(@PathVariable("id") Integer id) {
-		final List<AccomodationUtilitiesDto> result = accomodationService.getServiceByAccomodation(id);	
+		final List<AccomodationUtilitiesDto> result = accomodationService.getServiceByAccomodation(id);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
-	
+
 	@PostMapping("/services")
 	public ResponseEntity<ApiResponse> saveService(@RequestBody AccomodationUtilitiesDto request) {
 		final List<AccomodationUtilitiesDto> result = accomodationService.saveService(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
+
+	@PostMapping("/check/remove/service")
+	public ResponseEntity<ApiResponse> isCanRemoveService(@RequestBody AccomodationUtilitiesDto request) {
+		final Boolean result = accomodationService.isCanRemoveAccomodationService(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.DELETE_SUCCESS_MSG));
+	}
 	
+	@DeleteMapping("/service/{id}")
+	public ResponseEntity<ApiResponse> removeService(@PathVariable Integer id) {
+		final Boolean result = accomodationService.removeService(id);
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(new ApiResponse(true, result, Constants.DELETE_SUCCESS_MSG));
+	}
+
 	@PostMapping("/services/validation")
 	public ResponseEntity<ApiResponse> getIsValidService(@RequestBody AccomodationUtilitiesDto request) {
-		final Boolean result = accomodationService.checkServiceValid(request);	
+		final Boolean result = accomodationService.checkServiceValid(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 }
