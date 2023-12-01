@@ -49,5 +49,7 @@ public interface BillServices {
 	List<InvoiceDto> issueInvoiceByRoomId(Integer roomId, Date month);
 
 	List<InvoiceResponse> getInvoice(Integer accomodationId, Date month);
+
+	Boolean checkIsEditElectricWater(Integer roomId, Date month);
 	
 }

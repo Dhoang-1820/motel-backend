@@ -119,6 +119,12 @@ public class UserController {
 		 final ApiResponse result = userService.changePassword(changePasswordRequest);
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
+	
+	@PutMapping("/reset/password/{id}")
+	public ResponseEntity<ApiResponse> resetUserPassword(@PathVariable Integer id) {
+		userService.resetPassword(id);
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, null, Constants.GET_SUCESS_MSG));
+	}
 
 	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<ApiResponse> addFile(@RequestParam(value = "file", required = false) MultipartFile[] files, @RequestParam("data") String user) throws IOException {

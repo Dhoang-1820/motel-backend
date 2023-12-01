@@ -644,6 +644,13 @@ public class BillServiceImpl implements BillServices {
 		return result;
 	}
 	
+	@Override
+	public Boolean checkIsEditElectricWater(Integer roomId, Date month) {
+		Date nextMonth = getNextMonth(month);
+		Bills bill = billRepository.findByMonthAndRoom(nextMonth, roomId);
+		return bill == null;
+	}
+	
 
 	@Override
 	public Map<String, Boolean> checkIsReturnValid(Integer roomId, Date month) {

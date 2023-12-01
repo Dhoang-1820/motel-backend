@@ -43,6 +43,8 @@ public interface UserService {
 	
 	ApiResponse changePassword(ChangePasswordRequest changePasswordRequest);
 	
+	UserDto resetPassword(Integer userId);
+	
 	List<UserResponse> getAllUser();
 	
 	UpdateUserRequest createOrUpdate(UpdateUserRequest request);

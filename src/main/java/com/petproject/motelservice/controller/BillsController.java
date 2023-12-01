@@ -109,6 +109,12 @@ public class BillsController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@PostMapping("/can-edit/electric-water")
+	public ResponseEntity<ApiResponse> checkEditEletricWater(@RequestBody BillRequest request) {
+		final Boolean result = billServices.checkIsEditElectricWater(request.getId(), request.getMonth());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PutMapping("/confirm")
 	public ResponseEntity<ApiResponse> confirmInvoicePayment(@RequestBody ConfirmInvoiceRequest request) {
 		final Boolean result = billServices.confirmPayment(request);

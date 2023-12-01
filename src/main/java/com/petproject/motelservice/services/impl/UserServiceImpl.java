@@ -379,6 +379,14 @@ public class UserServiceImpl implements UserService {
 		
 		return response;
 	}
+	
+	@Override
+	public UserDto resetPassword(Integer userId) {
+		Users user = usersRepository.findById(userId).orElse(null);
+		user.setPassword(encoder.encode(Constants.DEFAULT_PASSWORD));
+		user = usersRepository.save(user);
+		return null;
+	}
 
 	@Override
 	public List<UserResponse> getAllUser() {
@@ -399,19 +407,21 @@ public class UserServiceImpl implements UserService {
 			user.setIdentifyNum(request.getIdentifyNum());
 			Role role = rolesRepository.findByName(request.getRole()).orElse(null);
 			user.setRole(role);
+			user.setUsername(request.getUserName());
 			user = usersRepository.save(user);
 			result = mapper.map(user, UpdateUserRequest.class);
 		} else {
 			SignupRequest sigupRequest = new SignupRequest();
 			sigupRequest.setAddress(request.getEmail());
 			sigupRequest.setEmail(request.getEmail());
-			sigupRequest.setPassword(encoder.encode(Constants.DEFAULT_PASSWORD));
+			sigupRequest.setPassword(Constants.DEFAULT_PASSWORD);
 			sigupRequest.setPhone(request.getPhone());
 			sigupRequest.setUserName(request.getUserName());
 			sigupRequest.setFirstName(request.getFirstName());
 			sigupRequest.setLastName(request.getLastName());
 			sigupRequest.setIdentifyNum(request.getIdentifyNum());
 			sigupRequest.setRoles(request.getRole());
+			sigupRequest.setUserName(request.getUserName());
 			signUp(sigupRequest);
 		}
 		

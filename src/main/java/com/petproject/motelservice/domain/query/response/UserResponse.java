@@ -15,6 +15,8 @@ public interface UserResponse {
 	String getEmail();
 
 	String getLastName();
+	
+	String getUserName();
 
 	Boolean getActive();
 
