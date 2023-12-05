@@ -30,12 +30,8 @@ public class TenantDto {
 	private String email;
 	
 	private Integer accomodationId;
-	
-	
 
 	public TenantDto() { }
-
-
 
 	public TenantDto(Integer id, String identifyNum, String firstName, String lastName, String phone) {
 		super();

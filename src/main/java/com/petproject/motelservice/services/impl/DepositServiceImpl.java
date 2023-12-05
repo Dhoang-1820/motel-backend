@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.petproject.motelservice.domain.dto.DepositDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Deposits;
-import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -103,11 +102,6 @@ public class DepositServiceImpl implements DepositService {
 			tenant = tenantRepository.save(tenant);
 			deposit.setTenant(tenant);
 			depositRepository.save(deposit);
-//			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
-//			for (Post post : posts) {
-//				post.setIsActive(false);
-//				postRepository.save(post);
-//			}
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();

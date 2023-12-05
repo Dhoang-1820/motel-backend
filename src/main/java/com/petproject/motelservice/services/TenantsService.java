@@ -17,6 +17,10 @@ public interface TenantsService {
 	
 	Boolean checkDuplicatedPhone(String phone);
 	
+	Boolean isCanRemoveTenant(Integer tenantId);
+	
+	Boolean removeTenant(Integer tenantId);
+	
 	List<TenantDto> getTenantNotDeposit(Integer id);
 
 	List<TenantDto> getTenantNotContract(Integer id);

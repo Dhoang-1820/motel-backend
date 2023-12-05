@@ -12,29 +12,29 @@ import com.petproject.motelservice.domain.inventory.Tenants;
 
 public interface TenantRepository extends JpaRepository<Tenants, Integer> {
 		
-	List<Tenants> findByAccomodationsId(@Param("accomodationsId") Integer accomodationsId);
+	List<Tenants> findByAccomodationsIdAndIsActive(@Param("accomodationsId") Integer accomodationsId, Boolean isActive);
 	
-	@Query("FROM Tenants tenant LEFT JOIN Deposits deposit ON tenant.id = deposit.tenant.id WHERE deposit.id IS NULL AND tenant.contract IS NULL AND tenant.accomodations.id = :id")
+	@Query("FROM Tenants tenant WHERE tenant.id NOT IN (SELECT deposit.tenant.id FROM Deposits deposit WHERE deposit.isActive = true) AND tenant.contract IS NULL AND tenant.isActive = true AND tenant.accomodations.id = :id")
 	List<Tenants> findTenantWithoutDeposit(@Param("id") Integer accomodationId);
 	
-	@Query("FROM Tenants tenant WHERE tenant.contract IS NULL AND tenant.accomodations.id = :accomodationId")
+	@Query("FROM Tenants tenant WHERE tenant.contract IS NULL AND tenant.isActive = true AND tenant.accomodations.id = :accomodationId")
 	List<Tenants> findTenantNotContracted(@Param("accomodationId") Integer accomodationId);
 	
-	@Query("FROM Tenants tenant WHERE tenant.identifyNum = :identifyNum AND tenant.endDate IS NULL")
+	@Query("FROM Tenants tenant WHERE tenant.identifyNum = :identifyNum AND tenant.isActive = true AND tenant.endDate IS NULL")
 	Tenants findByIdentifyNum(String identifyNum);
 	
-	@Query("FROM Tenants tenant WHERE tenant.email = :email AND tenant.endDate IS NULL")
+	@Query("FROM Tenants tenant WHERE tenant.email = :email AND tenant.isActive = true AND tenant.endDate IS NULL")
 	Tenants findByEmail(String email);
 	
-	@Query("FROM Tenants tenant WHERE tenant.phone = :phone AND tenant.endDate IS NULL")
+	@Query("FROM Tenants tenant WHERE tenant.phone = :phone AND tenant.isActive = true AND tenant.endDate IS NULL")
 	Tenants findByPhone(String phone);
 	
 	@Modifying
 	@Transactional
-	@Query("UPDATE Tenants tenant SET tenant.contract = NULL WHERE tenant.contract.id = :contractId")
+	@Query("UPDATE Tenants tenant SET tenant.contract = NULL, tenant.isStayed = false, tenant.startDate = NULL WHERE tenant.contract.id = :contractId")
 	int updateTenantContractStatus(Integer contractId);
 	
-	@Query(nativeQuery = true, value = "select tenants.* from accomodations join rooms on accomodations.id = rooms.accomodation_id join (select room_id, id from contract where contract.is_active = 1) contract on rooms.id = contract.room_id join (select * from tenants where tenants.is_stayed != 0) tenants on contract.id = tenants.contract_id where accomodations.user_id = :userId")
+	@Query(nativeQuery = true, value = "select tenants.* from accomodations join rooms on accomodations.id = rooms.accomodation_id join (select room_id, id from contract where contract.is_active = 1) contract on rooms.id = contract.room_id join (select * from tenants where tenants.is_stayed != 0 and tenants.is_active = 1) tenants on contract.id = tenants.contract_id where accomodations.user_id = :userId")
 	List<Tenants> countTenantByUserId(@Param("userId") Integer userId);
 	
 }

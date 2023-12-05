@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.petproject.motelservice.domain.dto.TenantDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
+import com.petproject.motelservice.domain.inventory.Deposits;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.repository.AccomodationsRepository;
 import com.petproject.motelservice.repository.DepositRepository;
@@ -32,7 +33,7 @@ public class TenantsServiceImpl implements TenantsService {
 
 	@Override
 	public List<TenantDto> getTenantByAccomodation(Integer id) {
-		List<Tenants> tenants = tenantRepository.findByAccomodationsId(id);
+		List<Tenants> tenants = tenantRepository.findByAccomodationsIdAndIsActive(id, Boolean.TRUE);
 		List<TenantDto> result = new ArrayList<>();
 		for (Tenants tenant : tenants) {
 			result.add(convert2Dto(tenant));
@@ -78,7 +79,28 @@ public class TenantsServiceImpl implements TenantsService {
 		}
 		return result;
 	}
-
+	
+	@Override
+	public Boolean isCanRemoveTenant(Integer tenantId) {
+		Deposits deposit = depositRepository.findByTenantIdAndIsActive(tenantId, true);
+		return deposit == null;
+	}
+	
+	@Override
+	public Boolean removeTenant(Integer tenantId) {
+		Boolean result = false;
+		try {
+			Tenants tenant = tenantRepository.findById(tenantId).orElse(null);
+			if (tenant != null) {
+				tenant.setIsActive(Boolean.FALSE);
+				tenantRepository.save(tenant);
+			}
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 	@Override
 	public TenantDto createOrUpdate(TenantDto request) {

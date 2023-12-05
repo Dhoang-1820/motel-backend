@@ -17,7 +17,6 @@ import com.petproject.motelservice.domain.inventory.Contract;
 import com.petproject.motelservice.domain.inventory.ContractService;
 import com.petproject.motelservice.domain.inventory.ContractServiceId;
 import com.petproject.motelservice.domain.inventory.Deposits;
-import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
@@ -85,7 +84,7 @@ public class UserContractServiceImpl implements UserContractService {
 		if (contract.getRepresentative() != null) {
 			Tenants representative = tenantRepository.findById(contract.getRepresentative()).orElse(null);
 			if (representative != null) {
-				dto.setRepresentative(new TenantDto(representative.getId(), representative.getIdentifyNum() ,representative.getFirstName(), representative.getLastName(), representative.getPhone()));							
+				dto.setRepresentative(new TenantDto(representative.getId(), representative.getIdentifyNum(), representative.getFirstName(), representative.getLastName(), representative.getPhone()));							
 			}
 		}
 		room = contract.getRoom();
@@ -104,6 +103,8 @@ public class UserContractServiceImpl implements UserContractService {
 			 dto.setId(tenant.getId());
 			 dto.setFirstName(tenant.getFirstName());
 			 dto.setLastName(tenant.getLastName());
+			 dto.setIdentifyNum(tenant.getIdentifyNum());
+			 dto.setPhone(tenant.getPhone());
 			 result.add(dto);
 		}
 		 return result;
@@ -207,11 +208,6 @@ public class UserContractServiceImpl implements UserContractService {
             
 			saveContractService(request.getServices(), contract);
 			saveTenant(request.getTenants(), contract);
-//			List<Post> posts = postRepository.findByRoomIdAndIsActive(room.getId(), true);
-//			for (Post post : posts) {
-//				post.setIsActive(false);
-//				postRepository.save(post);
-//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
