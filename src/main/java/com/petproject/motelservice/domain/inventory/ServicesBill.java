@@ -28,6 +28,9 @@ public class ServicesBill extends BaseEntity{
 	@Column(name = "price")
 	private Double price;
 	
+	@Column(name = "total_price")
+	private Double totalPrice;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "bill_id")
 	private Bills bill;

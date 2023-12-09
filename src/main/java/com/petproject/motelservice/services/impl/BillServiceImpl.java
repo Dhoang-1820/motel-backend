@@ -295,15 +295,17 @@ public class BillServiceImpl implements BillServices {
 				} else {
 					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
 					if (electricWaterNum != null) {
-						dto.setFirstElectricNum(electricWaterNum.getLastElectric());
+						dto.setFirstElectricNum(electricWaterNum.getFirstElectric());
 						dto.setLastElectricNum(electricWaterNum.getLastElectric());
+						dto.setElectricNum(electricWaterNum.getElectricNum());
+						dto.setQuantity(electricWaterNum.getElectricNum());
+						dto.setTotalPrice(electricWaterNum.getElectricNum() * service.getPrice());
 					} else {
 						dto.setFirstElectricNum(0);
 						dto.setLastElectricNum(0);
+						dto.setQuantity(0);
+						dto.setTotalPrice(0D);
 					}
-					dto.setElectricNum(0);
-					dto.setQuantity(0);
-					dto.setTotalPrice(0D);
 				}
 			} else if (service.getServiceName().equals(Constants.WATER_PRICE_NAME)) {
 				electricWaterNum = electricWaterNumRepository.findByRoomIdAndMonth(roomId, month);
@@ -316,15 +318,17 @@ public class BillServiceImpl implements BillServices {
 				} else {
 					electricWaterNum = electricWaterNumRepository.findBeforeByRoomId(roomId, month);
 					if (electricWaterNum != null) {
-						dto.setFirstWaterNum(electricWaterNum.getLastWater());
+						dto.setFirstWaterNum(electricWaterNum.getFirstWater());
 						dto.setLastWaterNum(electricWaterNum.getLastWater());
+						dto.setWaterNum(electricWaterNum.getWaterNum());
+						dto.setQuantity(electricWaterNum.getWaterNum());
+						dto.setTotalPrice(electricWaterNum.getWaterNum() * service.getPrice());
 					} else {
 						dto.setFirstWaterNum(0);
 						dto.setLastWaterNum(0);
+						dto.setQuantity(0);
+						dto.setTotalPrice(0D);
 					}
-					dto.setWaterNum(0);
-					dto.setQuantity(0);
-					dto.setTotalPrice(0D);
 				}
 			} else {
 				dto.setQuantity(service.getQuantity());
@@ -450,7 +454,8 @@ public class BillServiceImpl implements BillServices {
 		ServicesBill servicesBill = null;
 		for (BillServiceDto item : services) {
 			servicesBill = new ServicesBill();
-			servicesBill.setPrice(item.getTotalPrice());
+			servicesBill.setPrice(item.getPrice());
+			servicesBill.setTotalPrice(item.getTotalPrice());
 			servicesBill.setUnit(item.getUnit());
 			servicesBill.setQuantity(item.getQuantity());
 			servicesBill.setServiceName(item.getServiceName());
