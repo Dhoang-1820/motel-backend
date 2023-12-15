@@ -18,7 +18,7 @@ public interface UserResponse {
 	
 	String getUserName();
 
-	Boolean getActive();
+	String getStatus();
 
 	Date getCreatedAt();
 

@@ -185,6 +185,7 @@ public class PostServiceImpl implements PostService {
 		dto.setAcreage(post.getAcreage());
 		dto.setPrice(post.getPrice());
 		dto.setCapacity(post.getCapacity());
+		dto.setEmptyRoomNum(post.getEmptyRoomNum());
 		dto.setStatus(post.getPostStatus().getName());
 		dto.setUserId(post.getUser().getId());
 		address = post.getAddress();
@@ -241,6 +242,7 @@ public class PostServiceImpl implements PostService {
 			post.setAcreage(request.getAcreage());
 			post.setPrice(request.getPrice());
 			post.setCapacity(request.getCapacity());
+			post.setEmptyRoomNum(request.getEmptyRoomNum());
 			Ward ward = wardRepository.findByWardCode(request.getWardCode());
 			if (ward == null) {
 				ward = new Ward();

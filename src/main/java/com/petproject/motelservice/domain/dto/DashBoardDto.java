@@ -13,7 +13,13 @@ public class DashBoardDto {
 	
 	private Integer emptyRoomNum;
 	
+	private Integer activePost;
+	
+	private Integer totalPost;
+	
 	private Integer TenantNum;
+	
+	private List<AccomodationRevenueDto> revenue;
 	
 	private List<String> notifications;
 	

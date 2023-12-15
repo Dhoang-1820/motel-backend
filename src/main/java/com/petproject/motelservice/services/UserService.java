@@ -1,9 +1,11 @@
 package com.petproject.motelservice.services;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.petproject.motelservice.domain.dto.AccomodationRevenueDto;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.UserDto;
@@ -41,11 +43,15 @@ public interface UserService {
 	
 	UserDto createOrUpdate(UserDto user, MultipartFile[] image);
 	
+	List<AccomodationRevenueDto> getRevenueByUserId(Integer userId, Date year);
+	
 	ApiResponse changePassword(ChangePasswordRequest changePasswordRequest);
 	
 	UserDto resetPassword(Integer userId);
 	
 	List<UserResponse> getAllUser();
+	
+	List<UserResponse> getNewRegisterUser();
 	
 	UpdateUserRequest createOrUpdate(UpdateUserRequest request);
 	
@@ -53,5 +59,5 @@ public interface UserService {
 
 	UserPreferenceDto updateUserPreference(UserPreferenceDto request);
 	
-	DashBoardDto getUserDashboard(Integer userId);
+	DashBoardDto getUserDashboard(Integer userId, Date year);
 }

@@ -1,5 +1,7 @@
 package com.petproject.motelservice.domain.payload.response;
 
+import com.petproject.motelservice.domain.inventory.EUserStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +30,7 @@ public class JwtResponse {
 	
 	private String phone;
 	
-	private Boolean isActive;
+	private EUserStatus status;
 	
 	private String roles;
 	

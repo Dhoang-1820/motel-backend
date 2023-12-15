@@ -19,6 +19,8 @@ public class PostRequest {
 	
 	private Integer capacity;
 	
+	private Integer emptyRoomNum;
+	
 	private Double price;
 
 	private String content;

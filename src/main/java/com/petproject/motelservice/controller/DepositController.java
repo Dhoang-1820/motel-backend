@@ -44,7 +44,7 @@ public class DepositController {
 	
 	@PutMapping()
 	public ResponseEntity<ApiResponse> cancelDeposit(@RequestBody CancelDepositRequest request) {
-		final List<DepositDto> result = null;
+		final Boolean result = depositService.cancelDeposit(request);
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 

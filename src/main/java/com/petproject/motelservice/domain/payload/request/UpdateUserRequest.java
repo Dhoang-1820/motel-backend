@@ -1,6 +1,7 @@
 package com.petproject.motelservice.domain.payload.request;
 
 import com.petproject.motelservice.domain.inventory.ERoles;
+import com.petproject.motelservice.domain.inventory.EUserStatus;
 
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class UpdateUserRequest {
 	
 	private String identifyNum;
 	
-	private Boolean active;
+	private EUserStatus status;
 	
 	private String userName;
 	

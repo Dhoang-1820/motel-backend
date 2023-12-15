@@ -29,6 +29,9 @@ public class Post extends BaseEntity {
 	@Column(name = "capacity")
 	private Integer capacity;
 	
+	@Column(name = "empty_room_num")
+	private Integer emptyRoomNum;
+	
 	@Column(name = "price")
 	private Double price;
 	

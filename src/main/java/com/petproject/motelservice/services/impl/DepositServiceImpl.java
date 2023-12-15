@@ -12,6 +12,7 @@ import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.Deposits;
 import com.petproject.motelservice.domain.inventory.Rooms;
 import com.petproject.motelservice.domain.inventory.Tenants;
+import com.petproject.motelservice.domain.payload.request.CancelDepositRequest;
 import com.petproject.motelservice.domain.payload.response.RoomResponse;
 import com.petproject.motelservice.domain.query.response.DepositResponse;
 import com.petproject.motelservice.repository.AccomodationsRepository;
@@ -101,6 +102,7 @@ public class DepositServiceImpl implements DepositService {
 			tenant.setIdentifyNum(request.getIdentifyNum());
 			tenant = tenantRepository.save(tenant);
 			deposit.setTenant(tenant);
+			deposit.setLastChange(new Date());
 			depositRepository.save(deposit);
 			result = true;
 		} catch (Exception e) {
@@ -108,6 +110,20 @@ public class DepositServiceImpl implements DepositService {
 		}
 		return result;
 	}
-	
+
+	@Override
+	public Boolean cancelDeposit(CancelDepositRequest request) {
+		Boolean result = false;
+		try {
+			Deposits deposit = depositRepository.findById(request.getDepositId()).orElse(null);
+			deposit.setIsRepaid(request.getIsRepaid());
+			deposit.setIsActive(Boolean.FALSE);
+			depositRepository.save(deposit);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
 }

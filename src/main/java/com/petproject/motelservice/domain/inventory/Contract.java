@@ -35,6 +35,12 @@ public class Contract extends BaseEntity {
 	@Column(name = "end_date")
 	private Date endDate;
 	
+	@Column(name = "created_at")
+	private Date createdAt;
+	
+	@Column(name = "last_change")
+	private Date lastChange;
+	
 	@Column(name = "first_electric_num")
 	private Integer firstElectricNum;
 	

@@ -624,6 +624,11 @@ public class BillServiceImpl implements BillServices {
 			Bills bill = billRepository.findById(invoiceId).orElse(null);
 			bill.setIsActive(Boolean.FALSE);
 			billRepository.save(bill);
+			if (bill.getInvoiceType().getType().equals("RETURN_ROOM")) {
+				Rooms room = bill.getRoom();
+				room.setIsRent(Boolean.TRUE);
+				roomRepository.save(room);
+			}
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();

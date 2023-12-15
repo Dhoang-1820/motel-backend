@@ -178,6 +178,7 @@ public class UserContractServiceImpl implements UserContractService {
 				contract = contractRepository.findById(request.getId()).orElse(null);
 			} else {
 				contract = new Contract();
+				contract.setCreatedAt(new Date());
 			}
 			
 			contract.setDeposits(request.getDeposit());
@@ -190,6 +191,7 @@ public class UserContractServiceImpl implements UserContractService {
 			contract.setDayStayedBefore(request.getDayStayedBefore());
 			contract.setFirstComePayment(request.getFirstComePayment());
 			contract.setKeepRoomDeposit(request.getKeepRoomDeposit());
+			contract.setLastChange(new Date());
 			deposit = depositRepository.findByRoomId(request.getRoom().getId());
             if (deposit != null) {
                 deposit.setIsActive(Boolean.FALSE);

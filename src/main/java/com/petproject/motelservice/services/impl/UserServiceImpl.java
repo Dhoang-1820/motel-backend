@@ -3,8 +3,11 @@ package com.petproject.motelservice.services.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -18,15 +21,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.petproject.motelservice.common.Constants;
+import com.petproject.motelservice.domain.dto.AccomodationRevenueDto;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.BookingDto;
 import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.FileUploadDto;
+import com.petproject.motelservice.domain.dto.RevenueDto;
 import com.petproject.motelservice.domain.dto.UserDto;
 import com.petproject.motelservice.domain.dto.UserPreferenceDto;
 import com.petproject.motelservice.domain.inventory.Accomodations;
 import com.petproject.motelservice.domain.inventory.BankAccountInfo;
+import com.petproject.motelservice.domain.inventory.Bills;
+import com.petproject.motelservice.domain.inventory.Contract;
+import com.petproject.motelservice.domain.inventory.Deposits;
+import com.petproject.motelservice.domain.inventory.EPostStatus;
 import com.petproject.motelservice.domain.inventory.ERoles;
+import com.petproject.motelservice.domain.inventory.EUserStatus;
+import com.petproject.motelservice.domain.inventory.Post;
 import com.petproject.motelservice.domain.inventory.RefreshToken;
 import com.petproject.motelservice.domain.inventory.Role;
 import com.petproject.motelservice.domain.inventory.Rooms;
@@ -43,6 +54,10 @@ import com.petproject.motelservice.domain.payload.response.JwtResponse;
 import com.petproject.motelservice.domain.payload.response.TokenRefreshResponse;
 import com.petproject.motelservice.domain.query.response.UserResponse;
 import com.petproject.motelservice.repository.BankAccountRepository;
+import com.petproject.motelservice.repository.BillRepository;
+import com.petproject.motelservice.repository.ContractRepository;
+import com.petproject.motelservice.repository.DepositRepository;
+import com.petproject.motelservice.repository.PostRepository;
 import com.petproject.motelservice.repository.RolesRepository;
 import com.petproject.motelservice.repository.TenantRepository;
 import com.petproject.motelservice.repository.UserPreferenceRepository;
@@ -92,6 +107,18 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	UserPreferenceRepository preferenceRepository;
+	
+	@Autowired
+	PostRepository postRepository;
+	
+	@Autowired
+	DepositRepository depositRepository;
+	
+	@Autowired
+	ContractRepository contractRepository;
+	
+	@Autowired
+	BillRepository billRepository;
 
 	@Override
 	public JwtResponse signIn(LoginRequest loginRequest) {	
@@ -115,7 +142,7 @@ public class UserServiceImpl implements UserService {
 		
 		jwtResponse.setId(userDetails.getId());
 		jwtResponse.setEmail(userDetails.getEmail());
-		jwtResponse.setIsActive(userDetails.getIsActive());
+		jwtResponse.setStatus(userDetails.getStatus());
 		jwtResponse.setUsername(userDetails.getUsername());
 		jwtResponse.setRefreshToken(refreshToken.getToken());
 		jwtResponse.setToken(jwt);
@@ -152,10 +179,11 @@ public class UserServiceImpl implements UserService {
 		user.setPhone(signUpRequest.getPhone());
 		user.setFirstname(signUpRequest.getFirstName());
 		user.setLastname(signUpRequest.getLastName());
-		user.setActive(Boolean.TRUE);
+		user.setStatus(signUpRequest.getStatus());
 		user.setIdentifyNum(signUpRequest.getIdentifyNum());;
 		user.setPassword(encoder.encode(signUpRequest.getPassword()));
-
+		user.setImageUrl("https://imgfile.blob.core.windows.net/test/80-805523_default-avatar-svg-png-icon-free-download-264157.jpg");
+		
 		String strRoles = signUpRequest.getRoles().toString();
 		Role role = null;
 		
@@ -167,6 +195,8 @@ public class UserServiceImpl implements UserService {
 			case "ROLE_LANDLORD":
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				UserPreference preference = new UserPreference();
+				user.setUserPreference(preference);
 				break;
 			case "ROLE_POSTER":
 				role = rolesRepository.findByName(ERoles.ROLE_POSTER)
@@ -176,7 +206,7 @@ public class UserServiceImpl implements UserService {
 				role = rolesRepository.findByName(ERoles.ROLE_LANDLORD)
 						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 		}
-
+		
 		user.setRole(role);
 		user.setCreatedAt(new Date());
 		usersRepository.save(user);
@@ -224,7 +254,10 @@ public class UserServiceImpl implements UserService {
 	public UserPreferenceDto getUserConfigByUserId(Integer userId) {
 		Users user =  usersRepository.findByUserId(userId);
 		UserPreference preference = user.getUserPreference();
-		UserPreferenceDto dto = convert2UserPreference(preference);
+		UserPreferenceDto dto = null;
+		if (preference != null) {
+			dto = convert2UserPreference(preference);
+		}
 		return dto;
 	}
 	
@@ -249,15 +282,20 @@ public class UserServiceImpl implements UserService {
 		try {
 			preference.setEletricWaterDate(request.getElectricWaterDate());
 			preference.setIssueInvoiceDate(request.getIssueInvoiceDate());
+			Users user = usersRepository.findByUserId(request.getUserId());
+			preference.setUser(user);
 			preference = preferenceRepository.save(preference);
+			user.setUserPreference(preference);
+			usersRepository.save(user);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return convert2UserPreference(preference);
 	}
 	
+	
 	@Override
-	public DashBoardDto getUserDashboard(Integer userId) {
+	public DashBoardDto getUserDashboard(Integer userId, Date year) {
 		DashBoardDto dto = new DashBoardDto();
 		Users user = usersRepository.findByUserId(userId);
 		List<Accomodations> accomodations = user.getAccomodations();
@@ -286,13 +324,109 @@ public class UserServiceImpl implements UserService {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		String notification = "";
 		for (BookingDto booking : bookings) {
-			notification = dateFormat.format(booking.getCreatedDate()).toString();
+			notification = booking.getName() + " đặt phòng mới vào " + dateFormat.format(booking.getCreatedDate()).toString();
 			notifications.add(notification);
 		}
 		dto.setNotifications(notifications);
+		int activePost = 0;
+		List<Post> posts = postRepository.findByUserId(userId);
+		for (Post item : posts) {
+			if (item.getPostStatus().getName().equals(EPostStatus.APPROVED)) {
+				activePost += 1;
+			}
+		}
+		dto.setActivePost(activePost);
+		dto.setTotalPost(posts.size());
+		dto.setRevenue(getRevenueByUserId(userId, year));
 		return dto;
 	}
 	
+	@Override
+	public List<AccomodationRevenueDto> getRevenueByUserId(Integer userId, Date year) {
+		List<Deposits> deposits = null;
+		List<Contract> contracts = null;
+		List<Bills> bills = null;
+		List<Double> data = new ArrayList<>();
+		List<Integer> month = new ArrayList<>();
+		 List<AccomodationRevenueDto> result = new ArrayList<>();
+		AccomodationRevenueDto accomodationRevenueDto = null;
+		Map<Integer, Double> dataMap = null;
+		RevenueDto dto = null;
+		Calendar cal = null;
+		Double total = 0D;
+		
+		Users user = usersRepository.findByUserId(userId);
+		List<Accomodations> accomodations = user.getAccomodations();
+
+		for (Accomodations item : accomodations) {
+			total = 0D;
+			accomodationRevenueDto = new AccomodationRevenueDto();
+			dto = new RevenueDto();
+			data = new ArrayList<>();
+			month = new ArrayList<>();
+			
+			dto.setData(data);
+			dto.setMonth(month);
+			
+			accomodationRevenueDto.setAccomodationName(item.getName());
+			accomodationRevenueDto.setRevenue(dto);
+			
+			deposits = depositRepository.findRevenueByUserIdAndYear(item.getId(), year);
+			contracts = contractRepository.findContractRevenue(item.getId(), year);
+			bills = billRepository.findBillRevenueByUserId(item.getId(), year);
+			
+			
+			dataMap = new TreeMap<>();
+			cal = Calendar.getInstance();
+			for (Deposits deposit : deposits) {
+				cal.setTime(deposit.getLastChange());
+				System.out.println(deposit.getLastChange());
+				if (dataMap.containsKey(cal.get(Calendar.MONTH))) {
+					total = dataMap.get(cal.get(Calendar.MONTH)) + deposit.getDeposit();
+					dataMap.put(cal.get(Calendar.MONTH), total);				
+				} else {
+					dataMap.put(cal.get(Calendar.MONTH), deposit.getDeposit());	
+				}
+			}
+			
+			for (Contract contract : contracts) {
+				cal.setTime(contract.getLastChange());
+				System.out.println(contract.getLastChange());
+				if (dataMap.containsKey(cal.get(Calendar.MONTH))) {
+					total = dataMap.get(cal.get(Calendar.MONTH)) + contract.getFirstComePayment();
+					dataMap.put(cal.get(Calendar.MONTH), total);	
+				} else {
+					dataMap.put(cal.get(Calendar.MONTH), contract.getFirstComePayment());				
+				}
+			}
+			
+			for (Bills bill : bills) {
+				cal.setTime(bill.getBillDate());
+				System.out.println(bill.getBillDate());
+				if (dataMap.containsKey(cal.get(Calendar.MONTH))) {
+					total = dataMap.get(cal.get(Calendar.MONTH)) + bill.getPaidMoney();
+					dataMap.put(cal.get(Calendar.MONTH), total);
+				} else {
+					dataMap.put(cal.get(Calendar.MONTH), bill.getPaidMoney());
+				}
+			}
+			
+			for (int i = 1; i <= 12; i++) {
+				month.add(i);
+				if(dataMap.containsKey(i)) {
+					data.add(dataMap.get(i));
+				} else {
+					data.add(0D);
+				}
+			}
+			
+			result.add(accomodationRevenueDto);
+		}
+		
+		return result;
+	}
+	
+
 	private int getEmptyRoom(List<Rooms> rooms) {
 		int result = 0;
 		for (Rooms room : rooms) {
@@ -392,6 +526,11 @@ public class UserServiceImpl implements UserService {
 	public List<UserResponse> getAllUser() {
 		return usersRepository.findAllUsers();
 	}
+	
+	@Override
+	public List<UserResponse> getNewRegisterUser() {
+		return usersRepository.findNewRegisterUsers();
+	}
 
 	@Override
 	public UpdateUserRequest createOrUpdate(UpdateUserRequest request) {
@@ -401,7 +540,7 @@ public class UserServiceImpl implements UserService {
 			user = usersRepository.findByUserId(request.getUserId());
 			user.setFirstname(request.getFirstName());
 			user.setLastname(request.getLastName());
-			user.setActive(request.getActive());
+			user.setStatus(request.getStatus());
 			user.setEmail(request.getEmail());
 			user.setAddress(request.getAddress());
 			user.setIdentifyNum(request.getIdentifyNum());
@@ -421,6 +560,7 @@ public class UserServiceImpl implements UserService {
 			sigupRequest.setLastName(request.getLastName());
 			sigupRequest.setIdentifyNum(request.getIdentifyNum());
 			sigupRequest.setRoles(request.getRole());
+			sigupRequest.setStatus(request.getStatus());
 			sigupRequest.setUserName(request.getUserName());
 			signUp(sigupRequest);
 		}

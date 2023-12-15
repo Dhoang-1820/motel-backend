@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.petproject.motelservice.domain.dto.BookingDto;
-import com.petproject.motelservice.domain.inventory.Booking;
-import com.petproject.motelservice.domain.inventory.Users;
 
 public interface BookingService {
 	
@@ -16,4 +14,6 @@ public interface BookingService {
 	List<BookingDto> getBookingByDate(Integer userId, Date date);
 	
 	void deactivateBooking(Integer bookingId);
+	
+	void cancelBooking(Integer bookingId);
 }

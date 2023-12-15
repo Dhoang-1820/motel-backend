@@ -25,6 +25,8 @@ public class PostDto {
 	
 	private Integer capacity;
 	
+	private Integer emptyRoomNum;
+	
 	private Integer addressId;
 	
 	private String address;

@@ -8,6 +8,8 @@ import com.petproject.motelservice.framework.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -46,8 +48,9 @@ public class Users extends BaseEntity {
 	@Column(name = "email")
 	private String email;
 	
-	@Column(name = "active", columnDefinition = "BOOLEAN")
-	private Boolean active =  Boolean.TRUE;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status")
+	private EUserStatus status;
 	
 	@Column(name = "created_at")
 	private Date createdAt;

@@ -3,6 +3,7 @@ package com.petproject.motelservice.domain.scheduler;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,19 @@ public class Scheduler {
 	public void cronJobSch() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		Date now = new Date();
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(now);
+		int dayNow = cal.get(Calendar.DAY_OF_MONTH);
+		int lastDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		String strDate = sdf.format(now);
 		System.out.println("Java cron job expression: " + strDate);
-		List<UserPreference> preferences = preferenceRepository.findIssueDateByDate(now);
+		List<UserPreference> preferences = preferenceRepository.findIssueDateByDate(cal.getTime());
+		if (dayNow == lastDayOfMonth) {
+			for (int i = dayNow; i <= 31; i++) {
+				cal.set(Calendar.DATE, i);
+				preferences.addAll(preferenceRepository.findIssueDateByDate(cal.getTime()));
+			}
+		}
 		Users user = null;
 		List<InvoiceResponse> invoices = null;
 		List<Accomodations> accomodations = null;
@@ -43,20 +54,22 @@ public class Scheduler {
 			user = preference.getUser();
 			accomodations = user.getAccomodations();
 			for (Accomodations accomodation : accomodations) {
-				invoices = billServices.getInvoice(accomodation.getId(), now);
+				invoices = billServices.getInvoice(accomodation.getId(), cal.getTime());
 				for (InvoiceResponse invoice : invoices) {
-					billServices.issueInvoiceByRoomId(invoice.getRoomId(), now);
+					billServices.issueInvoiceByRoomId(invoice.getRoomId(), cal.getTime());
 				}
 			}
 		}
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(now);
 		calendar.add(Calendar.DATE, 3);
-		Date next3Day = calendar.getTime();
-		preferences = preferenceRepository.findRemindByDate(next3Day);
-		
-		for (UserPreference preference : preferences) {
-			sendInvoiceService.sendRemind(preference, false);
+		int next3Day = calendar.get(Calendar.DAY_OF_MONTH);
+		if (next3Day < lastDayOfMonth) {
+			preferences = preferenceRepository.findRemindByDate(calendar.getTime());
+			
+			for (UserPreference preference : preferences) {
+				sendInvoiceService.sendRemind(preference, false);
+			}
 		}
 		
 		preferences = preferenceRepository.findRemindByDate(now);

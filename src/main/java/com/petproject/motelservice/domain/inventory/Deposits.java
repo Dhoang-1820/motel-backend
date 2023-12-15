@@ -31,6 +31,9 @@ public class Deposits extends BaseEntity {
 	@Column(name = "note")
 	private String note;
 	
+	@Column(name = "last_change")
+	private Date lastChange;
+	
 	@Column(name = "created_at")
 	private Date createdAt;
 	

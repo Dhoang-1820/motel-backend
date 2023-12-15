@@ -16,4 +16,7 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 	List<Contract> findByAccomodationAndService(Integer accomodationId, Integer serviceId, Date now);
 	
 	Contract findByRoomIdAndIsActive(Integer roomId, Boolean isActive);
+	
+	@Query("FROM Contract contract INNER JOIN Rooms room ON contract.room.id = room.id WHERE room.accomodations.id = :accomodationId AND contract.isActive = true AND YEAR(contract.lastChange) = YEAR(:year) GROUP BY MONTH(contract.lastChange) ORDER BY MONTH(contract.lastChange)")
+	List<Contract> findContractRevenue(Integer accomodationId, Date year);
 }

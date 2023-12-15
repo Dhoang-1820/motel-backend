@@ -20,11 +20,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petproject.motelservice.common.Constants;
+import com.petproject.motelservice.domain.dto.AccomodationRevenueDto;
 import com.petproject.motelservice.domain.dto.BankAccountDto;
 import com.petproject.motelservice.domain.dto.DashBoardDto;
 import com.petproject.motelservice.domain.dto.UserDto;
 import com.petproject.motelservice.domain.dto.UserPreferenceDto;
 import com.petproject.motelservice.domain.payload.request.ChangePasswordRequest;
+import com.petproject.motelservice.domain.payload.request.DashboardRequest;
 import com.petproject.motelservice.domain.payload.request.LoginRequest;
 import com.petproject.motelservice.domain.payload.request.SignupRequest;
 import com.petproject.motelservice.domain.payload.request.TokenRefreshRequest;
@@ -96,6 +98,12 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
+	@GetMapping("/new-register")
+	public ResponseEntity<ApiResponse> getRegisterUser() {
+		final List<UserResponse> result = userService.getNewRegisterUser();
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
+	
 	@PutMapping()
 	public ResponseEntity<ApiResponse> saveUser(@RequestBody UpdateUserRequest request) {
 		final UpdateUserRequest result = userService.createOrUpdate(request);
@@ -134,12 +142,16 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.CREATE_SUCCESS_MSG));
 	}
 	
-	@GetMapping("/dashboard/{id}")
-	public ResponseEntity<ApiResponse> getDashboard(@PathVariable Integer id) {
-		final DashBoardDto result = userService.getUserDashboard(id);
+	@PostMapping("/dashboard")
+	public ResponseEntity<ApiResponse> getDashboard(@RequestBody DashboardRequest request) {
+		final DashBoardDto result = userService.getUserDashboard(request.getUserId(), request.getYear());
 		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
 	}
 	
-	
+	@PostMapping("/dashboard/chart")
+	public ResponseEntity<ApiResponse> getChartRevenue(@RequestBody DashboardRequest request) {
+		final List<AccomodationRevenueDto> result = userService.getRevenueByUserId(request.getUserId(), request.getYear());
+		return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(true, result, Constants.GET_SUCESS_MSG));
+	}
 
 }

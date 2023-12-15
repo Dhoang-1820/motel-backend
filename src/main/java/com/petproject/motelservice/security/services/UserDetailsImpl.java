@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.petproject.motelservice.domain.inventory.EUserStatus;
 import com.petproject.motelservice.domain.inventory.Users;
 
 public class UserDetailsImpl implements UserDetails {
@@ -22,7 +23,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	private String email;
 	
-	private Boolean isActive;
+	private EUserStatus status;
 	
 	private String firstname;
 	
@@ -39,16 +40,16 @@ public class UserDetailsImpl implements UserDetails {
 
 	public static UserDetailsImpl build(Users user) {
 		GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRole().getName().name());
-		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getActive(), user.getFirstname(), user.getLastname(), user.getIdentifyNum(), authorities, user.getPassword(), user.getPhone());
+		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getStatus(), user.getFirstname(), user.getLastname(), user.getIdentifyNum(), authorities, user.getPassword(), user.getPhone());
 	}
 	
-	public UserDetailsImpl(Integer id, String username, String email, Boolean isActive, String firstname,
+	public UserDetailsImpl(Integer id, String username, String email, EUserStatus status, String firstname,
 			String lastname, String identifyNum, GrantedAuthority authority, String password, String phone) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.email = email;
-		this.isActive = isActive;
+		this.status = status;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.identifyNum = identifyNum;
@@ -97,12 +98,12 @@ public class UserDetailsImpl implements UserDetails {
 		return email;
 	}
 	
-	public Boolean getIsActive() {
-		return isActive;
+	public EUserStatus getStatus() {
+		return status;
 	}
 
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
+	public void setStatus(EUserStatus status) {
+		this.status = status;
 	}
 
 	@Override

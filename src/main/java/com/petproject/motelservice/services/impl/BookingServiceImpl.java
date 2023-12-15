@@ -18,13 +18,16 @@ import com.petproject.motelservice.domain.dto.BookingDto;
 import com.petproject.motelservice.domain.inventory.Address;
 import com.petproject.motelservice.domain.inventory.Booking;
 import com.petproject.motelservice.domain.inventory.District;
+import com.petproject.motelservice.domain.inventory.EPostStatus;
 import com.petproject.motelservice.domain.inventory.Post;
+import com.petproject.motelservice.domain.inventory.PostStatus;
 import com.petproject.motelservice.domain.inventory.Province;
 import com.petproject.motelservice.domain.inventory.Users;
 import com.petproject.motelservice.domain.inventory.Ward;
 import com.petproject.motelservice.domain.payload.Email;
 import com.petproject.motelservice.repository.BookingRepositoty;
 import com.petproject.motelservice.repository.PostRepository;
+import com.petproject.motelservice.repository.PostStatusRepository;
 import com.petproject.motelservice.repository.UsersRepository;
 import com.petproject.motelservice.services.BookingService;
 import com.petproject.motelservice.services.MailService;
@@ -37,6 +40,9 @@ public class BookingServiceImpl implements BookingService {
 
 	@Autowired
 	PostRepository postRepository;
+	
+	@Autowired
+	PostStatusRepository postStatusRepository;
 
 	@Autowired
 	MailService mailService;
@@ -57,6 +63,14 @@ public class BookingServiceImpl implements BookingService {
 		booking.setBookingDate(new Date());
 		booking.setIsActive(Boolean.TRUE);
 		Post post = postRepository.findById(request.getPostId()).orElse(null);
+		int roomEmpty = post.getEmptyRoomNum();
+		roomEmpty -= 1;
+		post.setEmptyRoomNum(roomEmpty);
+		if (roomEmpty == 0) {
+			PostStatus status = postStatusRepository.findByName(EPostStatus.REMOVED);
+			post.setPostStatus(status);
+		}
+		postRepository.save(post);
 		booking.setPost(post);
 		booking = bookingRepository.save(booking);
 		BookingDto result = convert2Dto(booking);
@@ -96,10 +110,10 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public List<BookingDto> getBookingByDate(Integer userId, Date date) {
 		List<BookingDto> result = new ArrayList<>();
-//		List<Booking> booking = bookingRepository.findBookingByUserIdAndDate(userId, date);
-//		for (Booking item : booking) {
-//			result.add(convert2Dto(item));
-//		}
+		List<Booking> booking = bookingRepository.findBookingByUserIdAndDate(userId, date);
+		for (Booking item : booking) {
+			result.add(convert2Dto(item));
+		}
 		return result;
 	}
 
@@ -159,5 +173,18 @@ public class BookingServiceImpl implements BookingService {
 		booking.setIsActive(Boolean.FALSE);
 		bookingRepository.save(booking);
 	}
+
+	@Override
+	public void cancelBooking(Integer bookingId) {
+		Booking booking = bookingRepository.findById(bookingId).orElse(null);
+		Post post = booking.getPost();
+		int roomEmpty = post.getEmptyRoomNum();
+		post.setEmptyRoomNum(roomEmpty + 1);
+		postRepository.save(post);
+		booking.setIsActive(Boolean.FALSE);
+		bookingRepository.save(booking);
+	}
+	
+	
 
 }
